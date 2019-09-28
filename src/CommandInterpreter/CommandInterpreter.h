@@ -1,12 +1,12 @@
 #pragma once
-#include "CustomCommand.h"
-#include "CustomCommands/flashlight.h"
-#include "CustomCommands/i2c.h"
-#include "CustomCommands/info.h"
-#include "CustomCommands/pwm.h"
-#include "CustomCommands/motor.h"
-#include "CustomCommands/reset.h"
-#include "CustomCommands/unknown.h"
+#include "./CustomCommand.h"
+#include "./CustomCommands/flashlight.h"
+#include "./CustomCommands/i2c.h"
+#include "./CustomCommands/info.h"
+#include "./CustomCommands/pwm.h"
+#include "./CustomCommands/move.h"
+#include "./CustomCommands/reset.h"
+#include "./CustomCommands/unknown.h"
 
 #define COMMANDS_SIZE 128
 
@@ -66,7 +66,8 @@ public:
             ci->RegisterCommand(*infoAction);
             ci->RegisterCommand(*pwmCommand);
             ci->RegisterCommand(*flashlightAction);
-            ci->RegisterCommand(*motorAction);
+            ci->RegisterCommand(*move);
+            ci->RegisterCommand(*stop);
             instance = ci;
         }
 

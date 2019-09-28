@@ -16,6 +16,8 @@ ArRequestHandlerFunction onPostUpdate = ([](AsyncWebServerRequest *request) {
 ArUploadHandlerFunction onUploadUpdate = ([](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
     if (!index)
     {
+        Serial.printf("\nStart Firmware update: %s\n", filename.c_str());
+        Update.runAsync(true);
         if (!Update.begin(request->contentLength(), U_FLASH))
         {
             Update.printError(Serial);
@@ -32,6 +34,7 @@ ArUploadHandlerFunction onUploadUpdate = ([](AsyncWebServerRequest *request, Str
     {
         if (Update.end(true))
         {
+            Serial.printf("\nFirmware Update Success: %uB\nRestarting MCU...\n", index+len);
             ESP.restart();
         }
         else

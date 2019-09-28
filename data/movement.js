@@ -45,12 +45,6 @@ export class MovementService {
         parsedMovement.steer = Math.round(
           parsedMovement.steer * this.options.maxSpeedValue
         );
-
-        console.log(
-          `move ${JSON.stringify(plainMovement)} -> ${JSON.stringify(
-            parsedMovement
-          )}`
-        );
         this.options.socket.send(
           `move ${parsedMovement.throttle} ${parsedMovement.steer}`
         );

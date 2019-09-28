@@ -5,15 +5,6 @@
 class Motor
 {
 public:
-    Motor(uint8_t throttlePin, uint8_t directionPin, uint8_t feedbackPin, uint16_t maxTicks = 5) : _throttlePin(throttlePin), _directionPin(directionPin), _feedbackPin(feedbackPin), _maxTicks(maxTicks)
-    {
-        pinMode(throttlePin, OUTPUT);
-        pinMode(directionPin, OUTPUT);
-        pinMode(feedbackPin, INPUT_PULLDOWN_16);
-        this->timer->setInterval(50, this->encoderEvent);
-        attachInterrupt(this->_feedbackPin, this->_onTick, CHANGE);
-    }
-
     void encoderEvent()
     {
         if (this->_maxTicks < this->_currentTicks)
@@ -26,6 +17,13 @@ public:
          */
 
         this->_currentTicks = 0;
+    }
+
+    Motor(uint8_t throttlePin, uint8_t directionPin, uint8_t feedbackPin, uint16_t maxTicks = 5) : _throttlePin(throttlePin), _directionPin(directionPin), _feedbackPin(feedbackPin), _maxTicks(maxTicks)
+    {
+        pinMode(throttlePin, OUTPUT);
+        pinMode(directionPin, OUTPUT);
+        pinMode(feedbackPin, INPUT_PULLDOWN_16);
     }
 
     void SetThrottle(int16_t newValue)
@@ -64,6 +62,4 @@ private:
 
     int16_t _throttleValue = 0;
     int16_t _pwmValue = 0;
-
-    SimpleTimer *timer = new SimpleTimer();
 };

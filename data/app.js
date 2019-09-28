@@ -5,7 +5,8 @@ import { MovementService } from "./movement.js";
 const socket = new WebSocketService({
   host: window.location.hostname,
   port: 80,
-  onClose
+  onOpen: ()=>undefined,
+  onClose: ()=>undefined,
 });
 
 const joystickContainer = document.getElementById("joystickContainer");

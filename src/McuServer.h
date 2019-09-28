@@ -1,10 +1,9 @@
 #pragma once
 
 #include <ESPAsyncWebServer.h>
-#include "CommandInterpreter/CommandInterpreter.h"
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-
+#include "./CommandInterpreter/CommandInterpreter.h"
 #include "./mime.h"
 #include "./api/update.h"
 
