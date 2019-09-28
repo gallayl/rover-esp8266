@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <style>
+      input[type="text"] {
+        flex-grow: 1;
+        margin-right: 0.5em;
+      }
+
+      textarea {
+        resize: none;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .console-wrapper {
+        margin: 1em;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #rxConsole {
+        flex-grow: 1;
+      }
+
+      .console-controls {
+        margin-top: 3px;
+        display: flex;
+        flex-direction: row;
+      }
+    </style>
+  </head>
+  <script
+    type="module"
+    crossorigin="use-credentials"
+    src="./console.js"
+  ></script>
+
+  <body>
+    <nav>
+      <ul>
+        <li><a title="Console">&#9000;</a></li>
+        <li>
+          <a href="index.html">Joystick</a>
+        </li>
+        <li class="selected">
+          <a href="console.html">Console</a>
+        </li>
+        <li>
+          <a href="/update">Update</a>
+        </li>
+      </ul>
+    </nav>
+    <div class="console-wrapper">
+      <textarea id="rxConsole" readonly></textarea>
+      <div class="console-controls">
+        <input
+          autofocus
+          disabled="disabled"
+          class="txd"
+          type="text"
+          id="txbuff"
+          placeholder="Enter a console command"
+        />
+        <input
+          disabled="disabled"
+          class="txd"
+          type="button"
+          id="sendBtn"
+          onclick="enterpressed();"
+          value="Send"
+        />
+      </div>
+    </div>
+  </body>
+</html>

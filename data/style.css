@@ -1,0 +1,36 @@
+html, body {
+    margin: 0;
+    font-family: sans-serif;
+    height: 100%;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+    display: flex;
+}
+
+nav li {
+    
+}
+
+nav li.selected {
+    background-color: green;
+}
+
+nav li a {
+    display: inline-block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+/* Change the link color to #111 (black) on hover */
+nav li a:hover {
+    background-color: rgba(0,0,0,.5);
+}
+

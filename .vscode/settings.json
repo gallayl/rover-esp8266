@@ -1,0 +1,18 @@
+{
+    "terminal.integrated.env.windows": {
+        "PATH": "C:\\Users\\galla\\.platformio\\penv\\Scripts;C:\\Users\\galla\\.platformio\\penv;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Program Files\\Git\\cmd;C:\\Program Files\\nodejs\\;C:\\Program Files\\dotnet\\;C:\\Program Files\\Microsoft SQL Server\\130\\Tools\\Binn\\;C:\\Program Files\\Microsoft SQL Server\\Client SDK\\ODBC\\170\\Tools\\Binn\\;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\Users\\galla\\AppData\\Local\\Programs\\Python\\Python37-32\\Scripts\\;C:\\Users\\galla\\AppData\\Local\\Programs\\Python\\Python37-32\\;C:\\Users\\galla\\AppData\\Local\\Microsoft\\WindowsApps;;C:\\Users\\galla\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Users\\galla\\AppData\\Roaming\\npm;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Program Files\\Git\\cmd;C:\\Program Files\\nodejs\\;C:\\Program Files\\dotnet\\;C:\\Program Files\\Microsoft SQL Server\\130\\Tools\\Binn\\;C:\\Program Files\\Microsoft SQL Server\\Client SDK\\ODBC\\170\\Tools\\Binn\\;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\Users\\galla\\AppData\\Local\\Programs\\Python\\Python37-32\\Scripts\\;C:\\Users\\galla\\AppData\\Local\\Programs\\Python\\Python37-32\\;C:\\Users\\galla\\AppData\\Local\\Microsoft\\WindowsApps;;C:\\Users\\galla\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Users\\galla\\AppData\\Roaming\\npm",
+        "PLATFORMIO_CALLER": "vscode"
+    },
+    "files.associations": {
+        "array": "cpp",
+        "initializer_list": "cpp",
+        "cmath": "cpp",
+        "cstdlib": "cpp",
+        "limits": "cpp",
+        "functional": "cpp",
+        "type_traits": "cpp",
+        "typeinfo": "cpp",
+        "system_error": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "Enabled"
+}
