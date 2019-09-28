@@ -3,9 +3,9 @@
 #include "CustomCommands/flashlight.h"
 #include "CustomCommands/i2c.h"
 #include "CustomCommands/info.h"
+#include "CustomCommands/pwm.h"
 #include "CustomCommands/motor.h"
 #include "CustomCommands/reset.h"
-#include "CustomCommands/servo.h"
 #include "CustomCommands/unknown.h"
 
 #define COMMANDS_SIZE 128
@@ -64,7 +64,7 @@ public:
             ci->RegisterCommand(*reset);
             ci->RegisterCommand(*i2cCommand);
             ci->RegisterCommand(*infoAction);
-            ci->RegisterCommand(*servoCommand);
+            ci->RegisterCommand(*pwmCommand);
             ci->RegisterCommand(*flashlightAction);
             ci->RegisterCommand(*motorAction);
             instance = ci;

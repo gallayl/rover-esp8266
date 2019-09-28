@@ -46,11 +46,12 @@ public:
             request->send(200, MIME_plainText, String(ESP.getFreeHeap()));
         });
 
+
         this->webServer.onNotFound([](AsyncWebServerRequest *req) {
             req->send(404, MIME_plainText, "Not found :(");
         });
 
-        this->webServer.serveStatic("/", SPIFFS, "/");
+        this->webServer.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
 
         this->display.println("Starting WEB server...");
         this->display.display();

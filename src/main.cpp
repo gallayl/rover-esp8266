@@ -6,6 +6,13 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <ESP8266FtpServer.h>
+#include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
+#include <ESPAsyncWebServer.h>
+#include <ESPAsyncWiFiManager.h>         //https://github.com/tzapu/WiFiManager
+
+
+AsyncWebServer wifiManagerServer(80);
+DNSServer dns;
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 32 // OLED display height, in pixels
@@ -13,10 +20,6 @@
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 FtpServer ftp;
-
-const char *ssid = "Draconian";
-const char *password = "Eszti65535";
-
 int16_t throttleValue = 0;
 int16_t steerValue = 0;
 
@@ -34,24 +37,15 @@ void setup()
     display.setCursor(0, 0);     // Start at top-left corner
     display.clearDisplay();
 
-    pwm.begin();
-    pwm.setPWMFreq(60); // Analog servos run at ~60 Hz updates
-    for (uint8_t i = 0; i < 16; i++)
-    {
-        pwm.setPWM(i, 0, 0);
-    }
+    pwm.resetDevices();
+    pwm.init(B000000);
+    pwm.setPWMFrequency(60); // Analog servos run at ~60 Hz updates
 
     display.print("Initializing WIFi.");
     display.display();
 
-    WiFi.begin(ssid, password);
-
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        delay(1000);
-        display.print('.');
-        display.display();
-    }
+    AsyncWiFiManager wifiManager(&wifiManagerServer,&dns);
+    wifiManager.autoConnect("AutoConnectAP");
 
     display.ssd1306_command(SSD1306_SETSTARTLINE);
 
