@@ -1,8 +1,6 @@
 #pragma once
 
 #include <ESPAsyncWebServer.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
 #include "./CommandInterpreter/CommandInterpreter.h"
 #include "./mime.h"
 #include "./api/update.h"
@@ -10,7 +8,7 @@
 class McuServer
 {
 public:
-    McuServer(char *user, char *password, CommandInterpreter *commandInterpreter, Adafruit_SSD1306 &display) : webSocket(*(new AsyncWebSocket("/ws"))), webServer(*(new AsyncWebServer(80))), commandInterpreter(commandInterpreter), display(display)
+    McuServer(char *user, char *password, CommandInterpreter *commandInterpreter) : webSocket(*(new AsyncWebSocket("/ws"))), webServer(*(new AsyncWebServer(80))), commandInterpreter(commandInterpreter)
     {
         this->wwwUserName = user;
         this->wwwPassword = password;
@@ -52,15 +50,7 @@ public:
 
         this->webServer.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
 
-        this->display.println("Starting WEB server...");
-        this->display.display();
         this->webServer.begin();
-
-        this->display.println("Initializing CAM...");
-        this->display.display();
-
-        this->display.println("MCU Server setup done.");
-        this->display.display();
     }
 
     void closeSockets()
@@ -81,5 +71,4 @@ private:
     AsyncWebSocket &webSocket;
     AsyncWebServer &webServer;
     CommandInterpreter *commandInterpreter;
-    Adafruit_SSD1306 &display;
 };

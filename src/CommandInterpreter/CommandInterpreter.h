@@ -1,9 +1,6 @@
 #pragma once
 #include "./CustomCommand.h"
-#include "./CustomCommands/flashlight.h"
-#include "./CustomCommands/i2c.h"
 #include "./CustomCommands/info.h"
-#include "./CustomCommands/pwm.h"
 #include "./CustomCommands/move.h"
 #include "./CustomCommands/reset.h"
 #include "./CustomCommands/unknown.h"
@@ -62,10 +59,7 @@ public:
         {
             CommandInterpreter *ci = new CommandInterpreter(*unknownCommand);
             ci->RegisterCommand(*reset);
-            ci->RegisterCommand(*i2cCommand);
             ci->RegisterCommand(*infoAction);
-            ci->RegisterCommand(*pwmCommand);
-            ci->RegisterCommand(*flashlightAction);
             ci->RegisterCommand(*move);
             ci->RegisterCommand(*stop);
             instance = ci;
