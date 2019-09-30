@@ -54,7 +54,7 @@ void ICACHE_RAM_ATTR rightMotorTick(){
 
 void setupMotors(){
     timer.setInterval(300, notifyMotorSpeedChange);
-    timer.setInterval(50, motorEncoderEvents);
+    timer.setInterval(100, motorEncoderEvents);
     attachInterrupt(RightMotorEncoder,  rightMotorTick, CHANGE);
     attachInterrupt(LeftMotorEncoder,  leftMotorTick, CHANGE);
 }

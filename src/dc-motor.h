@@ -4,7 +4,7 @@
 #include <FastPID.h>
 
 
-float Kp=0.1, Ki=0.5, Kd=0, Hz=10;
+float Kp=0.1, Ki=5, Kd=0, Hz=10;
 int output_bits = 8;
 bool output_signed = false;
 
@@ -23,10 +23,10 @@ public:
 
     void SetThrottle(int16_t newValue)
     {
-        this->_throttleValue = constrain(abs(newValue), 0, PWMRANGE);
-        this->_pwmValue = (uint16_t)this->_throttleValue;
+        this->_throttleValue = constrain(newValue, 0, PWMRANGE);
+        this->_pwmValue = this->_throttleValue;
         digitalWrite(this->_directionPin, newValue > 0 ? LOW : HIGH);
-        analogWrite(this->_throttlePin, this->_pwmValue);
+        // analogWrite(this->_throttlePin, this->_pwmValue);
         // Serial.printf("New %s Throttle: %i %\n",this->index == 0 ? "RIGHT" : "LEFT", map(this->_throttleValue, 0, PWMRANGE, 0, 100));
     }
 
@@ -43,13 +43,12 @@ public:
             int8_t pwmPercent = (int8_t)map(this->_pwmValue, 0, PWMRANGE, 0, 100);
             int8_t currentPercent = (int8_t)map(this->_currentTicks, 0, this->_maxTicks, 0, 100);
             // int8_t errorPercent = pwmPercent - currentPercent;
-
             uint16_t newOutput = myPID.step(throttlePercent, currentPercent);
 
             if (newOutput != pwmPercent) {
                 this->_pwmValue = (uint16_t)map(newOutput, 0, 100, 0, PWMRANGE);
                 analogWrite(this->_throttlePin, this->_pwmValue);
-                Serial.printf("%s PWM adjusted ( throttle / pwm / current): %i\t%i\t%i\t%i\n", this->index == 0 ? "L" : "R", throttlePercent, pwmPercent, currentPercent);
+                // Serial.printf("%s PWM adjusted ( throttle / pwm / current): %i\t%i\t%i\n", this->index == 0 ? "L" : "R", throttlePercent, pwmPercent, currentPercent);
             }
         }
         this->_currentTicks = 0;
