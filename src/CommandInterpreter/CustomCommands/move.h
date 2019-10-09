@@ -1,8 +1,9 @@
 #pragma once
+#include "../../globals.h"
 #include "../CommandParser.h"
 #include "../CustomCommand.h"
 #include "../../dc-motor.h"
-#include "../../globals.h"
+#include <AsyncWebSocket.h>
 
 #define RightMotorSpeed 4
 #define RightMotorDir 2
@@ -11,34 +12,35 @@
 #define LeftMotorDir 0
 #define LeftMotorEncoder D7
 
-Motor* rightMotor = new Motor(LeftMotorSpeed, LeftMotorDir, LeftMotorEncoder, 28, 0);
-Motor* leftMotor = new Motor(RightMotorSpeed, RightMotorDir, RightMotorEncoder, 28, 1);
+static Motor* rightMotor = new Motor(LeftMotorSpeed, LeftMotorDir, LeftMotorEncoder, 28, 0);
+static Motor* leftMotor = new Motor(RightMotorSpeed, RightMotorDir, RightMotorEncoder, 28, 1);
 
 uint8_t lastSentLeft = 0;
 uint8_t lastSentRight = 0;
 
-extern SimpleTimer timer;
+extern SimpleTimer* timer;
+extern AsyncWebSocket* webSocket;
 
 void broadcast(String message){
-    // mcuServer->broadcast(message);
-    // Serial.println(message);
+    webSocket->textAll(message);
 }
 
 void notifyMotorSpeedChange(){
-    uint8_t newLeft = map(leftMotor->getCurrentTicks(),0,leftMotor->getMaxTicks(),0,255) ;
-    uint8_t newRight = map(rightMotor->getCurrentTicks(),0,rightMotor->getMaxTicks(),0,255);
+    uint8_t newLeft = map(leftMotor->getCurrentTicks(),0,leftMotor->getMaxTicks(),0,100) ;
+    uint8_t newRight = map(rightMotor->getCurrentTicks(),0,rightMotor->getMaxTicks(),0,100);
 
     if (lastSentLeft != newLeft){
-        broadcast("leftMotorChange " + String(map(newLeft, 0, leftMotor->getMaxTicks(), 0, 100)));
+        broadcast("leftMotorChangePercent " + String(newLeft));
         lastSentLeft = newLeft;
     }
     if (lastSentRight != newRight){
-        broadcast("rightMotorChange " + String(map(newRight, 0, rightMotor->getMaxTicks(), 0, 100)));
+        broadcast("rightMotorChangePercent " + String(newRight));
         lastSentRight = newRight;
     }
 }
 
 void motorEncoderEvents(){
+    notifyMotorSpeedChange();
     leftMotor->encoderEvent();
     rightMotor->encoderEvent();
 }
@@ -53,22 +55,20 @@ void ICACHE_RAM_ATTR rightMotorTick(){
 
 
 void setupMotors(){
-    timer.setInterval(300, notifyMotorSpeedChange);
-    timer.setInterval(100, motorEncoderEvents);
+    timer->setInterval(300, motorEncoderEvents);
     attachInterrupt(RightMotorEncoder,  rightMotorTick, CHANGE);
     attachInterrupt(LeftMotorEncoder,  leftMotorTick, CHANGE);
 }
 
 CustomCommand *move = new CustomCommand("move", [](String command) {
-    String throttleString = CommandParser::GetCommandParameter(command, 1);
-    long throttleValue = throttleString.toInt();
+    long throttleValue = CommandParser::GetCommandParameter(command, 1).toInt();
+    long steerValue = CommandParser::GetCommandParameter(command, 2).toInt();
+    long leftMotorSpeed = constrain((throttleValue - steerValue) / 2, -PWMRANGE, PWMRANGE);
+    long rightMotorSpeed = -constrain((throttleValue + steerValue) / 2, -PWMRANGE, PWMRANGE);
 
-    String steerString = CommandParser::GetCommandParameter(command, 2);
-    long steerValue = steerString.toInt();
-
-    leftMotor->SetThrottle(constrain((throttleValue - steerValue) / 2, -PWMRANGE, PWMRANGE));
-    rightMotor->SetThrottle(-constrain((throttleValue + steerValue) / 2, -PWMRANGE, PWMRANGE));
-    return String("Moving");
+    leftMotor->SetThrottle(leftMotorSpeed);
+    rightMotor->SetThrottle(rightMotorSpeed);
+    return String("Moving" + String(leftMotorSpeed) + " / " + String(rightMotorSpeed));
 });
 
 

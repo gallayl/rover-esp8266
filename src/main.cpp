@@ -17,7 +17,7 @@ void setup()
 
 void loop()
 {
-    timer.run();
+    timer->run();
     if (Serial.available() > 0)
     {
         char c[] = {(char)Serial.read()};

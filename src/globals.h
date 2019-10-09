@@ -13,14 +13,15 @@
 
 
 AsyncWebServer wifiManagerServer(80);
+AsyncWebSocket* webSocket = new AsyncWebSocket("/ws");
+AsyncWebServer* webServer = new AsyncWebServer(80);
 DNSServer dns;
 
-SimpleTimer timer;
+SimpleTimer* timer = new SimpleTimer();
 
 FtpServer ftp;
 
-extern McuServer *mcuServer;
 CommandInterpreter *interpreter = CommandInterpreter::GetInstance();
-McuServer *mcuServer = new McuServer((char *)"admin", (char *)"admin", interpreter);
+McuServer *mcuServer = new McuServer((char *)"admin", (char *)"admin", interpreter, webSocket, webServer);
 
 AsyncWiFiManager wifiManager(&wifiManagerServer,&dns);
