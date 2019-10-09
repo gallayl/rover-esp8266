@@ -4,6 +4,9 @@
 #include "../CustomCommand.h"
 #include <WiFiClient.h>
 #include <ESP8266WiFi.h>
+#include <AsyncWebSocket.h>
+
+extern AsyncWebSocket* webSocket;
 
 CustomCommand *infoAction = new CustomCommand("info", [](String command) {
     String stats = "{";
@@ -61,5 +64,5 @@ CustomCommand *infoAction = new CustomCommand("info", [](String command) {
     stats += " db)";
 
     stats += "\"}";
-    return stats;
+    webSocket->textAll(stats);
 });

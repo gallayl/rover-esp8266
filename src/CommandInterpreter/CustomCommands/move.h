@@ -26,8 +26,8 @@ void broadcast(String message){
 }
 
 void notifyMotorSpeedChange(){
-    uint8_t newLeft = map(leftMotor->getCurrentTicks(),0,leftMotor->getMaxTicks(),0,100) ;
-    uint8_t newRight = map(rightMotor->getCurrentTicks(),0,rightMotor->getMaxTicks(),0,100);
+    uint8_t newLeft = (uint8_t)map(leftMotor->getCurrentTicks(),0,leftMotor->getMaxTicks(),0,100) ;
+    uint8_t newRight = (uint8_t)map(rightMotor->getCurrentTicks(),0,rightMotor->getMaxTicks(),0,100);
 
     if (lastSentLeft != newLeft){
         broadcast("leftMotorChangePercent " + String(newLeft));
@@ -60,20 +60,23 @@ void setupMotors(){
     attachInterrupt(LeftMotorEncoder,  leftMotorTick, CHANGE);
 }
 
+int16_t throttleValue;
+int16_t steerValue;
+int16_t leftMotorSpeed;
+int16_t rightMotorSpeed;
+
 CustomCommand *move = new CustomCommand("move", [](String command) {
-    long throttleValue = CommandParser::GetCommandParameter(command, 1).toInt();
-    long steerValue = CommandParser::GetCommandParameter(command, 2).toInt();
-    long leftMotorSpeed = constrain((throttleValue - steerValue) / 2, -PWMRANGE, PWMRANGE);
-    long rightMotorSpeed = -constrain((throttleValue + steerValue) / 2, -PWMRANGE, PWMRANGE);
+    throttleValue = (int16_t)CommandParser::GetCommandParameter(command, 1).toInt();
+    steerValue = (int16_t)CommandParser::GetCommandParameter(command, 2).toInt();
+    leftMotorSpeed = (int16_t)constrain(round((throttleValue - steerValue) / 2), -PWMRANGE, PWMRANGE);
+    rightMotorSpeed = (int16_t)-constrain(round((throttleValue + steerValue) / 2), -PWMRANGE, PWMRANGE);
 
     leftMotor->SetThrottle(leftMotorSpeed);
     rightMotor->SetThrottle(rightMotorSpeed);
-    return String("Moving" + String(leftMotorSpeed) + " / " + String(rightMotorSpeed));
 });
 
 
 CustomCommand *stop = new CustomCommand("stop", [](String command) {
     leftMotor->SetThrottle(0);
     rightMotor->SetThrottle(0);
-    return String("Stopped");
 });

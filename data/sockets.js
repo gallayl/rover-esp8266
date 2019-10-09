@@ -20,7 +20,13 @@ export class WebSocketService {
 
     this.socket.onmessage = evt => {
       this.options.onMessage && this.options.onMessage(evt);
-      console.log("Message received:", evt.data);
+      if (evt.data.startsWith("leftMotorChangePercent ")) {
+        console.log(`Left throttle: ${evt.data.replace("leftMotorChangePercent ", "")}%`);
+      } else if (evt.data.startsWith("rightMotorChangePercent ")) {
+        console.log(`Right throttle: ${evt.data.replace("rightMotorChangePercent ", "")}%`);
+      } else {
+        console.log("Message received:", evt.data);
+      }
     };
   }
 

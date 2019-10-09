@@ -28,8 +28,8 @@ public:
             else if (type == WS_EVT_DATA)
             {
                 String str = String((char *)data).substring(0, len);
-                String response = this->commandInterpreter->ExecuteCommand(str);
-                server->textAll(response);
+                this->commandInterpreter->ExecuteCommand(str);
+                
             }
         });
 

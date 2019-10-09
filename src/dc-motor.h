@@ -57,8 +57,8 @@ private:
     uint8_t _feedbackPin;
 
     // ticks
-    uint8_t _maxTicks;
-    uint8_t _currentTicks;
+    uint16_t _maxTicks;
+    uint16_t _currentTicks;
 
-    int _throttleValue = 0;
+    uint16_t _throttleValue = 0;
 };

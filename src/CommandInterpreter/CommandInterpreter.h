@@ -19,7 +19,7 @@ private:
         this->RegisteredCommands[this->_registeredCommandsCount] = newCommand;
         this->_registeredCommandsCount++;
     }
-    CommandInterpreter(CustomCommand &unknownCommandReference = *(new CustomCommand("", [](String command) { return String("Unknown command."); }))) : _unknownCommand(unknownCommandReference)
+    CommandInterpreter(CustomCommand &unknownCommandReference = *(new CustomCommand("", [](String command) { }))) : _unknownCommand(unknownCommandReference)
     {
     }
 
@@ -36,19 +36,18 @@ public:
         return commands;
     }
 
-    String ExecuteCommand(String command)
+    void ExecuteCommand(String command)
     {
         for (uint8_t i = 0; i < COMMANDS_SIZE; i++)
         {
             String commandName = this->RegisteredCommands[i].GetCommandName();
             if (command.equals(commandName) || command.startsWith(commandName + " "))
             {
-                String result = this->RegisteredCommands[i].Execute(command);
-                return result;
+                this->RegisteredCommands[i].Execute(command);
+                return;
             }
         }
-        String result = this->_unknownCommand.Execute(command);
-        return result;
+        this->_unknownCommand.Execute(command);
     }
 
     CustomCommand RegisteredCommands[COMMANDS_SIZE];

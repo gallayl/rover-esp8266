@@ -2,8 +2,10 @@
 
 #include "../CommandParser.h"
 #include "../CustomCommand.h"
+#include <AsyncWebSocket.h>
+
+extern AsyncWebSocket* webSocket;
 
 CustomCommand *unknownCommand = new CustomCommand("", [](String command) {
-    String value = "{\"message\": \"Unknown command: " + CommandParser::GetCommandName(command) + ".\"}";
-    return value;
+    webSocket->textAll("{\"message\": \"Unknown command: " + CommandParser::GetCommandName(command) + ".\"}");
 });

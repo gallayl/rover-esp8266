@@ -45,10 +45,14 @@ export class MovementService {
         parsedMovement.steer = Math.round(
           parsedMovement.steer * this.options.maxSpeedValue
         );
+
+        if (parsedMovement.throttle && parsedMovement.steer){
+
         this.options.socket.send(
           `move ${parsedMovement.throttle} ${parsedMovement.steer}`
         );
       }
-    }, 175);
+      }
+    }, 200);
   }
 }
