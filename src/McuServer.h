@@ -5,17 +5,15 @@
 #include "./mime.h"
 #include "./api/update.h"
 
-class McuServer
-{
-public:
+class McuServer {
+ public:
     McuServer(char *user, char *password, CommandInterpreter *commandInterpreter, AsyncWebSocket *webSocket, AsyncWebServer *webServer) : webSocket(webSocket), webServer(webServer), commandInterpreter(commandInterpreter)
     {
         this->wwwUserName = user;
         this->wwwPassword = password;
     };
 
-    void setup()
-    {
+    void setup() {
         this->webSocket->onEvent([this](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
             if (type == WS_EVT_CONNECT)
             {

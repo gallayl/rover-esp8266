@@ -21,40 +21,40 @@ uint8_t lastSentRight = 0;
 extern SimpleTimer* timer;
 extern AsyncWebSocket* webSocket;
 
-void broadcast(String message){
+void broadcast(String message) {
     webSocket->textAll(message);
 }
 
-void notifyMotorSpeedChange(){
-    uint8_t newLeft = (uint8_t)map(leftMotor->getCurrentTicks(),0,leftMotor->getMaxTicks(),0,100) ;
-    uint8_t newRight = (uint8_t)map(rightMotor->getCurrentTicks(),0,rightMotor->getMaxTicks(),0,100);
+void notifyMotorSpeedChange() {
+    uint8_t newLeft = (uint8_t)map(leftMotor->getCurrentTicks(), 0, leftMotor->getMaxTicks(), 0, 100);
+    uint8_t newRight = (uint8_t)map(rightMotor->getCurrentTicks(), 0, rightMotor->getMaxTicks(), 0, 100);
 
-    if (lastSentLeft != newLeft){
+    if (lastSentLeft != newLeft) {
         broadcast("leftMotorChangePercent " + String(newLeft));
         lastSentLeft = newLeft;
     }
-    if (lastSentRight != newRight){
+    if (lastSentRight != newRight) {
         broadcast("rightMotorChangePercent " + String(newRight));
         lastSentRight = newRight;
     }
 }
 
-void motorEncoderEvents(){
+void motorEncoderEvents() {
     notifyMotorSpeedChange();
     leftMotor->encoderEvent();
     rightMotor->encoderEvent();
 }
 
-void ICACHE_RAM_ATTR leftMotorTick(){
+void ICACHE_RAM_ATTR leftMotorTick() {
     leftMotor->_onTick();
 }
 
-void ICACHE_RAM_ATTR rightMotorTick(){
+void ICACHE_RAM_ATTR rightMotorTick() {
     rightMotor->_onTick();
 }
 
 
-void setupMotors(){
+void setupMotors() {
     timer->setInterval(300, motorEncoderEvents);
     attachInterrupt(RightMotorEncoder,  rightMotorTick, CHANGE);
     attachInterrupt(LeftMotorEncoder,  leftMotorTick, CHANGE);
