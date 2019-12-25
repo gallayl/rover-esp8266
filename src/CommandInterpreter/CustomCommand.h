@@ -6,7 +6,7 @@ typedef void (*CommandCallbackFunction)(String command);
 class CustomCommand
 {
 public:
-    CustomCommand(String name = "commandName", CommandCallbackFunction callback = [](String command) {  }) : _commandName(name), _onExecute(callback){};
+    CustomCommand(String name = "commandName", CommandCallbackFunction callback = [](String command) {}) : _commandName(name), _onExecute(callback){};
 
     void Execute(String command)
     {

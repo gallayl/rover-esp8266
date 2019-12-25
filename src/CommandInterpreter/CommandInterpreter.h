@@ -19,7 +19,7 @@ private:
         this->RegisteredCommands[this->_registeredCommandsCount] = newCommand;
         this->_registeredCommandsCount++;
     }
-    CommandInterpreter(CustomCommand &unknownCommandReference = *(new CustomCommand("", [](String command) { }))) : _unknownCommand(unknownCommandReference)
+    CommandInterpreter(CustomCommand &unknownCommandReference = *(new CustomCommand("", [](String command) {}))) : _unknownCommand(unknownCommandReference)
     {
     }
 

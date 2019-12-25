@@ -12,50 +12,58 @@
 #define LeftMotorDir 0
 #define LeftMotorEncoder D6
 
-static Motor* rightMotor = new Motor(LeftMotorSpeed, LeftMotorDir, LeftMotorEncoder, 0);
-static Motor* leftMotor = new Motor(RightMotorSpeed, RightMotorDir, RightMotorEncoder, 1);
+static Motor *rightMotor = new Motor(LeftMotorSpeed, LeftMotorDir, LeftMotorEncoder, 0);
+static Motor *leftMotor = new Motor(RightMotorSpeed, RightMotorDir, RightMotorEncoder, 1);
 
 uint8_t lastSentLeft = 0;
 uint8_t lastSentRight = 0;
 
-extern SimpleTimer* timer;
-extern AsyncWebSocket* webSocket;
+extern SimpleTimer *timer;
+extern AsyncWebSocket *webSocket;
 
 int motorTimeoutTimer;
 
-void broadcast(String message) {
+void broadcast(String message)
+{
     webSocket->textAll(message);
 }
 
-void notifyMotorSpeedChange() {
+void notifyMotorSpeedChange()
+{
     uint8_t newLeft = (uint8_t)leftMotor->getCurrentTicks();
     uint8_t newRight = (uint8_t)rightMotor->getCurrentTicks();
 
-    if (lastSentLeft != newLeft) {
+    if (lastSentLeft != newLeft)
+    {
         broadcast("lp " + String(newLeft));
         lastSentLeft = newLeft;
     }
-    if (lastSentRight != newRight) {
+    if (lastSentRight != newRight)
+    {
         broadcast("rp " + String(newRight));
         lastSentRight = newRight;
     }
 }
 
-void motorEncoderEvents() {
+void motorEncoderEvents()
+{
     notifyMotorSpeedChange();
     leftMotor->encoderEvent();
     rightMotor->encoderEvent();
 }
 
-void ICACHE_RAM_ATTR leftMotorTick() {
+void ICACHE_RAM_ATTR leftMotorTick()
+{
     leftMotor->_onTick();
 }
 
-void ICACHE_RAM_ATTR rightMotorTick() {
+void ICACHE_RAM_ATTR rightMotorTick()
+{
     rightMotor->_onTick();
 }
 
-void motorTimeoutEvent(){
+void motorTimeoutEvent()
+{
     webSocket->textAll("Motor Timeout triggered.");
     leftMotor->SetThrottle(50);
     rightMotor->SetThrottle(-50);
@@ -65,16 +73,16 @@ void motorTimeoutEvent(){
     delay(500);
     leftMotor->SetThrottle(0);
     rightMotor->SetThrottle(0);
-    motorTimeoutTimer = timer->setTimeout(6*1000, motorTimeoutEvent);
+    motorTimeoutTimer = timer->setTimeout(6 * 1000, motorTimeoutEvent);
 }
 
-void setupMotors() {
+void setupMotors()
+{
     timer->setInterval(100, motorEncoderEvents);
-    attachInterrupt(RightMotorEncoder,  rightMotorTick, CHANGE);
-    attachInterrupt(LeftMotorEncoder,  leftMotorTick, CHANGE);
-    motorTimeoutTimer = timer->setTimeout(6*1000, motorTimeoutEvent);
+    attachInterrupt(RightMotorEncoder, rightMotorTick, CHANGE);
+    attachInterrupt(LeftMotorEncoder, leftMotorTick, CHANGE);
+    motorTimeoutTimer = timer->setTimeout(6 * 1000, motorTimeoutEvent);
 }
-
 
 int16_t throttleValue;
 int16_t steerValue;
@@ -106,13 +114,12 @@ CustomCommand *configurePid = new CustomCommand("configurePid", [](String comman
     double i = (int16_t)CommandParser::GetCommandParameter(command, 2).toDouble();
     double d = (int16_t)CommandParser::GetCommandParameter(command, 2).toDouble();
 
-    leftMotor->configurePid(p,i,d);
-    rightMotor->configurePid(p,i,d);
+    leftMotor->configurePid(p, i, d);
+    rightMotor->configurePid(p, i, d);
 });
-
 
 CustomCommand *stop = new CustomCommand("stop", [](String command) {
     leftMotor->SetThrottle(0);
     rightMotor->SetThrottle(0);
-    motorTimeoutTimer = timer->setTimeout(6*1000, motorTimeoutEvent);
+    motorTimeoutTimer = timer->setTimeout(6 * 1000, motorTimeoutEvent);
 });

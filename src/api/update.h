@@ -34,7 +34,7 @@ ArUploadHandlerFunction onUploadUpdate = ([](AsyncWebServerRequest *request, Str
     {
         if (Update.end(true))
         {
-            Serial.printf("\nFirmware Update Success: %uB\nRestarting MCU...\n", index+len);
+            Serial.printf("\nFirmware Update Success: %uB\nRestarting MCU...\n", index + len);
             ESP.restart();
         }
         else

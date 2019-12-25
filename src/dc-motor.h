@@ -3,12 +3,13 @@
 #include <SimpleTimer.h>
 #include <PID_v1.h>
 
-double p=20, i=2, d=1;
+double p = 20, i = 2, d = 1;
 
 class Motor
 {
 public:
-    Motor(uint8_t throttlePin, uint8_t directionPin, uint8_t feedbackPin, uint8_t index) : index(index), _throttlePin(throttlePin), _directionPin(directionPin), _feedbackPin(feedbackPin), _currentTicks(0), pid(&(this->_currentTicks), &(this->_output), &(this->_setPoint), p, i, d, DIRECT) {
+    Motor(uint8_t throttlePin, uint8_t directionPin, uint8_t feedbackPin, uint8_t index) : index(index), _throttlePin(throttlePin), _directionPin(directionPin), _feedbackPin(feedbackPin), _currentTicks(0), pid(&(this->_currentTicks), &(this->_output), &(this->_setPoint), p, i, d, DIRECT)
+    {
         pinMode(throttlePin, OUTPUT);
         pinMode(directionPin, OUTPUT);
         pinMode(feedbackPin, INPUT_PULLDOWN_16);
@@ -24,27 +25,34 @@ public:
         analogWrite(this->_throttlePin, (int)this->_throttleValue);
     }
 
-    void setPid(int16_t newValue) {
-        if (newValue){
+    void setPid(int16_t newValue)
+    {
+        if (newValue)
+        {
             this->_usePID = true;
             digitalWrite(this->_directionPin, newValue > 0 ? LOW : HIGH);
             this->_setPoint = abs(newValue);
-        } else {
+        }
+        else
+        {
             this->SetThrottle(newValue);
         }
     }
 
-    void configurePid(double p, double i, double d){
-        this->pid.SetTunings(p,i,d);
+    void configurePid(double p, double i, double d)
+    {
+        this->pid.SetTunings(p, i, d);
     }
 
-    uint16_t GetThrottle(){
+    uint16_t GetThrottle()
+    {
         return this->_throttleValue;
     }
 
     void encoderEvent()
     {
-        if (this->_usePID){
+        if (this->_usePID)
+        {
             this->pid.Compute();
             analogWrite(this->_throttlePin, (int)abs(round(this->_output)));
             // webSocket->textAll(String("Setpoint:")+String(this->_setPoint)+String(",input: ")+ String(this->_currentTicks)+String(",output: ")+ String(this->_output));
@@ -73,7 +81,7 @@ private:
     bool _usePID = false;
     double _currentTicks;
     uint16_t _throttleValue = 0;
-    double _setPoint = 0, _output=0;
-    
+    double _setPoint = 0, _output = 0;
+
     PID pid;
 };

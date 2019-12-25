@@ -5,15 +5,17 @@
 #include "./mime.h"
 #include "./api/update.h"
 
-class McuServer {
- public:
+class McuServer
+{
+public:
     McuServer(char *user, char *password, CommandInterpreter *commandInterpreter, AsyncWebSocket *webSocket, AsyncWebServer *webServer) : webSocket(webSocket), webServer(webServer), commandInterpreter(commandInterpreter)
     {
         this->wwwUserName = user;
         this->wwwPassword = password;
     };
 
-    void setup() {
+    void setup()
+    {
         this->webSocket->onEvent([this](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
             if (type == WS_EVT_CONNECT)
             {
@@ -27,7 +29,6 @@ class McuServer {
             {
                 String str = String((char *)data).substring(0, len);
                 this->commandInterpreter->ExecuteCommand(str);
-                
             }
         });
 
@@ -40,7 +41,6 @@ class McuServer {
         this->webServer->on("/heap", HTTP_GET, [](AsyncWebServerRequest *request) {
             request->send(200, MIME_plainText, String(ESP.getFreeHeap()));
         });
-
 
         this->webServer->onNotFound([](AsyncWebServerRequest *req) {
             req->send(404, MIME_plainText, "Not found :(");
