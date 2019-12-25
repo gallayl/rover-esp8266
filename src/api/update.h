@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ESP8266HTTPUpdateServer.h>
+// #include <ESP8266HTTPUpdateServer.h>
 
 ArRequestHandlerFunction getUpdateForm = ([](AsyncWebServerRequest *request) {
     request->send(200, "text/html", "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>");

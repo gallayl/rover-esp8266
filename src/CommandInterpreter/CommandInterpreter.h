@@ -61,6 +61,8 @@ public:
             ci->RegisterCommand(*infoAction);
             ci->RegisterCommand(*move);
             ci->RegisterCommand(*stop);
+            ci->RegisterCommand(*moveTicks);
+            ci->RegisterCommand(*configurePid);
             instance = ci;
         }
 

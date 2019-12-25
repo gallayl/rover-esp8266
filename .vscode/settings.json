@@ -14,5 +14,9 @@
         "typeinfo": "cpp",
         "system_error": "cpp"
     },
-    "C_Cpp.errorSquiggles": "Enabled"
+    "C_Cpp.errorSquiggles": "Enabled",
+    "typescript.tsdk": "node_modules\\typescript\\lib",
+    "editor.formatOnSave": true,
+    "eslint.validate": ["typescript", "typescriptreact"],
+    "eslint.enable": true
 }

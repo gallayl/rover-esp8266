@@ -1,41 +1,39 @@
 export class WebSocketService {
   createSocket() {
-    this.socket = new WebSocket(
-      `ws://${this.options.host}:${this.options.port}/ws`
-    );
+    this.socket = new WebSocket(`ws://${this.options.host}:${this.options.port}/ws`)
     this.socket.onopen = () => {
-      this.options.onOpen && this.options.onOpen();
-      console.log("WebSocket connected");
-    };
+      this.options.onOpen && this.options.onOpen()
+      console.log('WebSocket connected')
+    }
 
     this.socket.onclose = () => {
-      this.options.onClose && this.options.onClose();
-      console.log("WebSocket disconnected. Reconnecting...");
+      this.options.onClose && this.options.onClose()
+      console.log('WebSocket disconnected. Reconnecting...')
       try {
-        this.createSocket();
+        this.createSocket()
       } catch (e) {
-        console.warn("Cannot reconnect", e);
+        console.warn('Cannot reconnect', e)
       }
-    };
+    }
 
     this.socket.onmessage = evt => {
-      this.options.onMessage && this.options.onMessage(evt);
-      if (evt.data.startsWith("leftMotorChangePercent ")) {
-        console.log(`Left throttle: ${evt.data.replace("leftMotorChangePercent ", "")}%`);
-      } else if (evt.data.startsWith("rightMotorChangePercent ")) {
-        console.log(`Right throttle: ${evt.data.replace("rightMotorChangePercent ", "")}%`);
+      this.options.onMessage && this.options.onMessage(evt)
+      if (evt.data.startsWith('leftP ')) {
+        console.log(`Left throttle: ${evt.data.replace('leftP ', '')}%`)
+      } else if (evt.data.startsWith('rightP ')) {
+        console.log(`Right throttle: ${evt.data.replace('rightP ', '')}%`)
       } else {
-        console.log("Message received:", evt.data);
+        console.log('Message received:', evt.data)
       }
-    };
+    }
   }
 
   constructor(
     /** @type {{ host: string, port: number, onOpen: ()=>void, onClose: ()=>void, onMessage: (evt: MessageEvent) => void}} */
-    options
+    options,
   ) {
-    this.options = options;
-    this.createSocket();
+    this.options = options
+    this.createSocket()
   }
 
   /**
@@ -43,7 +41,6 @@ export class WebSocketService {
    * @param {string} message
    */
   send(message) {
-    if (this.socket && this.socket.readyState === 1)
-      return this.socket.send(message);
+    if (this.socket && this.socket.readyState === 1) return this.socket.send(message)
   }
 }
