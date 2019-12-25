@@ -6,7 +6,7 @@
 #include <ESP8266WiFi.h>
 #include <AsyncWebSocket.h>
 
-extern AsyncWebSocket* webSocket;
+extern AsyncWebSocket *webSocket;
 
 CustomCommand *infoAction = new CustomCommand("info", [](String command) {
     String stats = "{";
