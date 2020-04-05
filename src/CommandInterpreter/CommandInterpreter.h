@@ -63,6 +63,8 @@ public:
             ci->RegisterCommand(*stop);
             ci->RegisterCommand(*moveTicks);
             ci->RegisterCommand(*configurePid);
+            ci->RegisterCommand(*lookHorizontal);
+            ci->RegisterCommand(*lookVertical);
             instance = ci;
         }
 

@@ -108,3 +108,6 @@ const stopMovement = () => socket.send.bind(socket)('stop')
 
 joystickContainer.addEventListener('mouseup', stopMovement)
 joystickContainer.addEventListener('touchend', stopMovement)
+
+document.getElementById('lookVertical').onchange = ev => socket.send(`lv ${Math.round(ev.target.value)}`)
+document.getElementById('lookHorizontal').onchange = ev => socket.send(`lh ${Math.round(ev.target.value)}`)

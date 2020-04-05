@@ -4,6 +4,7 @@
 #include "../CustomCommand.h"
 #include "../../dc-motor.h"
 #include <AsyncWebSocket.h>
+#include <Servo.h>
 
 #define RightMotorSpeed 4
 #define RightMotorDir 2
@@ -11,6 +12,12 @@
 #define LeftMotorSpeed 5
 #define LeftMotorDir 0
 #define LeftMotorEncoder D6
+
+#define VerticalServoPin D8 // ???
+#define HorizontalServoPin D5 // ??
+
+Servo verticalServo;
+Servo horizontalServo;
 
 static Motor *rightMotor = new Motor(LeftMotorSpeed, LeftMotorDir, LeftMotorEncoder, 0);
 static Motor *leftMotor = new Motor(RightMotorSpeed, RightMotorDir, RightMotorEncoder, 1);
@@ -22,6 +29,8 @@ extern SimpleTimer *timer;
 extern AsyncWebSocket *webSocket;
 
 int motorTimeoutTimer;
+int horizontalServoTimeout;
+int verticalServoTimeout;
 
 void broadcast(String message)
 {
@@ -122,4 +131,35 @@ CustomCommand *stop = new CustomCommand("stop", [](String command) {
     leftMotor->SetThrottle(0);
     rightMotor->SetThrottle(0);
     motorTimeoutTimer = timer->setTimeout(6 * 1000, motorTimeoutEvent);
+});
+
+
+void detachHorizontal(){
+    horizontalServo.detach();
+    horizontalServoTimeout = 0;
+}
+
+CustomCommand *lookHorizontal = new CustomCommand("lh", [](String command){
+    int value = constrain((int16_t)CommandParser::GetCommandParameter(command, 1).toInt(), 0, 180);
+    horizontalServo.attach(HorizontalServoPin);
+    horizontalServo.write(value);
+    if (horizontalServoTimeout){
+        timer->deleteTimer(horizontalServoTimeout);
+    }
+    horizontalServoTimeout = timer->setTimeout(1000, detachHorizontal);
+});
+
+void detachVertical(){
+    verticalServo.detach();
+    verticalServoTimeout = 0;
+}
+
+CustomCommand *lookVertical = new CustomCommand("lv", [](String command){
+    int value = constrain((int16_t)CommandParser::GetCommandParameter(command, 1).toInt(), 0, 180);
+    verticalServo.attach(VerticalServoPin);
+    verticalServo.write(value);
+    if (verticalServoTimeout){
+        timer->deleteTimer(verticalServoTimeout);
+    }
+    verticalServoTimeout = timer->setTimeout(1000, detachVertical);
 });
