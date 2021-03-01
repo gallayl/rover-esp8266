@@ -1,36 +1,42 @@
-import { createComponent, Shade } from '@furystack/shades'
-import { Body } from './body'
-import { Header } from './header'
+import { AppBar } from '@furystack/shades-common-components/dist/components/app-bar'
+import { Shade, createComponent, Router, RouteLink } from '@furystack/shades'
+import { JoystickPage } from '../pages/joystick-page'
+import { ConsolePage } from '../pages/console-page'
+import { UpdatePage } from '../pages/update-page'
+
 export const Layout = Shade({
-  shadowDomName: 'shade-app-layout',
+  shadowDomName: 'flea-layout',
   render: () => {
     return (
-      <div
-        id="Layout"
-        style={{
-          position: 'fixed',
-          top: '0',
-          left: '0',
-          width: '100%',
-          height: '100%',
-          background: '#dedede',
-          display: 'flex',
-          flexDirection: 'column',
-          fontFamily: 'Arial, Helvetica, sans-serif',
-          lineHeight: '1.6',
-        }}
-        className="eee">
-        <Header
-          title="🚙 Fury-Rover"
-          links={[
-            {
-              name: 'FPV',
-              url: '/',
-            },
-          ]}>
+      <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', lineHeight: '18px' }}>
+        <AppBar>
+          <RouteLink href="/" style={{ marginRight: '2em' }}>
+            Flea
+          </RouteLink>
+          &nbsp;
+          <RouteLink href="/">Home</RouteLink>&nbsp;|&nbsp;
+          <RouteLink href="/console">Console</RouteLink>&nbsp;|&nbsp;
+          <RouteLink href="/update">Update</RouteLink>
           <div style={{ flex: '1' }} />
-        </Header>
-        <Body />
+        </AppBar>
+        <div style={{ width: '100%', height: '100%', flexGrow: '1' }}>
+          <Router
+            routes={[
+              {
+                url: '/',
+                component: () => <JoystickPage />,
+              },
+              {
+                url: '/console',
+                component: () => <ConsolePage />,
+              },
+              {
+                url: '/update',
+                component: () => <UpdatePage />,
+              },
+            ]}
+          />
+        </div>
       </div>
     )
   },

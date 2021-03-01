@@ -13,7 +13,7 @@
 #define LeftMotorDir 0
 #define LeftMotorEncoder D6
 
-#define VerticalServoPin D8 // ???
+#define VerticalServoPin D8   // ???
 #define HorizontalServoPin D5 // ??
 
 Servo verticalServo;
@@ -28,7 +28,6 @@ uint8_t lastSentRight = 0;
 extern SimpleTimer *timer;
 extern AsyncWebSocket *webSocket;
 
-int motorTimeoutTimer;
 int horizontalServoTimeout;
 int verticalServoTimeout;
 
@@ -44,12 +43,10 @@ void notifyMotorSpeedChange()
 
     if (lastSentLeft != newLeft)
     {
-        broadcast("lp " + String(newLeft));
         lastSentLeft = newLeft;
     }
     if (lastSentRight != newRight)
     {
-        broadcast("rp " + String(newRight));
         lastSentRight = newRight;
     }
 }
@@ -71,26 +68,11 @@ void ICACHE_RAM_ATTR rightMotorTick()
     rightMotor->_onTick();
 }
 
-void motorTimeoutEvent()
-{
-    webSocket->textAll("Motor Timeout triggered.");
-    leftMotor->SetThrottle(50);
-    rightMotor->SetThrottle(-50);
-    delay(500);
-    leftMotor->SetThrottle(-50);
-    rightMotor->SetThrottle(50);
-    delay(500);
-    leftMotor->SetThrottle(0);
-    rightMotor->SetThrottle(0);
-    motorTimeoutTimer = timer->setTimeout(6 * 1000, motorTimeoutEvent);
-}
-
 void setupMotors()
 {
-    timer->setInterval(100, motorEncoderEvents);
+    timer->setInterval(50, motorEncoderEvents);
     attachInterrupt(RightMotorEncoder, rightMotorTick, CHANGE);
     attachInterrupt(LeftMotorEncoder, leftMotorTick, CHANGE);
-    motorTimeoutTimer = timer->setTimeout(6 * 1000, motorTimeoutEvent);
 }
 
 int16_t throttleValue;
@@ -106,7 +88,6 @@ CustomCommand *move = new CustomCommand("move", [](String command) {
 
     leftMotor->SetThrottle(leftMotorSpeed);
     rightMotor->SetThrottle(rightMotorSpeed);
-    timer->deleteTimer(motorTimeoutTimer);
 });
 
 CustomCommand *moveTicks = new CustomCommand("moveTicks", [](String command) {
@@ -115,7 +96,6 @@ CustomCommand *moveTicks = new CustomCommand("moveTicks", [](String command) {
 
     leftMotor->setPid(leftMotorSpeed);
     rightMotor->setPid(rightMotorSpeed);
-    timer->deleteTimer(motorTimeoutTimer);
 });
 
 CustomCommand *configurePid = new CustomCommand("configurePid", [](String command) {
@@ -130,35 +110,37 @@ CustomCommand *configurePid = new CustomCommand("configurePid", [](String comman
 CustomCommand *stop = new CustomCommand("stop", [](String command) {
     leftMotor->SetThrottle(0);
     rightMotor->SetThrottle(0);
-    motorTimeoutTimer = timer->setTimeout(6 * 1000, motorTimeoutEvent);
 });
 
-
-void detachHorizontal(){
+void detachHorizontal()
+{
     horizontalServo.detach();
     horizontalServoTimeout = 0;
 }
 
-CustomCommand *lookHorizontal = new CustomCommand("lh", [](String command){
+CustomCommand *lookHorizontal = new CustomCommand("lh", [](String command) {
     int value = constrain((int16_t)CommandParser::GetCommandParameter(command, 1).toInt(), 0, 180);
     horizontalServo.attach(HorizontalServoPin);
     horizontalServo.write(value);
-    if (horizontalServoTimeout){
+    if (horizontalServoTimeout)
+    {
         timer->deleteTimer(horizontalServoTimeout);
     }
     horizontalServoTimeout = timer->setTimeout(1000, detachHorizontal);
 });
 
-void detachVertical(){
+void detachVertical()
+{
     verticalServo.detach();
     verticalServoTimeout = 0;
 }
 
-CustomCommand *lookVertical = new CustomCommand("lv", [](String command){
+CustomCommand *lookVertical = new CustomCommand("lv", [](String command) {
     int value = constrain((int16_t)CommandParser::GetCommandParameter(command, 1).toInt(), 0, 180);
     verticalServo.attach(VerticalServoPin);
     verticalServo.write(value);
-    if (verticalServoTimeout){
+    if (verticalServoTimeout)
+    {
         timer->deleteTimer(verticalServoTimeout);
     }
     verticalServoTimeout = timer->setTimeout(1000, detachVertical);

@@ -1,0 +1,26 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Attach to Service",
+      "program": "${workspaceFolder}/services/${input:service}/src/service.ts",
+      "outFiles": ["${workspaceFolder}/services/${input:service}/dist/service.js"],
+      "cwd": "${workspaceFolder}/services/${input:service}",
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "service",
+      "type": "pickString",
+      "description": "Select one service from above",
+      "options": ["auth", "diag", "xpense"]
+    }
+  ]
+}

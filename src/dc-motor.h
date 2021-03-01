@@ -3,18 +3,20 @@
 #include <SimpleTimer.h>
 #include <PID_v1.h>
 
-double p = 20, i = 2, d = 1;
+double aggKp = 50, aggKi = 0.2, aggKd = 1;
+double consKp = 5, consKi = 0.05, consKd = 0.25;
 
 class Motor
 {
 public:
-    Motor(uint8_t throttlePin, uint8_t directionPin, uint8_t feedbackPin, uint8_t index) : index(index), _throttlePin(throttlePin), _directionPin(directionPin), _feedbackPin(feedbackPin), _currentTicks(0), pid(&(this->_currentTicks), &(this->_output), &(this->_setPoint), p, i, d, DIRECT)
+    Motor(uint8_t throttlePin, uint8_t directionPin, uint8_t feedbackPin, uint8_t index) : index(index), _throttlePin(throttlePin), _directionPin(directionPin), _feedbackPin(feedbackPin), _currentTicks(0), pid(&(this->_currentTicks), &(this->_output), &(this->_setPoint), aggKp, aggKi, aggKd, DIRECT)
     {
         pinMode(throttlePin, OUTPUT);
         pinMode(directionPin, OUTPUT);
         pinMode(feedbackPin, INPUT_PULLDOWN_16);
         this->pid.SetOutputLimits(0, PWMRANGE);
         this->pid.SetMode(AUTOMATIC);
+        this->pid.SetTunings(aggKp, aggKi, aggKd);
     }
 
     void SetThrottle(int16_t newValue)
@@ -27,16 +29,9 @@ public:
 
     void setPid(int16_t newValue)
     {
-        if (newValue)
-        {
-            this->_usePID = true;
-            digitalWrite(this->_directionPin, newValue > 0 ? LOW : HIGH);
-            this->_setPoint = abs(newValue);
-        }
-        else
-        {
-            this->SetThrottle(newValue);
-        }
+        this->_usePID = true;
+        digitalWrite(this->_directionPin, newValue > 0 ? LOW : HIGH);
+        this->_setPoint = abs(newValue);
     }
 
     void configurePid(double p, double i, double d)
@@ -53,9 +48,20 @@ public:
     {
         if (this->_usePID)
         {
+            // double gap = abs(this->_setPoint - this->_currentTicks); //distance away from setpoint
+            // if (gap < 3)
+            // { //we're close to setpoint, use conservative tuning parameters
+            //     this->pid.SetTunings(consKp, consKi, consKd);
+            // }
+            // else
+            // {
+            //     //we're far from setpoint, use aggressive tuning parameters
+            //     this->pid.SetTunings(aggKp, aggKi, aggKd);
+            // }
+
             this->pid.Compute();
             analogWrite(this->_throttlePin, (int)abs(round(this->_output)));
-            // webSocket->textAll(String("Setpoint:")+String(this->_setPoint)+String(",input: ")+ String(this->_currentTicks)+String(",output: ")+ String(this->_output));
+            webSocket->textAll(String("{\"sp\":") + String(this->_setPoint) + String(",\"in\": ") + String(this->_currentTicks) + String(",\"out\": ") + String(this->_output) + ",\"idx\":" + this->index + "}");
         }
         this->_currentTicks = 0;
     }
