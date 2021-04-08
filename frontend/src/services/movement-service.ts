@@ -7,14 +7,14 @@ import { ClientSettings } from './client-settings'
 export class MovementService {
   private logger: ScopedLogger
 
-  stop() {
+  public stop(): void {
     this.logger.verbose({ message: 'Stopped' })
     this.webSocket.send('move 0 0')
   }
 
-  async move(throttle: number, steer: number) {
-    this.logger.verbose({ message: 'Movement change', data: { throttle, steer } })
-    this.webSocket.send(`moveTicks ${Math.round(throttle)} ${Math.round(steer)}`)
+  public async move(leftSpeed: number, rightSpeed: number): Promise<void> {
+    this.logger.verbose({ message: 'Movement change', data: { leftSpeed, rightSpeed } })
+    this.webSocket.send(`moveTicks ${Math.round(leftSpeed)} ${Math.round(rightSpeed)}`)
   }
 
   constructor(private readonly webSocket: WebSocketService, _settings: ClientSettings, injector: Injector) {

@@ -3,8 +3,8 @@
 #include <SimpleTimer.h>
 #include <PID_v1.h>
 
-double aggKp = 50, aggKi = 0.2, aggKd = 1;
-double consKp = 5, consKi = 0.05, consKd = 0.25;
+double aggKp = 200, aggKi = 0.3, aggKd = 0.01;
+double consKp = 10, consKi = 0.05, consKd = 0.25;
 
 class Motor
 {
@@ -49,7 +49,7 @@ public:
         if (this->_usePID)
         {
             // double gap = abs(this->_setPoint - this->_currentTicks); //distance away from setpoint
-            // if (gap < 3)
+            // if (gap < 5)
             // { //we're close to setpoint, use conservative tuning parameters
             //     this->pid.SetTunings(consKp, consKi, consKd);
             // }

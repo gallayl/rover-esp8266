@@ -6,20 +6,22 @@ export const JoystickPage = Shade<
   {
     movementService: MovementService
     updateInterval: ReturnType<typeof setInterval>
-    sendData?: { speed: number; steer: number }
+    sendData?: { leftSpeed: number; rightSpeed: number }
   }
 >({
   getInitialState: ({ injector }) => ({
     movementService: injector.getInstance(MovementService),
-    updateInterval: setInterval(() => { }, 100),
+    updateInterval: setInterval(() => {
+      /** */
+    }, 100),
   }),
   constructed: ({ updateState, getState }) => {
     clearInterval(getState().updateInterval) // clear initial
     updateState({
       updateInterval: setInterval(() => {
-        const sendData = getState().sendData
+        const { sendData } = getState()
         if (sendData) {
-          getState().movementService.move(sendData.speed, sendData.steer)
+          getState().movementService.move(sendData.leftSpeed, sendData.rightSpeed)
           updateState({ sendData: undefined }, true)
         }
       }, 100),
@@ -32,11 +34,16 @@ export const JoystickPage = Shade<
         <NippleComponent
           style={{ position: 'absolute', top: '0', left: '0', width: '100%', height: '100%' }}
           managerOptions={{}}
-          onEnd={() => updateState({ sendData: { speed: 0, steer: 0 } }, true)}
+          onEnd={() => updateState({ sendData: { leftSpeed: 0, rightSpeed: 0 } }, true)}
           onMove={(_ev, data) => {
-            const speed = Math.round(data.force * 10 * (data.direction?.y === 'down' ? -1 : 1)) // +/- 300
-            const steer = Math.round(Math.cos(data.angle.radian) * 110) // +/-50
-            updateState({ sendData: { speed, steer } }, true)
+            const dirMod = data.direction?.y === 'down' ? -1 : 1
+            const radMod = Math.cos(data.angle.radian - Math.PI)
+            const force = Math.round(data.force)
+            const steerForce = Math.round(force / 1.3)
+            const leftSpeed = (force + radMod * steerForce) * dirMod
+            const rightSpeed = (force - radMod * steerForce) * dirMod
+
+            updateState({ sendData: { leftSpeed, rightSpeed } }, true)
           }}
         />
       </div>
