@@ -6,3 +6,4 @@
 .vscode/launch.json
 node_modules
 .eslintcache
+node_modules

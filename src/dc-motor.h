@@ -16,6 +16,7 @@ public:
         pinMode(feedbackPin, INPUT_PULLDOWN_16);
         this->pid.SetOutputLimits(100, PWMRANGE);
         this->pid.SetMode(AUTOMATIC);
+        this->pid.SetTunings(aggKp, aggKi, aggKd);
     }
 
     void SetThrottle(int16_t newValue)
@@ -28,16 +29,9 @@ public:
 
     void setPid(int16_t newValue)
     {
-        if (newValue)
-        {
-            this->_usePID = true;
-            digitalWrite(this->_directionPin, newValue > 0 ? LOW : HIGH);
-            this->_setPoint = abs(newValue);
-        }
-        else
-        {
-            this->SetThrottle(newValue);
-        }
+        this->_usePID = true;
+        digitalWrite(this->_directionPin, newValue > 0 ? LOW : HIGH);
+        this->_setPoint = abs(newValue);
     }
 
     void configurePid(double p, double i, double d)
