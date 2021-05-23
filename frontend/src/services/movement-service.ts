@@ -14,10 +14,16 @@ export class MovementService {
 
   public async move(leftSpeed: number, rightSpeed: number): Promise<void> {
     this.logger.verbose({ message: 'Movement change', data: { leftSpeed, rightSpeed } })
-    this.webSocket.send(`moveTicks ${Math.round(leftSpeed)} ${Math.round(rightSpeed)}`)
+    this.settings.currentSettings.getValue().isPidEnabled
+      ? this.webSocket.send(`moveTicks ${Math.round(leftSpeed)} ${Math.round(rightSpeed)}`)
+      : this.webSocket.send(`move ${Math.round(leftSpeed * 50)} ${Math.round(rightSpeed * 50)}`)
   }
 
-  constructor(private readonly webSocket: WebSocketService, _settings: ClientSettings, injector: Injector) {
+  constructor(
+    private readonly webSocket: WebSocketService,
+    private readonly settings: ClientSettings,
+    injector: Injector,
+  ) {
     this.logger = injector.logger.withScope('MovementService')
   }
 }

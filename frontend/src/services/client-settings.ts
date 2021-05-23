@@ -13,7 +13,7 @@ interface ClientSettingsValues {
 @Injectable({ lifetime: 'singleton' })
 export class ClientSettings {
   currentSettings = new ObservableValue<ClientSettingsValues>({
-    isPidEnabled: true,
+    isPidEnabled: false,
     throttleSensitivity: 32,
     steerSensitivity: 32,
   })

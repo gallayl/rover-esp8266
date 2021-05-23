@@ -6,6 +6,7 @@ void setup()
     wifiManager.autoConnect("AutoConnectAP");
     Serial.printf("Connected to %s, IP: %s", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
     mcuServer->setup();
+    setupDistance();
 
     if (SPIFFS.begin())
     {

@@ -13,12 +13,6 @@
 #define LeftMotorDir 0
 #define LeftMotorEncoder D6
 
-#define VerticalServoPin D8   // ???
-#define HorizontalServoPin D5 // ??
-
-Servo verticalServo;
-Servo horizontalServo;
-
 static Motor *rightMotor = new Motor(LeftMotorSpeed, LeftMotorDir, LeftMotorEncoder, 0);
 static Motor *leftMotor = new Motor(RightMotorSpeed, RightMotorDir, RightMotorEncoder, 1);
 
@@ -81,10 +75,8 @@ int16_t leftMotorSpeed;
 int16_t rightMotorSpeed;
 
 CustomCommand *move = new CustomCommand("move", [](String command) {
-    throttleValue = (int16_t)CommandParser::GetCommandParameter(command, 1).toInt();
-    steerValue = (int16_t)CommandParser::GetCommandParameter(command, 2).toInt();
-    leftMotorSpeed = (int16_t)constrain(round((throttleValue - steerValue) / 2), -PWMRANGE, PWMRANGE);
-    rightMotorSpeed = (int16_t)-constrain(round((throttleValue + steerValue) / 2), -PWMRANGE, PWMRANGE);
+    leftMotorSpeed = (int16_t)constrain(round(CommandParser::GetCommandParameter(command, 1).toInt()), -PWMRANGE, PWMRANGE);
+    rightMotorSpeed = (int16_t)-constrain(round(CommandParser::GetCommandParameter(command, 2).toInt()), -PWMRANGE, PWMRANGE);
 
     leftMotor->SetThrottle(leftMotorSpeed);
     rightMotor->SetThrottle(rightMotorSpeed);
@@ -110,38 +102,4 @@ CustomCommand *configurePid = new CustomCommand("configurePid", [](String comman
 CustomCommand *stop = new CustomCommand("stop", [](String command) {
     leftMotor->SetThrottle(0);
     rightMotor->SetThrottle(0);
-});
-
-void detachHorizontal()
-{
-    horizontalServo.detach();
-    horizontalServoTimeout = 0;
-}
-
-CustomCommand *lookHorizontal = new CustomCommand("lh", [](String command) {
-    int value = constrain((int16_t)CommandParser::GetCommandParameter(command, 1).toInt(), 0, 180);
-    horizontalServo.attach(HorizontalServoPin);
-    horizontalServo.write(value);
-    if (horizontalServoTimeout)
-    {
-        timer->deleteTimer(horizontalServoTimeout);
-    }
-    horizontalServoTimeout = timer->setTimeout(1000, detachHorizontal);
-});
-
-void detachVertical()
-{
-    verticalServo.detach();
-    verticalServoTimeout = 0;
-}
-
-CustomCommand *lookVertical = new CustomCommand("lv", [](String command) {
-    int value = constrain((int16_t)CommandParser::GetCommandParameter(command, 1).toInt(), 0, 180);
-    verticalServo.attach(VerticalServoPin);
-    verticalServo.write(value);
-    if (verticalServoTimeout)
-    {
-        timer->deleteTimer(verticalServoTimeout);
-    }
-    verticalServoTimeout = timer->setTimeout(1000, detachVertical);
 });

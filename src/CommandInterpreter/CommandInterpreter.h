@@ -1,5 +1,6 @@
 #pragma once
 #include "./CustomCommand.h"
+#include "./CustomCommands/distance.h"
 #include "./CustomCommands/info.h"
 #include "./CustomCommands/move.h"
 #include "./CustomCommands/reset.h"
@@ -58,13 +59,12 @@ public:
         {
             CommandInterpreter *ci = new CommandInterpreter(*unknownCommand);
             ci->RegisterCommand(*reset);
+            ci->RegisterCommand(*distanceAction);
             ci->RegisterCommand(*infoAction);
             ci->RegisterCommand(*move);
             ci->RegisterCommand(*stop);
             ci->RegisterCommand(*moveTicks);
             ci->RegisterCommand(*configurePid);
-            ci->RegisterCommand(*lookHorizontal);
-            ci->RegisterCommand(*lookVertical);
             instance = ci;
         }
 
