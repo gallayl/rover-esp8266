@@ -9,7 +9,7 @@ double consKp = 5, consKi = 0.05, consKd = 0.25;
 class Motor
 {
 public:
-    Motor(uint8_t throttlePin, uint8_t directionPin, uint8_t feedbackPin, uint8_t index) : index(index), _throttlePin(throttlePin), _directionPin(directionPin), _feedbackPin(feedbackPin), _currentTicks(0), pid(&(this->_currentTicks), &(this->_output), &(this->_setPoint), aggKp, aggKi, aggKd, DIRECT)
+    Motor(uint8_t throttlePin, uint8_t directionPin, uint8_t feedbackPin, uint8_t index) : index(index), _throttlePin(throttlePin), _directionPin(directionPin), _feedbackPin(feedbackPin), _currentTicks(0), _lastSentTicks(0), pid(&(this->_currentTicks), &(this->_output), &(this->_setPoint), aggKp, aggKi, aggKd, DIRECT)
     {
         pinMode(throttlePin, OUTPUT);
         pinMode(directionPin, OUTPUT);
@@ -61,7 +61,11 @@ public:
 
             this->pid.Compute();
             analogWrite(this->_throttlePin, (int)abs(round(this->_output)));
-            webSocket->textAll(String("Setpoint:") + String(this->_setPoint) + String(",input: ") + String(this->_currentTicks) + String(",output: ") + String(this->_output));
+            // webSocket->textAll(String("Setpoint:") + String(this->_setPoint) + String(",input: ") + String(this->_currentTicks) + String(",output: ") + String(this->_output));
+        }
+        if (this->_currentTicks != this->_lastSentTicks){
+            this->_lastSentTicks = this->_currentTicks;
+            webSocket->textAll(String("{\"type\": \"motorTicksChange\", \"index\":" + String(this->index) + ",\"ticks\": " + String(this->_currentTicks) + "}"));
         }
         this->_currentTicks = 0;
     }
@@ -86,6 +90,7 @@ private:
 
     bool _usePID = false;
     double _currentTicks;
+    double _lastSentTicks;
     uint16_t _throttleValue = 0;
     double _setPoint = 0, _output = 0;
 

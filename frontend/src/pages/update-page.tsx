@@ -2,12 +2,21 @@ import { Shade, createComponent } from '@furystack/shades'
 import { EnvironmentService } from '../services/environment-service'
 
 export const UpdatePage = Shade({
-  render: ({injector}) => {
+  render: ({ injector }) => {
     return (
-      <div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+      <div
+        style={{
+          display: 'flex',
+          height: '80%',
+          width: '100%',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(66, 66, 66, .5)',
+          backdropFilter: 'blur(15px)',
+        }}>
         <form
           style={{ display: 'flex', flexDirection: 'column' }}
-          action={'http://'+injector.getInstance(EnvironmentService).site + "/update"}
+          action={`http://${injector.getInstance(EnvironmentService).site}/update`}
           accept="application/octet-stream"
           enctype="multipart/form-data"
           {...({ method: 'POST' } as any)}>
