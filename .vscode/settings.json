@@ -12,7 +12,8 @@
         "functional": "cpp",
         "type_traits": "cpp",
         "typeinfo": "cpp",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "map": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled",
     "typescript.tsdk": "node_modules\\typescript\\lib",

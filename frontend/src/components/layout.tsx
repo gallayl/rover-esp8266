@@ -1,7 +1,5 @@
-import { AppBar } from '@furystack/shades-common-components/dist/components/app-bar'
 import { Shade, createComponent, Router, RouteLink } from '@furystack/shades'
-import { ThemeProviderService } from '@furystack/shades-common-components/dist/services/theme-provider-service'
-import { NotyList } from '@furystack/shades-common-components'
+import { AppBar, NotyList, ThemeProviderService } from '@furystack/shades-common-components'
 import { JoystickPage } from '../pages/joystick-page'
 import { ConsolePage } from '../pages/console-page'
 import { UpdatePage } from '../pages/update-page'

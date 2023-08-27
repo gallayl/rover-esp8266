@@ -1,6 +1,6 @@
 import { Injectable, Injector } from '@furystack/inject'
 import { NotyService } from '@furystack/shades-common-components'
-import { ObservableValue } from '@furystack/utils/dist/observable-value'
+import { ObservableValue } from '@furystack/utils'
 import { ScopedLogger } from '@furystack/logging'
 
 const localStorageKey = 'FLEA_SETTINGS'

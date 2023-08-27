@@ -1,7 +1,6 @@
 import { Injectable, Injector } from '@furystack/inject'
 import { ScopedLogger } from '@furystack/logging'
-import { ObservableValue } from '@furystack/utils/dist/observable-value'
-import { PathHelper } from '@furystack/utils/dist/path-helper'
+import { ObservableValue, PathHelper } from '@furystack/utils'
 import { EnvironmentService } from './environment-service'
 
 export interface WebSocketEvent<T = unknown> {

@@ -3,6 +3,8 @@
 #include <SimpleTimer.h>
 #include <PID_v1.h>
 
+#define PWMRANGE 1024
+
 double aggKp = 50, aggKi = 0.2, aggKd = 1;
 double consKp = 5, consKi = 0.05, consKd = 0.25;
 
@@ -48,14 +50,14 @@ public:
     {
         if (this->_usePID)
         {
-            double gap = abs(this->_setPoint - this->_currentTicks); //distance away from setpoint
+            double gap = abs(this->_setPoint - this->_currentTicks); // distance away from setpoint
             if (gap < 3)
-            { //we're close to setpoint, use conservative tuning parameters
+            { // we're close to setpoint, use conservative tuning parameters
                 this->pid.SetTunings(consKp, consKi, consKd);
             }
             else
             {
-                //we're far from setpoint, use aggressive tuning parameters
+                // we're far from setpoint, use aggressive tuning parameters
                 this->pid.SetTunings(aggKp, aggKi, aggKd);
             }
 
@@ -63,14 +65,15 @@ public:
             analogWrite(this->_throttlePin, (int)abs(round(this->_output)));
             // webSocket->textAll(String("Setpoint:") + String(this->_setPoint) + String(",input: ") + String(this->_currentTicks) + String(",output: ") + String(this->_output));
         }
-        if (this->_currentTicks != this->_lastSentTicks){
+        if (this->_currentTicks != this->_lastSentTicks)
+        {
             this->_lastSentTicks = this->_currentTicks;
             webSocket->textAll(String("{\"type\": \"motorTicksChange\", \"index\":" + String(this->index) + ",\"ticks\": " + String(this->_currentTicks) + "}"));
         }
         this->_currentTicks = 0;
     }
 
-    void ICACHE_RAM_ATTR _onTick()
+    void IRAM_ATTR _onTick()
     {
         this->_currentTicks++;
     }

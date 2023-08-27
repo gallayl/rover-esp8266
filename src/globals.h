@@ -2,6 +2,7 @@
 
 #include "./CommandInterpreter/CommandInterpreter.h"
 #include "./McuServer.h"
+#include <LittleFS.h>
 #include <WiFiClient.h>
 #include <Wire.h>
 #include <WiFiClientSecure.h>

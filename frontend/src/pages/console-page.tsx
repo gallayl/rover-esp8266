@@ -1,5 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { Button } from '@furystack/shades-common-components/dist/components/button'
+import { Button } from '@furystack/shades-common-components'
 import { WebSocketEvent, WebSocketService } from '../services/websocket-service'
 
 export const ConsoleEntryList = Shade<

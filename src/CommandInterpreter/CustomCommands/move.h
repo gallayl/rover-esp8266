@@ -13,6 +13,8 @@
 #define LeftMotorDir 0
 #define LeftMotorEncoder D6
 
+#define PWMRANGE 1024
+
 static Motor *rightMotor = new Motor(LeftMotorSpeed, LeftMotorDir, LeftMotorEncoder, 0);
 static Motor *leftMotor = new Motor(RightMotorSpeed, RightMotorDir, RightMotorEncoder, 1);
 
@@ -52,12 +54,12 @@ void motorEncoderEvents()
     rightMotor->encoderEvent();
 }
 
-void ICACHE_RAM_ATTR leftMotorTick()
+void IRAM_ATTR leftMotorTick()
 {
     leftMotor->_onTick();
 }
 
-void ICACHE_RAM_ATTR rightMotorTick()
+void IRAM_ATTR rightMotorTick()
 {
     rightMotor->_onTick();
 }

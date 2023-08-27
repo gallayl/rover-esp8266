@@ -1,4 +1,4 @@
-import { createComponent, Shade, Screen } from '@furystack/shades'
+import { createComponent, Shade, ScreenService } from '@furystack/shades'
 import { ThemeProviderService } from '@furystack/shades-common-components'
 import { MovementService } from '../services/movement-service'
 
@@ -35,7 +35,7 @@ export const StatusComponent = Shade<
 
     const themeProvider = injector.getInstance(ThemeProviderService)
 
-    const scr = injector.getInstance(Screen)
+    const scr = injector.getInstance(ScreenService)
 
     console.log(scr.orientation.getValue())
 

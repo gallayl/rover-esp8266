@@ -16,9 +16,11 @@ NewPing sonar(trigPin, echoPin);
 
 float lastSentDistance = 0;
 
-void sendDistanceEvent(){
+void sendDistanceEvent()
+{
     float distance = sonar.ping_cm(50);
-    if (lastSentDistance != distance) {
+    if (lastSentDistance != distance)
+    {
         webSocket->textAll(String("{\"type\":\"distance\", \"distanceCm\":" + String(distance) + "}"));
         lastSentDistance = distance;
     }
@@ -31,7 +33,7 @@ void setupDistance()
     timer->setInterval(100, sendDistanceEvent);
 }
 
-CustomCommand *distanceAction = new CustomCommand("distance", [](String command) {
+CustomCommand *distanceAction = new CustomCommand("distance", [](String command)
+                                                  {
     float distance = sonar.ping_cm(50);
-    webSocket->textAll(String("{\"type\":\"distance\", \"distanceCm\":" + String(distance) + "}"));
-});
+    webSocket->textAll(String("{\"type\":\"distance\", \"distanceCm\":" + String(distance) + "}")); });
