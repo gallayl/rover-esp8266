@@ -1,24 +1,23 @@
 import { createComponent, Shade } from '@furystack/shades'
 import { Input, Button, ThemeProviderService } from '@furystack/shades-common-components'
-import { ClientSettings, ClientSettingsValues, defaultSettings } from '../services/client-settings'
+import { ClientSettings, defaultSettings } from '../services/client-settings'
 
-export const SettingsPage = Shade<unknown, ClientSettingsValues>({
-  getInitialState: ({ injector }) => injector.getInstance(ClientSettings).currentSettings.getValue(),
-  constructed: ({ injector, updateState }) => {
-    const subscription = injector
-      .getInstance(ClientSettings)
-      .currentSettings.subscribe((settings) => updateState(settings))
-    return () => subscription.dispose()
-  },
-  render: ({ getState, injector }) => {
-    const { throttleSensitivity, isPidEnabled } = getState()
+export const SettingsPage = Shade({
+  shadowDomName: 'settings-page',
+  render: ({ useObservable, injector }) => {
+    const [settings, setSettings] = useObservable(
+      'throttleSensitivity',
+      injector.getInstance(ClientSettings).currentSettings,
+    )
+
+    const { isPidEnabled, throttleSensitivity } = settings
+
     const theme = injector.getInstance(ThemeProviderService)
-    const settingsService = injector.getInstance(ClientSettings)
     return (
       <div
         style={{
           marginTop: '4em',
-          color: theme.theme.getValue().text.secondary,
+          color: theme.theme.text.secondary,
           padding: '2em',
           backgroundColor: 'rgba(66, 66, 66, .5)',
           backdropFilter: 'blur(15px)',
@@ -26,24 +25,25 @@ export const SettingsPage = Shade<unknown, ClientSettingsValues>({
         <h1>Settings</h1>
         <Input
           labelTitle="Throttle sensitivity"
-          type="number"
+          type="range"
           value={throttleSensitivity.toString()}
+          step="1"
           min="1"
           max="1024"
           onTextChange={(value) => {
-            settingsService.currentSettings.setValue({
-              ...settingsService.currentSettings.getValue(),
+            setSettings({
+              ...settings,
               throttleSensitivity: parseInt(value, 10),
             })
           }}
         />
-        <div>
-          Control mode
+        <p>Control mode</p>
+        <div style={{ display: 'flex' }}>
           <Button
             variant={isPidEnabled ? 'contained' : 'outlined'}
             onclick={() => {
-              settingsService.currentSettings.setValue({
-                ...settingsService.currentSettings.getValue(),
+              setSettings({
+                ...settings,
                 isPidEnabled: true,
               })
             }}>
@@ -52,8 +52,8 @@ export const SettingsPage = Shade<unknown, ClientSettingsValues>({
           <Button
             variant={!isPidEnabled ? 'contained' : 'outlined'}
             onclick={() => {
-              settingsService.currentSettings.setValue({
-                ...settingsService.currentSettings.getValue(),
+              setSettings({
+                ...settings,
                 isPidEnabled: false,
               })
             }}>
@@ -63,7 +63,7 @@ export const SettingsPage = Shade<unknown, ClientSettingsValues>({
         <Button
           color={'warning'}
           onclick={() => {
-            settingsService.currentSettings.setValue(defaultSettings)
+            setSettings(defaultSettings)
           }}>
           Reset to defaults
         </Button>

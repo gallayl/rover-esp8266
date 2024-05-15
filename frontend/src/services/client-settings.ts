@@ -1,39 +1,47 @@
 import { Injectable, Injector } from '@furystack/inject'
 import { NotyService } from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
-import { ScopedLogger } from '@furystack/logging'
 
 const localStorageKey = 'FLEA_SETTINGS'
 
+type ControlSetting = { type: 'PID'; p: number; i: number; d: number } | { type: 'direct'; throttleSensitivity: number }
+type SensitivitySetting = { throttle: number; steer: number; deadZone: number }
+type CharacteristicSetting = 'linear' | 'exponential'
 export interface ClientSettingsValues {
-  isPidEnabled: boolean
-  throttleSensitivity: number
+  control: ControlSetting
+  sensitivity: SensitivitySetting
+  characteristic: CharacteristicSetting
 }
 
 export const defaultSettings: ClientSettingsValues = {
-  isPidEnabled: false,
-  throttleSensitivity: 256,
+  control: {
+    type: 'direct',
+    throttleSensitivity: 256,
+  },
+  sensitivity: {
+    throttle: 1,
+    steer: 1,
+    deadZone: 1,
+  },
+  characteristic: 'linear',
 }
 
 @Injectable({ lifetime: 'singleton' })
 export class ClientSettings {
   currentSettings = new ObservableValue<ClientSettingsValues>(defaultSettings)
 
-  logger: ScopedLogger
-
   private initConfig() {
     const settings = localStorage.getItem(localStorageKey)
     try {
-      const value = JSON.parse(settings || '')
+      const value = JSON.parse(settings || JSON.stringify(defaultSettings))
       this.currentSettings.setValue({ ...this.currentSettings.getValue(), ...value })
     } catch (error) {
-      this.logger.warning({ message: 'Failed to parse stored settings. Resetting to defaults...' })
+      console.error('Failed to parse settings', error)
       localStorage.removeItem(localStorageKey)
     }
   }
 
   constructor(injector: Injector) {
-    this.logger = injector.logger.withScope('ClientSettings')
     this.initConfig()
     this.currentSettings.subscribe((change) => {
       localStorage.setItem(localStorageKey, JSON.stringify(change))

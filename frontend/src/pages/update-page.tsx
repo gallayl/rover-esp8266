@@ -2,6 +2,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { EnvironmentService } from '../services/environment-service'
 
 export const UpdatePage = Shade({
+  shadowDomName: 'flea-update-page',
   render: ({ injector }) => {
     return (
       <div

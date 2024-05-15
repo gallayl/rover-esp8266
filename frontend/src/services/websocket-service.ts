@@ -1,5 +1,5 @@
-import { Injectable, Injector } from '@furystack/inject'
-import { ScopedLogger } from '@furystack/logging'
+import { Injectable, Injected, Injector } from '@furystack/inject'
+import { ScopedLogger, getLogger } from '@furystack/logging'
 import { ObservableValue, PathHelper } from '@furystack/utils'
 import { EnvironmentService } from './environment-service'
 
@@ -106,9 +106,10 @@ export class WebSocketService {
     this.lastMessage.dispose()
   }
 
-  constructor(private env: EnvironmentService, injector: Injector) {
-    this.logger = injector.logger.withScope('WebSocketService')
-    this.socket = this.createSocket()
+  @Injected(EnvironmentService)
+  private readonly env!: EnvironmentService
+
+  constructor() {
     this.lastMessage.subscribe((msg) => this.eventStream.push({ ...msg, date: new Date() }))
   }
 }

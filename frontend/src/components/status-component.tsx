@@ -2,36 +2,15 @@ import { createComponent, Shade, ScreenService } from '@furystack/shades'
 import { ThemeProviderService } from '@furystack/shades-common-components'
 import { MovementService } from '../services/movement-service'
 
-export const StatusComponent = Shade<
-  { style?: Partial<CSSStyleDeclaration> },
-  { leftSpeed: number; rightSpeed: number; distance: number }
->({
+export const StatusComponent = Shade<{ style?: Partial<CSSStyleDeclaration> }>({
   shadowDomName: 'status-component',
-  getInitialState: ({ injector }) => {
+
+  render: ({ injector, useObservable }) => {
     const movementService = injector.getInstance(MovementService)
-    return {
-      leftSpeed: movementService.leftSpeed.getValue(),
-      rightSpeed: movementService.rightSpeed.getValue(),
-      distance: movementService.frontDistance.getValue(),
-    }
-  },
-  constructed: ({ injector, updateState }) => {
-    const movementService = injector.getInstance(MovementService)
-    const observables = [
-      movementService.leftSpeed.subscribe((leftSpeed) => {
-        updateState({ leftSpeed })
-      }),
-      movementService.rightSpeed.subscribe((rightSpeed) => {
-        updateState({ rightSpeed })
-      }),
-      movementService.frontDistance.subscribe((distance) => {
-        updateState({ distance })
-      }),
-    ]
-    return () => observables.forEach((o) => o.dispose())
-  },
-  render: ({ getState, injector }) => {
-    const { leftSpeed, rightSpeed, distance } = getState()
+
+    const [leftSpeed] = useObservable('leftSpeed', movementService.leftSpeed)
+    const [rightSpeed] = useObservable('rightSpeed', movementService.rightSpeed)
+    const [distance] = useObservable('distance', movementService.frontDistance)
 
     const themeProvider = injector.getInstance(ThemeProviderService)
 

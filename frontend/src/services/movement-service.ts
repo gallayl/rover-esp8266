@@ -1,15 +1,11 @@
-import { Injectable, Injector } from '@furystack/inject'
+import { Injectable, Injected } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
-import { ScopedLogger } from '@furystack/logging'
 import { WebSocketService } from './websocket-service'
 import { ClientSettings } from './client-settings'
 
 @Injectable({ lifetime: 'singleton' })
 export class MovementService {
-  private logger: ScopedLogger
-
   public stop(): void {
-    this.logger.verbose({ message: 'Stopped' })
     this.webSocket.send('move 0 0')
   }
 
@@ -18,11 +14,11 @@ export class MovementService {
   public readonly frontDistance = new ObservableValue(0)
 
   public async move(leftSpeed: number, rightSpeed: number): Promise<void> {
-    this.settings.currentSettings.getValue().isPidEnabled
+    this.settings.currentSettings.getValue().control.type === 'PID'
       ? this.webSocket.send(`moveTicks ${Math.round(leftSpeed)} ${Math.round(rightSpeed)}`)
       : this.webSocket.send(
-          `move ${Math.round(leftSpeed * this.settings.currentSettings.getValue().throttleSensitivity)} ${Math.round(
-            rightSpeed * this.settings.currentSettings.getValue().throttleSensitivity,
+          `move ${Math.round(leftSpeed * this.settings.currentSettings.getValue().sensitivity.throttle)} ${Math.round(
+            rightSpeed * this.settings.currentSettings.getValue().sensitivity.throttle,
           )}`,
         )
   }
@@ -37,12 +33,13 @@ export class MovementService {
     return (obj as any)?.type === 'distance' && !isNaN((obj as any).distanceCm)
   }
 
-  constructor(
-    private readonly webSocket: WebSocketService,
-    private readonly settings: ClientSettings,
-    injector: Injector,
-  ) {
-    this.logger = injector.logger.withScope('MovementService')
+  @Injected(WebSocketService)
+  private readonly webSocket!: WebSocketService
+
+  @Injected(ClientSettings)
+  private readonly settings!: ClientSettings
+
+  init() {
     this.webSocket.lastMessage.subscribe((message) => {
       const obj = message.dataObject
       if (this.isMotorTicksChange(obj)) {

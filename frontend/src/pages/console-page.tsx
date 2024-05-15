@@ -1,30 +1,13 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { Button } from '@furystack/shades-common-components'
+import { Button, Form } from '@furystack/shades-common-components'
 import { WebSocketEvent, WebSocketService } from '../services/websocket-service'
 
-export const ConsoleEntryList = Shade<
-  unknown,
-  { webSocketService: WebSocketService; entries: Array<WebSocketEvent<any>> }
->({
+export const ConsoleEntryList = Shade<{ events: WebSocketEvent[] }>({
   shadowDomName: 'flea-console-entries',
-  getInitialState: ({ injector }) => ({
-    webSocketService: injector.getInstance(WebSocketService),
-    entries: injector.getInstance(WebSocketService).eventStream,
-  }),
-  constructed: ({ getState, updateState, element }) => {
-    const updateEvents = getState().webSocketService.lastMessage.subscribe(() => {
-      updateState({ entries: getState().webSocketService.eventStream })
-      element.parentElement?.scrollTo({ top: element.firstElementChild?.scrollHeight || Number.MAX_SAFE_INTEGER })
-    })
-    element.parentElement?.scrollTo({ top: element.firstElementChild?.scrollHeight || Number.MAX_SAFE_INTEGER })
-    return () => {
-      updateEvents.dispose()
-    }
-  },
-  render: ({ getState }) => {
+  render: ({ props }) => {
     return (
       <div>
-        {getState().entries.map((event) => (
+        {props.events.map((event) => (
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', fontFamily: 'monospace' }}>
             <div
               style={{
@@ -52,13 +35,10 @@ export const ConsoleEntryList = Shade<
   },
 })
 
-export const ConsolePage = Shade<unknown, { webSocketService: WebSocketService; command: string }>({
-  getInitialState: ({ injector }) => ({
-    webSocketService: injector.getInstance(WebSocketService),
-    command: '',
-  }),
+export const ConsolePage = Shade({
   shadowDomName: 'flea-console-page',
-  render: ({ getState, updateState }) => {
+  render: ({ injector }) => {
+    const webSocketService = injector.getInstance(WebSocketService)
     return (
       <div
         style={{
@@ -72,26 +52,25 @@ export const ConsolePage = Shade<unknown, { webSocketService: WebSocketService; 
           backdropFilter: 'blur(10px)',
         }}>
         <div style={{ flexGrow: '1', overflow: 'auto', height: '100px', padding: '1em' }}>
-          <ConsoleEntryList />
+          <ConsoleEntryList events={webSocketService.eventStream} />
         </div>
-        <form
-          style={{ display: 'flex', flexDirection: 'row', width: '100%', flexShrink: '0' }}
-          onsubmit={(ev) => {
-            ev.preventDefault()
-            getState().webSocketService.send(getState().command)
-            updateState({ command: '' }, true)
-            ;(ev.target as HTMLFormElement).reset()
+        <Form<{ command: string }>
+          onSubmit={({ command }) => {
+            webSocketService.send(command)
+          }}
+          validate={(data): data is { command: string } => {
+            return (data as any).command?.length
           }}>
           <input
             autofocus
             style={{ display: 'block', flexGrow: '1', width: '100%' }}
             placeholder="Command"
-            onkeyup={(ev) => updateState({ command: (ev.target as HTMLInputElement)?.value }, true)}
+            name="command"
           />
           <Button title="Send" type="submit">
             Send
           </Button>
-        </form>
+        </Form>
       </div>
     )
   },

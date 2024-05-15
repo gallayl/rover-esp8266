@@ -40,7 +40,7 @@ export const Layout = Shade({
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: '-1',
-            backgroundColor: injector.getInstance(ThemeProviderService).theme.getValue().background.default,
+            backgroundColor: injector.getInstance(ThemeProviderService).theme.background.default,
           }}>
           <StatusComponent style={{ width: 'calc(100% - 15em)', height: 'calc(100% - 15em)' }} />
         </div>
