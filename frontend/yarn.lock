@@ -261,9 +261,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@furystack/shades-common-components@npm:^8.1.1":
-  version: 8.1.1
-  resolution: "@furystack/shades-common-components@npm:8.1.1"
+"@furystack/shades-common-components@npm:^8.2.0":
+  version: 8.2.0
+  resolution: "@furystack/shades-common-components@npm:8.2.0"
   dependencies:
     "@furystack/core": "npm:^14.0.3"
     "@furystack/inject": "npm:^11.0.2"
@@ -271,7 +271,7 @@ __metadata:
     "@furystack/utils": "npm:^7.0.1"
     path-to-regexp: "npm:^6.2.2"
     semaphore-async-await: "npm:^1.5.1"
-  checksum: 10c0/c6684087e752c57ed2fbde8e9519cc5e2c731c53a127b30f49a2ae95bed2d1379cec4821e46550f58c0f28eb9d147893e0663afcf779f826ace1b12f5681a3bf
+  checksum: 10c0/777d06909c77815e5453db5c8abfc04f1b2e6e1ccc78475fe96b5e0772a23418108238d8b22301f6a2c935d2d33fb7888ade8615ec9a505651ae68027982abc8
   languageName: node
   linkType: hard
 
@@ -1738,7 +1738,7 @@ __metadata:
     "@furystack/inject": "npm:^11.0.2"
     "@furystack/logging": "npm:^7.0.1"
     "@furystack/shades": "npm:^10.0.3"
-    "@furystack/shades-common-components": "npm:^8.1.1"
+    "@furystack/shades-common-components": "npm:^8.2.0"
     "@furystack/shades-nipple": "npm:^6.0.3"
     "@furystack/utils": "npm:^7.0.1"
     "@typescript-eslint/eslint-plugin": "npm:^7.9.0"

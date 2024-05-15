@@ -28,7 +28,7 @@
     "@furystack/inject": "^11.0.2",
     "@furystack/logging": "^7.0.1",
     "@furystack/shades": "^10.0.3",
-    "@furystack/shades-common-components": "^8.1.1",
+    "@furystack/shades-common-components": "^8.2.0",
     "@furystack/shades-nipple": "^6.0.3",
     "@furystack/utils": "^7.0.1"
   },

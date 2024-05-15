@@ -27,7 +27,9 @@ export const Layout = Shade({
             🪲 Flea
           </AppBarLink>
 
-          <AppBarLink href="/settings">⚙️ Settings</AppBarLink>
+          <AppBarLink href="/settings" routingOptions={{ end: false }}>
+            ⚙️ Settings
+          </AppBarLink>
           <AppBarLink href="/console">⌨️ Console</AppBarLink>
           <AppBarLink href="/update">🔃 Update</AppBarLink>
           <div style={{ flex: '1' }} />
