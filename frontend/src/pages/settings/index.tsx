@@ -1,7 +1,7 @@
 import { Router, Shade, createComponent } from '@furystack/shades'
 import { AppBar, AppBarLink } from '@furystack/shades-common-components'
 import { SensitivitySettingsTab } from './sensitivity'
-import { ControlTab } from './control'
+import { ControlPage } from './control'
 
 export const SettingsPage = Shade({
   shadowDomName: 'settings-page',
@@ -20,16 +20,14 @@ export const SettingsPage = Shade({
           marginTop: '3em',
         }}>
         <AppBar style={{ height: '3em' }}>
-          <AppBarLink href="/settings" style={{ marginRight: '0.5em' }}>
-            🍃 Sensitivity
-          </AppBarLink>
+          <AppBarLink href="/settings">🍃 Sensitivity</AppBarLink>
           <AppBarLink href="/settings/control">🛠️ Control</AppBarLink>
           <AppBarLink href="/settings/network">🛜 Network</AppBarLink>
         </AppBar>
         <Router
           routes={[
             { url: '/settings', component: () => <SensitivitySettingsTab /> },
-            { url: '/settings/control', component: () => <ControlTab /> },
+            { url: '/settings/control', component: () => <ControlPage /> },
           ]}
         />
       </div>

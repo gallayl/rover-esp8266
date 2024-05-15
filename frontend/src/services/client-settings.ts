@@ -12,7 +12,7 @@ export interface ClientSettingsValues {
   sensitivity: SensitivitySetting
 }
 
-export const defaultSettings: ClientSettingsValues = {
+export const defaultSettings = {
   control: {
     type: 'direct',
     throttleSensitivity: 256,
@@ -23,7 +23,14 @@ export const defaultSettings: ClientSettingsValues = {
     deadZone: 0,
     characteristic: 'linear',
   },
-}
+} satisfies ClientSettingsValues
+
+export const defaultPidSettings = {
+  type: 'PID',
+  p: 1,
+  i: 1,
+  d: 1,
+} satisfies ControlSetting
 
 @Injectable({ lifetime: 'singleton' })
 export class ClientSettings {
