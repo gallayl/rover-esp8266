@@ -1,16 +1,15 @@
-import { Injectable, Injector } from '@furystack/inject'
+import { Injectable, Injected } from '@furystack/inject'
 import { NotyService } from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
 
 const localStorageKey = 'FLEA_SETTINGS'
 
 type ControlSetting = { type: 'PID'; p: number; i: number; d: number } | { type: 'direct'; throttleSensitivity: number }
-type SensitivitySetting = { throttle: number; steer: number; deadZone: number }
+type SensitivitySetting = { throttle: number; steer: number; deadZone: number; characteristic: CharacteristicSetting }
 type CharacteristicSetting = 'linear' | 'exponential'
 export interface ClientSettingsValues {
   control: ControlSetting
   sensitivity: SensitivitySetting
-  characteristic: CharacteristicSetting
 }
 
 export const defaultSettings: ClientSettingsValues = {
@@ -21,9 +20,9 @@ export const defaultSettings: ClientSettingsValues = {
   sensitivity: {
     throttle: 1,
     steer: 1,
-    deadZone: 1,
+    deadZone: 0,
+    characteristic: 'linear',
   },
-  characteristic: 'linear',
 }
 
 @Injectable({ lifetime: 'singleton' })
@@ -41,11 +40,14 @@ export class ClientSettings {
     }
   }
 
-  constructor(injector: Injector) {
+  @Injected(NotyService)
+  private declare notyService: NotyService
+
+  constructor() {
     this.initConfig()
     this.currentSettings.subscribe((change) => {
       localStorage.setItem(localStorageKey, JSON.stringify(change))
-      injector.getInstance(NotyService).addNoty({ type: 'success', title: 'Success', body: 'Configuration saved' })
+      this.notyService.emit('onNotyAdded', { type: 'success', title: 'Success', body: 'Configuration saved' })
     })
   }
 }

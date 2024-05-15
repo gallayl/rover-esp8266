@@ -2,8 +2,8 @@ import { Injectable } from '@furystack/inject'
 
 @Injectable({ lifetime: 'singleton' })
 export class EnvironmentService {
-  nodeEnv!: 'development' | 'production'
-  debug!: boolean
-  buildDate!: Date
-  site!: string
+  declare nodeEnv: 'development' | 'production'
+  declare debug: boolean
+  declare buildDate: Date
+  declare site: string
 }

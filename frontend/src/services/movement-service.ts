@@ -34,14 +34,14 @@ export class MovementService {
   }
 
   @Injected(WebSocketService)
-  private readonly webSocket!: WebSocketService
+  private declare readonly webSocket: WebSocketService
 
   @Injected(ClientSettings)
-  private readonly settings!: ClientSettings
+  private declare readonly settings: ClientSettings
 
   init() {
     this.webSocket.lastMessage.subscribe((message) => {
-      const obj = message.dataObject
+      const obj = message?.dataObject
       if (this.isMotorTicksChange(obj)) {
         if (obj.index === 0) {
           this.leftSpeed.setValue(parseInt(obj.ticks as any, 10))

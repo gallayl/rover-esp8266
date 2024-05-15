@@ -8,7 +8,7 @@ export const UpdatePage = Shade({
       <div
         style={{
           display: 'flex',
-          height: '80%',
+          height: '100%',
           width: '100%',
           justifyContent: 'center',
           alignItems: 'center',

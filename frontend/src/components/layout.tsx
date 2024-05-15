@@ -1,10 +1,8 @@
-import { Shade, createComponent, Router, RouteLink } from '@furystack/shades'
-import { AppBar, NotyList, ThemeProviderService } from '@furystack/shades-common-components'
-import { JoystickPage } from '../pages/joystick-page'
-import { ConsolePage } from '../pages/console-page'
-import { UpdatePage } from '../pages/update-page'
-import { SettingsPage } from '../pages/settings-page'
+import { Shade, createComponent, Router, LazyLoad } from '@furystack/shades'
+import { AppBar, AppBarLink, NotyList, ThemeProviderService } from '@furystack/shades-common-components'
 import { StatusComponent } from './status-component'
+import { FullScreenLoader } from './full-screen-loader'
+import { ConnectionStatus } from './connection-status'
 
 export const Layout = Shade({
   shadowDomName: 'flea-layout',
@@ -19,17 +17,21 @@ export const Layout = Shade({
           flexDirection: 'column',
           lineHeight: '18px',
         }}>
-        <AppBar>
-          <div style={{ width: 'calc(100% - 16px)', display: 'flex' }}>
-            <RouteLink href="/" style={{ marginRight: '0.5em' }}>
-              Flea
-            </RouteLink>
-            &nbsp;
-            <RouteLink href="/settings">Settings</RouteLink>&nbsp;|&nbsp;
-            <RouteLink href="/console">Console</RouteLink>&nbsp;|&nbsp;
-            <RouteLink href="/update">Update</RouteLink>
-            <div style={{ flex: '1' }} />
-          </div>
+        <AppBar
+          style={{
+            height: '2em',
+            padding: '0.5em 0',
+            display: 'flex',
+          }}>
+          <AppBarLink href="/" style={{ marginRight: '0.5em' }}>
+            🪲 Flea
+          </AppBarLink>
+
+          <AppBarLink href="/settings">⚙️ Settings</AppBarLink>
+          <AppBarLink href="/console">⌨️ Console</AppBarLink>
+          <AppBarLink href="/update">🔃 Update</AppBarLink>
+          <div style={{ flex: '1' }} />
+          <ConnectionStatus />
         </AppBar>
         <div
           style={{
@@ -49,19 +51,54 @@ export const Layout = Shade({
             routes={[
               {
                 url: '/',
-                component: () => <JoystickPage />,
+                component: () => (
+                  <LazyLoad
+                    component={async () => {
+                      const { JoystickPage } = await import('../pages/joystick-page')
+                      return <JoystickPage />
+                    }}
+                    loader={<FullScreenLoader />}
+                  />
+                ),
               },
               {
+                routingOptions: {
+                  end: false,
+                },
                 url: '/settings',
-                component: () => <SettingsPage />,
+                component: () => (
+                  <LazyLoad
+                    component={async () => {
+                      const { SettingsPage } = await import('../pages/settings')
+                      return <SettingsPage />
+                    }}
+                    loader={<FullScreenLoader />}
+                  />
+                ),
               },
               {
                 url: '/console',
-                component: () => <ConsolePage />,
+                component: () => (
+                  <LazyLoad
+                    component={async () => {
+                      const { ConsolePage } = await import('../pages/console-page')
+                      return <ConsolePage />
+                    }}
+                    loader={<FullScreenLoader />}
+                  />
+                ),
               },
               {
                 url: '/update',
-                component: () => <UpdatePage />,
+                component: () => (
+                  <LazyLoad
+                    component={async () => {
+                      const { UpdatePage } = await import('../pages/update-page')
+                      return <UpdatePage />
+                    }}
+                    loader={<FullScreenLoader />}
+                  />
+                ),
               },
             ]}
           />

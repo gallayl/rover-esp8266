@@ -1,9 +1,9 @@
-import { Injectable, Injected, Injector } from '@furystack/inject'
-import { ScopedLogger, getLogger } from '@furystack/logging'
+import { Injectable, Injected } from '@furystack/inject'
+import { type ScopedLogger, getLogger } from '@furystack/logging'
 import { ObservableValue, PathHelper } from '@furystack/utils'
 import { EnvironmentService } from './environment-service'
 
-export interface WebSocketEvent<T = unknown> {
+export interface WebSocketEvent<T> {
   type: 'incoming' | 'outgoing' | 'connection'
   date: Date
   dataObject?: T
@@ -14,9 +14,9 @@ export interface WebSocketEvent<T = unknown> {
 export class WebSocketService {
   public isConnected = new ObservableValue<boolean>(false)
 
-  public eventStream: WebSocketEvent[] = []
+  public eventStream: WebSocketEvent<unknown>[] = []
 
-  public lastMessage = new ObservableValue<Omit<WebSocketEvent, 'date'>>()
+  public lastMessage = new ObservableValue<Omit<WebSocketEvent<unknown>, 'date'> | null>(null)
 
   public send(data: string): void {
     if (this.socket.readyState === WebSocket.OPEN) {
@@ -25,8 +25,10 @@ export class WebSocketService {
     }
   }
 
-  private socket: WebSocket
-  private logger: ScopedLogger
+  @Injected((injector) => getLogger(injector).withScope('WebSocketService'))
+  private declare logger: ScopedLogger
+
+  private socket!: WebSocket
 
   private onConnect = (() => {
     this.logger.verbose({
@@ -107,9 +109,10 @@ export class WebSocketService {
   }
 
   @Injected(EnvironmentService)
-  private readonly env!: EnvironmentService
+  private declare readonly env: EnvironmentService
 
-  constructor() {
-    this.lastMessage.subscribe((msg) => this.eventStream.push({ ...msg, date: new Date() }))
+  init() {
+    this.lastMessage.subscribe((msg) => this.eventStream.push({ ...msg, date: new Date() } as WebSocketEvent<unknown>))
+    this.socket = this.createSocket()
   }
 }

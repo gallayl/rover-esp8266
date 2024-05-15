@@ -1,8 +1,8 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { Button, Form } from '@furystack/shades-common-components'
-import { WebSocketEvent, WebSocketService } from '../services/websocket-service'
+import { type WebSocketEvent, WebSocketService } from '../services/websocket-service'
 
-export const ConsoleEntryList = Shade<{ events: WebSocketEvent[] }>({
+export const ConsoleEntryList = Shade<{ events: WebSocketEvent<any>[] }>({
   shadowDomName: 'flea-console-entries',
   render: ({ props }) => {
     return (
