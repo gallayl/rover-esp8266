@@ -9,7 +9,7 @@ export const DistanceComponent = Shade({
     const movementService = injector.getInstance(MovementService)
     const [distance] = useObservable('distance', movementService.frontDistance, {
       onChange: (newDistance) => {
-        attachStyles(element, { props: getDistanceColor(newDistance) })
+        attachStyles(element, { style: getDistanceColor(newDistance) })
         element.innerText = newDistance.toString() + ' cm'
       },
     })

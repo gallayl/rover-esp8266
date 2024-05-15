@@ -14,11 +14,13 @@ export class MovementService {
   public readonly frontDistance = new ObservableValue(0)
 
   public async move(leftSpeed: number, rightSpeed: number): Promise<void> {
-    this.settings.currentSettings.getValue().control.type === 'PID'
+    const settings = this.settings.currentSettings.getValue()
+
+    settings.control.type === 'PID'
       ? this.webSocket.send(`moveTicks ${Math.round(leftSpeed)} ${Math.round(rightSpeed)}`)
       : this.webSocket.send(
-          `move ${Math.round(leftSpeed * this.settings.currentSettings.getValue().sensitivity.throttle)} ${Math.round(
-            rightSpeed * this.settings.currentSettings.getValue().sensitivity.throttle,
+          `move ${Math.round(leftSpeed * settings.control.throttleSensitivity)} ${Math.round(
+            rightSpeed * settings.control.throttleSensitivity,
           )}`,
         )
   }

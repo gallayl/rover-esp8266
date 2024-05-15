@@ -16,7 +16,7 @@ shadeInjector.setExplicitInstance(
   {
     nodeEnv: import.meta.env.MODE as 'development' | 'production',
     buildDate: new Date(import.meta.env.BUILD_DATE as string),
-    site: import.meta.env.SITE || window.location.host,
+    site: import.meta.env.VITE_SITE || window.location.host,
   },
   EnvironmentService,
 )

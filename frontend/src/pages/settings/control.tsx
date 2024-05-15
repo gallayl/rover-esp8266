@@ -71,7 +71,13 @@ export const ControlPage = Shade({
           <Form<ClientSettingsValues['control']>
             validate={(_formData): _formData is ClientSettingsValues['control'] => true}
             onSubmit={(control) => {
-              setSettings({ ...settings, control })
+              setSettings({
+                ...settings,
+                control: {
+                  type: 'direct',
+                  throttleSensitivity: parseInt((control as any).throttleSensitivity),
+                },
+              })
             }}>
             <Input
               type="number"

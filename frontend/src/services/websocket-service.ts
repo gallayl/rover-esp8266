@@ -52,11 +52,14 @@ export class WebSocketService {
   private onOpen = (() => {
     this.logger.verbose({ message: 'Opened', data: { socket: this.socket } })
     this.lastMessage.setValue({ type: 'connection', data: 'Socket opened' })
+    this.isConnected.setValue(true)
   }).bind(this)
 
   private onClose = (() => {
     this.logger.verbose({ message: 'Closed', data: { socket: this.socket } })
     this.lastMessage.setValue({ type: 'connection', data: 'Socket closed' })
+    this.isConnected.setValue(false)
+    this.socket = this.createSocket()
   }).bind(this)
 
   private onError = (() => {
