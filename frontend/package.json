@@ -29,6 +29,8 @@
     "@furystack/logging": "^4.0.8",
     "@furystack/shades": "^8.0.10",
     "@furystack/shades-common-components": "^5.0.10",
-    "@furystack/shades-nipple": "^4.0.10"
-  }
+    "@furystack/shades-nipple": "^4.0.10",
+    "@furystack/utils": "^7.0.1"
+  },
+  "packageManager": "yarn@4.2.2"
 }
