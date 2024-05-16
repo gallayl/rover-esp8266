@@ -98,6 +98,7 @@ const SpeedGauge = Shade<{
             width: '100%',
             height: '4px',
             background: 'rgba(255,255,255,0.8)',
+            transition: 'bottom 500ms cubic-bezier(0.215, 0.610, 0.355, 1.000)',
             bottom: `${getSpeedPercent(props.desiredSpeed.getValue(), maxSpeed)}%`,
           }}
         />

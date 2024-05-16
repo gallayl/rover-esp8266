@@ -30,14 +30,14 @@ public:
     {
         this->_usePID = false;
         this->_throttleValue = constrain(abs(newValue), 0, PWMRANGE);
-        digitalWrite(this->_directionPin, newValue > 0 ? LOW : HIGH);
+        digitalWrite(this->_directionPin, newValue > 0 ? HIGH : LOW);
         analogWrite(this->_throttlePin, (int)this->_throttleValue);
     }
 
     void setPid(int16_t newValue)
     {
         this->_usePID = true;
-        digitalWrite(this->_directionPin, newValue > 0 ? LOW : HIGH);
+        digitalWrite(this->_directionPin, newValue > 0 ? HIGH : LOW);
         this->_setPoint = abs(newValue);
     }
 
