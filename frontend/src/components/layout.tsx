@@ -83,7 +83,7 @@ export const Layout = Shade({
                 ),
               },
               {
-                url: '/settings/console',
+                url: '/console',
                 component: () => (
                   <LazyLoad
                     component={async () => {
