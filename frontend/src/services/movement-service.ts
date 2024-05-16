@@ -9,20 +9,33 @@ export class MovementService {
     this.webSocket.send('move 0 0')
   }
 
+  public dispose() {
+    this.moveSender.dispose()
+    this.lastMoveCommand.dispose()
+    this.leftSpeed.dispose()
+    this.rightSpeed.dispose()
+    this.frontDistance.dispose()
+  }
+
   public readonly leftSpeed = new ObservableValue(0)
   public readonly rightSpeed = new ObservableValue(0)
   public readonly frontDistance = new ObservableValue(0)
 
+  private lastMoveCommand = new ObservableValue('')
+
+  private moveSender = this.lastMoveCommand.subscribe((cmd) => {
+    this.webSocket.send(cmd)
+  })
+
   public async move(leftSpeed: number, rightSpeed: number): Promise<void> {
     const settings = this.settings.currentSettings.getValue()
-
-    settings.control.type === 'PID'
-      ? this.webSocket.send(`moveTicks ${Math.round(leftSpeed)} ${Math.round(rightSpeed)}`)
-      : this.webSocket.send(
-          `move ${Math.round(leftSpeed * settings.control.throttleSensitivity)} ${Math.round(
+    const cmd =
+      settings.control.type === 'PID'
+        ? `moveTicks ${Math.round(leftSpeed)} ${Math.round(rightSpeed)}`
+        : `move ${Math.round(leftSpeed * settings.control.throttleSensitivity)} ${Math.round(
             rightSpeed * settings.control.throttleSensitivity,
-          )}`,
-        )
+          )}`
+    this.lastMoveCommand.setValue(cmd)
   }
 
   private readonly isMotorTicksChange = (
