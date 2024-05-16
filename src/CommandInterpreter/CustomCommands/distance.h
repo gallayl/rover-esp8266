@@ -21,7 +21,7 @@ void sendDistanceEvent()
     float distance = sonar.ping_cm(50);
     if (lastSentDistance != distance)
     {
-        webSocket->textAll(String("{\"type\":\"distance\", \"distanceCm\":" + String(distance) + "}"));
+        webSocket->textAll(String("{\"type\":\"distance\", \"cm\":" + String(distance) + "}"));
         lastSentDistance = distance;
     }
 }
@@ -36,4 +36,4 @@ void setupDistance()
 CustomCommand *distanceAction = new CustomCommand("distance", [](String command)
                                                   {
     float distance = sonar.ping_cm(50);
-    webSocket->textAll(String("{\"type\":\"distance\", \"distanceCm\":" + String(distance) + "}")); });
+    webSocket->textAll(String("{\"type\":\"distance\", \"cm\":" + String(distance) + "}")); });

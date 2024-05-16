@@ -4,6 +4,7 @@
 #include <PID_v1.h>
 
 #define PWMRANGE 1024
+#define MOTOR_SAMPLETIME_MS 50
 
 double aggKp = 50, aggKi = 0.2, aggKd = 1;
 double consKp = 5, consKi = 0.05, consKd = 0.25;
@@ -19,6 +20,7 @@ public:
         this->pid.SetOutputLimits(100, PWMRANGE);
         this->pid.SetMode(AUTOMATIC);
         this->pid.SetTunings(aggKp, aggKi, aggKd);
+        this->pid.SetSampleTime(MOTOR_SAMPLETIME_MS);
     }
 
     void SetThrottle(int16_t newValue)
@@ -38,7 +40,7 @@ public:
 
     void configurePid(double p, double i, double d)
     {
-        // this->pid.SetTunings(p, i, d);
+        this->pid.SetTunings(p, i, d);
     }
 
     uint16_t GetThrottle()
@@ -68,7 +70,7 @@ public:
         if (this->_currentTicks != this->_lastSentTicks)
         {
             this->_lastSentTicks = this->_currentTicks;
-            webSocket->textAll(String("{\"type\": \"motorTicksChange\", \"index\":" + String(this->index) + ",\"ticks\": " + String(this->_currentTicks) + "}"));
+            webSocket->textAll(String("{\"type\": \"motorTicksChange\", \"i\":" + String(this->index) + ",\"t\": " + String(this->_currentTicks) + "}"));
         }
         this->_currentTicks = 0;
     }

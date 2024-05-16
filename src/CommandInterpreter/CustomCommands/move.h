@@ -66,7 +66,7 @@ void IRAM_ATTR rightMotorTick()
 
 void setupMotors()
 {
-    timer->setInterval(50, motorEncoderEvents);
+    timer->setInterval(MOTOR_SAMPLETIME_MS, motorEncoderEvents);
     attachInterrupt(RightMotorEncoder, rightMotorTick, CHANGE);
     attachInterrupt(LeftMotorEncoder, leftMotorTick, CHANGE);
 }
@@ -76,32 +76,32 @@ int16_t steerValue;
 int16_t leftMotorSpeed;
 int16_t rightMotorSpeed;
 
-CustomCommand *move = new CustomCommand("move", [](String command) {
+CustomCommand *move = new CustomCommand("move", [](String command)
+                                        {
     leftMotorSpeed = (int16_t)constrain(round(CommandParser::GetCommandParameter(command, 1).toInt()), -PWMRANGE, PWMRANGE);
     rightMotorSpeed = (int16_t)-constrain(round(CommandParser::GetCommandParameter(command, 2).toInt()), -PWMRANGE, PWMRANGE);
 
     leftMotor->SetThrottle(leftMotorSpeed);
-    rightMotor->SetThrottle(rightMotorSpeed);
-});
+    rightMotor->SetThrottle(rightMotorSpeed); });
 
-CustomCommand *moveTicks = new CustomCommand("moveTicks", [](String command) {
+CustomCommand *moveTicks = new CustomCommand("moveTicks", [](String command)
+                                             {
     leftMotorSpeed = (int16_t)CommandParser::GetCommandParameter(command, 1).toInt();
     rightMotorSpeed = (int16_t)-CommandParser::GetCommandParameter(command, 2).toInt();
 
     leftMotor->setPid(leftMotorSpeed);
-    rightMotor->setPid(rightMotorSpeed);
-});
+    rightMotor->setPid(rightMotorSpeed); });
 
-CustomCommand *configurePid = new CustomCommand("configurePid", [](String command) {
+CustomCommand *configurePid = new CustomCommand("configurePid", [](String command)
+                                                {
     double p = (int16_t)CommandParser::GetCommandParameter(command, 1).toDouble();
     double i = (int16_t)CommandParser::GetCommandParameter(command, 2).toDouble();
     double d = (int16_t)CommandParser::GetCommandParameter(command, 2).toDouble();
 
     leftMotor->configurePid(p, i, d);
-    rightMotor->configurePid(p, i, d);
-});
+    rightMotor->configurePid(p, i, d); });
 
-CustomCommand *stop = new CustomCommand("stop", [](String command) {
+CustomCommand *stop = new CustomCommand("stop", [](String command)
+                                        {
     leftMotor->SetThrottle(0);
-    rightMotor->SetThrottle(0);
-});
+    rightMotor->SetThrottle(0); });

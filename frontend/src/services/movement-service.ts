@@ -27,12 +27,12 @@ export class MovementService {
 
   private readonly isMotorTicksChange = (
     obj: unknown,
-  ): obj is { type: 'motorTicksChange'; index: number; ticks: number } => {
-    return (obj as any)?.type === 'motorTicksChange' && !isNaN((obj as any).index) && !isNaN((obj as any).ticks)
+  ): obj is { type: 'motorTicksChange'; i: number; t: number } => {
+    return (obj as any)?.type === 'motorTicksChange' && !isNaN((obj as any).i) && !isNaN((obj as any).t)
   }
 
-  private readonly isDistanceChange = (obj: unknown): obj is { type: 'distance'; distanceCm: number } => {
-    return (obj as any)?.type === 'distance' && !isNaN((obj as any).distanceCm)
+  private readonly isDistanceChange = (obj: unknown): obj is { type: 'distance'; cm: number } => {
+    return (obj as any)?.type === 'distance' && !isNaN((obj as any).cm)
   }
 
   @Injected(WebSocketService)
@@ -45,14 +45,14 @@ export class MovementService {
     this.webSocket.lastMessage.subscribe((message) => {
       const obj = message?.dataObject
       if (this.isMotorTicksChange(obj)) {
-        if (obj.index === 0) {
-          this.leftSpeed.setValue(parseInt(obj.ticks as any, 10))
-        } else if (obj.index === 1) {
-          this.rightSpeed.setValue(parseInt(obj.ticks as any, 10))
+        if (obj.i === 0) {
+          this.leftSpeed.setValue(parseInt(obj.t as any, 10))
+        } else if (obj.i === 1) {
+          this.rightSpeed.setValue(parseInt(obj.t as any, 10))
         }
       }
       if (this.isDistanceChange(obj)) {
-        this.frontDistance.setValue(obj.distanceCm)
+        this.frontDistance.setValue(obj.cm)
       }
     })
   }
