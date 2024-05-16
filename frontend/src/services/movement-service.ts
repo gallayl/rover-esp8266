@@ -7,6 +7,8 @@ import { ClientSettings } from './client-settings'
 export class MovementService {
   public stop(): void {
     this.webSocket.send('move 0 0')
+    this.desiredLeftSpeed.setValue(0)
+    this.desiredRightSpeed.setValue(0)
   }
 
   public dispose() {
@@ -18,9 +20,11 @@ export class MovementService {
 
   public readonly leftSpeed = new ObservableValue(0)
   public readonly leftMaxSpeed = new ObservableValue(0)
+  public readonly desiredLeftSpeed = new ObservableValue(0)
 
   public readonly rightSpeed = new ObservableValue(0)
   public readonly rightMaxSpeed = new ObservableValue(0)
+  public readonly desiredRightSpeed = new ObservableValue(0)
 
   private lastMoveCommand = new ObservableValue('')
 
@@ -29,17 +33,22 @@ export class MovementService {
   })
 
   public async move(leftSpeed: number, rightSpeed: number): Promise<void> {
-    console.log('move', { leftSpeed, rightSpeed })
     const settings = this.settings.currentSettings.getValue()
     if (settings.control.type === 'PID') {
+      this.desiredLeftSpeed.setValue(leftSpeed)
+      this.desiredRightSpeed.setValue(rightSpeed)
       this.lastMoveCommand.setValue(`moveTicks ${Math.round(leftSpeed)} ${Math.round(rightSpeed)}`)
       return
     }
+    this.desiredLeftSpeed.setValue(0)
+    this.desiredRightSpeed.setValue(0)
     const sensitivity = settings.control.throttleSensitivity
-    const roundFactor = sensitivity / 8
-    const cmd = `move ${Math.round((leftSpeed * sensitivity) / roundFactor) * roundFactor} ${
-      Math.round((rightSpeed * sensitivity) / roundFactor) * roundFactor
-    }`
+    const roundFactor = sensitivity / 4
+    const leftThrottle = Math.round((leftSpeed * sensitivity) / roundFactor) * roundFactor
+    const rightThrottle = Math.round((rightSpeed * sensitivity) / roundFactor) * roundFactor
+    const cmd = `move ${leftThrottle} ${rightThrottle}`
+    this.desiredLeftSpeed.setValue((leftThrottle / 1024) * this.leftMaxSpeed.getValue())
+    this.desiredRightSpeed.setValue((rightThrottle / 1024) * this.rightMaxSpeed.getValue())
     this.lastMoveCommand.setValue(cmd)
   }
 

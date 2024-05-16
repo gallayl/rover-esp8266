@@ -3,7 +3,7 @@ import { MovementService } from '../services/movement-service'
 import { ObservableValue } from '@furystack/utils'
 
 const getSpeedPercent = (speed: number, maxSpeed: number) => {
-  return (speed / (maxSpeed || 1)) * 100
+  return Math.min((speed / (maxSpeed || 1)) * 100, 100)
 }
 
 const getSpeedLabel = (speed: number, maxSpeed: number) => {
@@ -21,7 +21,11 @@ const getStyle = (speed: number, maxSpeed: number) => {
   }
 }
 
-const SpeedGauge = Shade<{ speed: ObservableValue<number>; maxSpeed: ObservableValue<number> }>({
+const SpeedGauge = Shade<{
+  speed: ObservableValue<number>
+  maxSpeed: ObservableValue<number>
+  desiredSpeed: ObservableValue<number>
+}>({
   shadowDomName: 'speed-gauge',
   render: ({ props, element, useDisposable }) => {
     useDisposable('speed', () =>
@@ -50,6 +54,16 @@ const SpeedGauge = Shade<{ speed: ObservableValue<number>; maxSpeed: ObservableV
       }),
     )
 
+    useDisposable('desiredSpeed', () =>
+      props.desiredSpeed.subscribe((newDesiredSpeed) => {
+        attachStyles(element.querySelector<HTMLDivElement>('.desiredSpeed')!, {
+          style: {
+            bottom: `${getSpeedPercent(Math.abs(newDesiredSpeed) || 0, props.maxSpeed.getValue())}%`,
+          },
+        })
+      }),
+    )
+
     const speed = props.speed.getValue()
     const maxSpeed = props.maxSpeed.getValue()
 
@@ -59,7 +73,7 @@ const SpeedGauge = Shade<{ speed: ObservableValue<number>; maxSpeed: ObservableV
         height: '100%',
         position: 'relative',
         border: '1px solid rgba(128,128,128,0.15)',
-        background: 'linear-gradient(to top, #005500, #555500, #550000)',
+        background: 'linear-gradient(to top, #003300, #333300, #330000)',
       },
     })
 
@@ -75,7 +89,18 @@ const SpeedGauge = Shade<{ speed: ObservableValue<number>; maxSpeed: ObservableV
             width: '100%',
             transition: 'height 500ms cubic-bezier(0.215, 0.610, 0.355, 1.000)',
             ...getStyle(speed, maxSpeed).style,
-          }}></div>
+          }}
+        />
+        <div
+          className="desiredSpeed"
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '4px',
+            background: 'rgba(255,255,255,0.8)',
+            bottom: `${getSpeedPercent(props.desiredSpeed.getValue(), maxSpeed)}%`,
+          }}
+        />
         <div
           className="speedLabel"
           style={{
@@ -102,11 +127,13 @@ export const StatusComponent = Shade<{ style?: Partial<CSSStyleDeclaration> }>({
           style={{ flexGrow: '1' }}
           speed={movementService.leftSpeed}
           maxSpeed={movementService.leftMaxSpeed}
+          desiredSpeed={movementService.desiredLeftSpeed}
         />
         <SpeedGauge
           style={{ flexGrow: '1' }}
           speed={movementService.rightSpeed}
           maxSpeed={movementService.rightMaxSpeed}
+          desiredSpeed={movementService.desiredRightSpeed}
         />
       </div>
     )
