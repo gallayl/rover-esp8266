@@ -6,13 +6,9 @@
 void setup()
 {
     Serial.begin(9600);
-    Serial.println("Booting");
-    Serial.println("Setting up WifiManager");
     wifiManager.autoConnect("AutoConnectAP");
     Serial.printf("Connected to %s, IP: %s\r\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
-    Serial.println("Setting up web server");
     mcuServer->setup();
-    Serial.println("Setting up distance sensors");
     setupDistance();
 
     Serial.println("Setting up File System and FTP server");
@@ -32,9 +28,8 @@ void setup()
             Serial.println("Failed to format LittleFS");
         }
     }
-
-    Serial.println("Setting up motors");
     setupMotors();
+    setupWifi();
 }
 
 void loop()

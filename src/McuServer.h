@@ -22,9 +22,10 @@ public:
             if (type == WS_EVT_CONNECT)
             {
                 Serial.println("Websocket client connection received");
-                client->text(String("{\"type\":" + String(WebSocketMessageTypes::MotorTicksChange) + ", \"i\":" + String(leftMotor->index) + ",\"t\": " + String(lastSentLeft) + "}"));
-                client->text(String("{\"type\":" + String(WebSocketMessageTypes::MotorTicksChange) + ", \"i\":" + String(rightMotor->index) + ",\"t\": " + String(lastSentRight) + "}"));
-                client->text(String("{\"type\":" + String(WebSocketMessageTypes::DistanceChange) + ", \"cm\":" + String(lastSentDistance) + "}"));
+                client->text(getMotorTickChangeMessage(leftMotor->index, lastSentLeft));
+                client->text(getMotorTickChangeMessage(rightMotor->index, lastSentRight));
+                client->text(getDistanceMessage(lastSentDistance));
+                client->text(getWifiMessage(lastSentRssi));
             }
             else if (type == WS_EVT_DISCONNECT)
             {

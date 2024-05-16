@@ -10,6 +10,7 @@ export enum WebSocketMessageTypes {
   Unknown = 0,
   MotorTicksChange = 1,
   DistanceChange = 2,
+  WifiSignalChange = 3,
 }
 
 export interface WebSocketEvent<T> {
@@ -26,6 +27,12 @@ export class WebSocketService {
   public eventStream: WebSocketEvent<unknown>[] = []
 
   public lastMessage = new ObservableValue<Omit<WebSocketEvent<unknown>, 'date'> | null>(null)
+
+  public rssi = new ObservableValue<number>(0)
+
+  private isRssiChange = (obj: unknown): obj is { type: WebSocketMessageTypes.WifiSignalChange; rssi: number } => {
+    return (obj as any)?.type === WebSocketMessageTypes.WifiSignalChange && !isNaN((obj as any).rssi)
+  }
 
   public send(data: string): void {
     if (this.socket.readyState === WebSocket.OPEN) {
@@ -81,11 +88,15 @@ export class WebSocketService {
 
   private onMessage = ((ev: MessageEvent) => {
     try {
+      const dataObject = JSON.parse(ev.data.toString())
       this.lastMessage.setValue({
         type: 'incoming',
         data: ev.data.toString(),
-        dataObject: JSON.parse(ev.data.toString()),
+        dataObject,
       })
+      if (this.isRssiChange(dataObject)) {
+        this.rssi.setValue(dataObject.rssi)
+      }
     } catch (error) {
       this.lastMessage.setValue({ type: 'incoming', data: ev.data.toString() })
     }

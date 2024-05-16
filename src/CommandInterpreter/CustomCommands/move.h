@@ -27,6 +27,11 @@ extern AsyncWebSocket *webSocket;
 int horizontalServoTimeout;
 int verticalServoTimeout;
 
+String getMotorTickChangeMessage(uint8_t index, uint8_t ticks)
+{
+    return String("{\"type\": " + String(WebSocketMessageTypes::MotorTicksChange) + ", \"i\":" + String(index) + ",\"t\": " + String(ticks) + "}");
+}
+
 void notifyMotorSpeedChange()
 {
     uint8_t newLeft = (uint8_t)leftMotor->getLastSampledTicks();
@@ -35,12 +40,12 @@ void notifyMotorSpeedChange()
     if (lastSentLeft != newLeft)
     {
         lastSentLeft = newLeft;
-        webSocket->textAll(String("{\"type\": " + String(WebSocketMessageTypes::MotorTicksChange) + ", \"i\":0,\"t\": " + String(newLeft) + "}"));
+        webSocket->textAll(getMotorTickChangeMessage(leftMotor->index, newLeft));
     }
     if (lastSentRight != newRight)
     {
         lastSentRight = newRight;
-        webSocket->textAll(String("{\"type\": " + String(WebSocketMessageTypes::MotorTicksChange) + ", \"i\":1,\"t\": " + String(newRight) + "}"));
+        webSocket->textAll(getMotorTickChangeMessage(rightMotor->index, newRight));
     }
 }
 

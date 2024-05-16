@@ -1,16 +1,16 @@
 import { Shade, attachStyles, createComponent } from '@furystack/shades'
 import { ThemeProviderService } from '@furystack/shades-common-components'
-import { MovementService } from '../services/movement-service'
+import { DistanceService } from '../services/distance-service'
 
 export const DistanceComponent = Shade({
   shadowDomName: 'distance-component',
   render: ({ injector, useObservable, props, element }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
-    const movementService = injector.getInstance(MovementService)
-    const [distance] = useObservable('distance', movementService.frontDistance, {
+    const distanceService = injector.getInstance(DistanceService)
+    const [distance] = useObservable('distance', distanceService.frontDistance, {
       onChange: (newDistance) => {
         attachStyles(element, { style: getDistanceColor(newDistance) })
-        element.innerText = newDistance.toString() + ' cm'
+        element.innerText = `${newDistance.toString()} cm`
       },
     })
 
@@ -31,7 +31,9 @@ export const DistanceComponent = Shade({
       return { backgroundColor, color }
     }
 
-    attachStyles(element, { style: { ...getDistanceColor, ...props.style } })
+    attachStyles(element, {
+      style: { ...getDistanceColor, ...props.style, transition: 'background-color .5s ease-in-out' },
+    })
     return <>{distance.toString()} cm</>
   },
 })

@@ -5,6 +5,7 @@
 #include "./CustomCommands/move.h"
 #include "./CustomCommands/reset.h"
 #include "./CustomCommands/unknown.h"
+#include "./CustomCommands/wifi.h"
 
 #define COMMANDS_SIZE 128
 

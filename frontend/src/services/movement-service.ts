@@ -14,12 +14,10 @@ export class MovementService {
     this.lastMoveCommand.dispose()
     this.leftSpeed.dispose()
     this.rightSpeed.dispose()
-    this.frontDistance.dispose()
   }
 
   public readonly leftSpeed = new ObservableValue(0)
   public readonly rightSpeed = new ObservableValue(0)
-  public readonly frontDistance = new ObservableValue(0)
 
   private lastMoveCommand = new ObservableValue('')
 
@@ -49,12 +47,6 @@ export class MovementService {
     )
   }
 
-  private readonly isDistanceChange = (
-    obj: unknown,
-  ): obj is { type: WebSocketMessageTypes.DistanceChange; cm: number } => {
-    return (obj as any)?.type === WebSocketMessageTypes.DistanceChange && !isNaN((obj as any).cm)
-  }
-
   @Injected(WebSocketService)
   private declare readonly webSocket: WebSocketService
 
@@ -70,9 +62,6 @@ export class MovementService {
         } else if (obj.i === 1) {
           this.rightSpeed.setValue(parseInt(obj.t as any, 10))
         }
-      }
-      if (this.isDistanceChange(obj)) {
-        this.frontDistance.setValue(obj.cm)
       }
     })
   }

@@ -3,6 +3,7 @@ import { AppBar, AppBarLink, NotyList, ThemeProviderService } from '@furystack/s
 import { StatusComponent } from './status-component'
 import { FullScreenLoader } from './full-screen-loader'
 import { ConnectionStatus } from './connection-status'
+import { DistanceComponent } from './distance-component'
 
 export const Layout = Shade({
   shadowDomName: 'flea-layout',
@@ -33,6 +34,9 @@ export const Layout = Shade({
           <AppBarLink href="/console">⌨️ Console</AppBarLink>
           <AppBarLink href="/update">🔃 Update</AppBarLink>
           <div style={{ flex: '1' }} />
+          <DistanceComponent
+            style={{ height: '100%', display: 'flex', alignItems: 'center', padding: '0 1em', marginRight: '1em' }}
+          />
           <ConnectionStatus />
         </AppBar>
         <div
