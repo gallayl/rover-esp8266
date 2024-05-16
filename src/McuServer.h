@@ -22,7 +22,9 @@ public:
             if (type == WS_EVT_CONNECT)
             {
                 Serial.println("Websocket client connection received");
-                client->text("Connected to Rover ESP8266");
+                client->text(String("{\"type\": " + String(WebSocketMessageTypes::MotorTicksChange) + ", \"i\":" + String(leftMotor->index) + ",\"t\": " + String(lastSentLeft) + "}"));
+                client->text(String("{\"type\": " + String(WebSocketMessageTypes::MotorTicksChange) + ", \"i\":" + String(rightMotor->index) + ",\"t\": " + String(lastSentRight) + "}"));
+                client->text(String("{\"type\":" + String(WebSocketMessageTypes::DistanceChange) + ", \"cm\":" + String(lastSentDistance) + "}"));
             }
             else if (type == WS_EVT_DISCONNECT)
             {
