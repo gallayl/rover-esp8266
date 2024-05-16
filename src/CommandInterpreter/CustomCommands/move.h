@@ -13,7 +13,7 @@
 #define LeftMotorDir 0
 #define LeftMotorEncoder D6
 
-#define PWMRANGE 1024
+#define MOTOR_TICKCHANGE_NOTIFY_INTERVAL 300
 
 static Motor *rightMotor = new Motor(LeftMotorSpeed, LeftMotorDir, LeftMotorEncoder, 0);
 static Motor *leftMotor = new Motor(RightMotorSpeed, RightMotorDir, RightMotorEncoder, 1);
@@ -27,29 +27,25 @@ extern AsyncWebSocket *webSocket;
 int horizontalServoTimeout;
 int verticalServoTimeout;
 
-void broadcast(String message)
-{
-    webSocket->textAll(message);
-}
-
 void notifyMotorSpeedChange()
 {
-    uint8_t newLeft = (uint8_t)leftMotor->getCurrentTicks();
-    uint8_t newRight = (uint8_t)rightMotor->getCurrentTicks();
+    uint8_t newLeft = (uint8_t)leftMotor->getLastSampledTicks();
+    uint8_t newRight = (uint8_t)rightMotor->getLastSampledTicks();
 
     if (lastSentLeft != newLeft)
     {
         lastSentLeft = newLeft;
+        webSocket->textAll(String("{\"type\": " + String(WebSocketMessageTypes::MotorTicksChange) + ", \"i\":0,\"t\": " + String(newLeft) + "}"));
     }
     if (lastSentRight != newRight)
     {
         lastSentRight = newRight;
+        webSocket->textAll(String("{\"type\": " + String(WebSocketMessageTypes::MotorTicksChange) + ", \"i\":1,\"t\": " + String(newRight) + "}"));
     }
 }
 
 void motorEncoderEvents()
 {
-    notifyMotorSpeedChange();
     leftMotor->encoderEvent();
     rightMotor->encoderEvent();
 }
@@ -67,6 +63,7 @@ void IRAM_ATTR rightMotorTick()
 void setupMotors()
 {
     timer->setInterval(MOTOR_SAMPLETIME_MS, motorEncoderEvents);
+    timer->setInterval(MOTOR_TICKCHANGE_NOTIFY_INTERVAL, notifyMotorSpeedChange);
     attachInterrupt(RightMotorEncoder, rightMotorTick, CHANGE);
     attachInterrupt(LeftMotorEncoder, leftMotorTick, CHANGE);
 }
@@ -96,7 +93,7 @@ CustomCommand *configurePid = new CustomCommand("configurePid", [](String comman
                                                 {
     double p = (int16_t)CommandParser::GetCommandParameter(command, 1).toDouble();
     double i = (int16_t)CommandParser::GetCommandParameter(command, 2).toDouble();
-    double d = (int16_t)CommandParser::GetCommandParameter(command, 2).toDouble();
+    double d = (int16_t)CommandParser::GetCommandParameter(command, 3).toDouble();
 
     leftMotor->configurePid(p, i, d);
     rightMotor->configurePid(p, i, d); });

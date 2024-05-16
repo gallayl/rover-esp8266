@@ -7,6 +7,8 @@
 #include <AsyncWebSocket.h>
 #include <SimpleTimer.h>
 
+#define SEND_INTERVAL_TIMEOUT_MS 250
+
 int trigPin = D5;
 int echoPin = D8;
 
@@ -31,7 +33,7 @@ void setupDistance()
 {
     pinMode(trigPin, OUTPUT);
     pinMode(echoPin, INPUT);
-    timer->setInterval(100, sendDistanceEvent);
+    timer->setInterval(SEND_INTERVAL_TIMEOUT_MS, sendDistanceEvent);
 }
 
 CustomCommand *distanceAction = new CustomCommand("distance", [](String command)

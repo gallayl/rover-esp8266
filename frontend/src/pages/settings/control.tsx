@@ -2,10 +2,12 @@ import { Shade, createComponent } from '@furystack/shades'
 import { Button, Form, Input, Paper } from '@furystack/shades-common-components'
 import {
   ClientSettings,
-  ClientSettingsValues,
+  DirectControlSetting,
+  PidControlSetting,
   defaultPidSettings,
   defaultSettings,
 } from '../../services/client-settings'
+import { WebSocketService } from '../../services/websocket-service'
 
 export const ControlPage = Shade({
   shadowDomName: 'control-tab',
@@ -39,27 +41,31 @@ export const ControlPage = Shade({
           Direct
         </label>
         {type === 'PID' ? (
-          <Form<ClientSettingsValues['control']>
-            validate={(_formData): _formData is ClientSettingsValues['control'] => true}
+          <Form<PidControlSetting>
+            validate={(_formData): _formData is PidControlSetting => true}
             onSubmit={(control) => {
+              injector.getInstance(WebSocketService).send(`configurePid ${control.p} ${control.i} ${control.d}`)
               setSettings({ ...settings, control })
             }}>
             <Input
-              type="number"
+              type=""
               name="p"
               labelTitle="P"
+              step="0.01"
               value={settings.control.type === 'PID' ? settings.control.p.toString() : defaultPidSettings.p.toString()}
             />
             <Input
               type="number"
               name="i"
               labelTitle="I"
+              step="0.01"
               value={settings.control.type === 'PID' ? settings.control.i.toString() : defaultPidSettings.i.toString()}
             />
             <Input
               type="number"
               name="d"
               labelTitle="D"
+              step="0.01"
               value={settings.control.type === 'PID' ? settings.control.d.toString() : defaultPidSettings.d.toString()}
             />
             <input type="hidden" name="type" value="PID" />
@@ -68,14 +74,14 @@ export const ControlPage = Shade({
             </Button>
           </Form>
         ) : (
-          <Form<ClientSettingsValues['control']>
-            validate={(_formData): _formData is ClientSettingsValues['control'] => true}
+          <Form<DirectControlSetting>
+            validate={(_formData): _formData is DirectControlSetting => true}
             onSubmit={(control) => {
               setSettings({
                 ...settings,
                 control: {
                   type: 'direct',
-                  throttleSensitivity: parseInt((control as any).throttleSensitivity),
+                  throttleSensitivity: parseInt(control.throttleSensitivity.toString()),
                 },
               })
             }}>

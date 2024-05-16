@@ -7,16 +7,15 @@
 #include <SimpleTimer.h>
 #include <PID_v1.h>
 
-#define PWMRANGE 1024
-#define MOTOR_SAMPLETIME_MS 50
+#define PWMRANGE 1023
+#define MOTOR_SAMPLETIME_MS 100
 
 double aggKp = 50, aggKi = 0.2, aggKd = 1;
-double consKp = 5, consKi = 0.05, consKd = 0.25;
 
 class Motor
 {
 public:
-    Motor(uint8_t throttlePin, uint8_t directionPin, uint8_t feedbackPin, uint8_t index) : index(index), _throttlePin(throttlePin), _directionPin(directionPin), _feedbackPin(feedbackPin), _currentTicks(0), _lastSentTicks(0), pid(&(this->_currentTicks), &(this->_output), &(this->_setPoint), aggKp, aggKi, aggKd, DIRECT)
+    Motor(uint8_t throttlePin, uint8_t directionPin, uint8_t feedbackPin, uint8_t index) : index(index), _throttlePin(throttlePin), _directionPin(directionPin), _feedbackPin(feedbackPin), _currentTicks(0), _lastSampledTicks(0), pid(&(this->_currentTicks), &(this->_output), &(this->_setPoint), aggKp, aggKi, aggKd, DIRECT)
     {
         pinMode(throttlePin, OUTPUT);
         pinMode(directionPin, OUTPUT);
@@ -56,26 +55,10 @@ public:
     {
         if (this->_usePID)
         {
-            double gap = abs(this->_setPoint - this->_currentTicks); // distance away from setpoint
-            if (gap < 3)
-            { // we're close to setpoint, use conservative tuning parameters
-                this->pid.SetTunings(consKp, consKi, consKd);
-            }
-            else
-            {
-                // we're far from setpoint, use aggressive tuning parameters
-                this->pid.SetTunings(aggKp, aggKi, aggKd);
-            }
-
             this->pid.Compute();
             analogWrite(this->_throttlePin, (int)abs(round(this->_output)));
-            // webSocket->textAll(String("Setpoint:") + String(this->_setPoint) + String(",input: ") + String(this->_currentTicks) + String(",output: ") + String(this->_output));
         }
-        if (this->_currentTicks != this->_lastSentTicks)
-        {
-            this->_lastSentTicks = this->_currentTicks;
-            webSocket->textAll(String("{\"type\": " + String(WebSocketMessageTypes::MotorTicksChange) + ", \"i\":" + String(this->index) + ",\"t\": " + String(this->_currentTicks) + "}"));
-        }
+        this->_lastSampledTicks = this->_currentTicks;
         this->_currentTicks = 0;
     }
 
@@ -84,9 +67,9 @@ public:
         this->_currentTicks++;
     }
 
-    uint16_t getCurrentTicks()
+    uint16_t getLastSampledTicks()
     {
-        return this->_currentTicks;
+        return this->_lastSampledTicks;
     }
 
     uint8_t index;
@@ -99,7 +82,7 @@ private:
 
     bool _usePID = false;
     double _currentTicks;
-    double _lastSentTicks;
+    double _lastSampledTicks;
     uint16_t _throttleValue = 0;
     double _setPoint = 0, _output = 0;
 

@@ -4,9 +4,18 @@ import { ObservableValue } from '@furystack/utils'
 
 const localStorageKey = 'FLEA_SETTINGS'
 
-type ControlSetting = { type: 'PID'; p: number; i: number; d: number } | { type: 'direct'; throttleSensitivity: number }
-type SensitivitySetting = { throttle: number; steer: number; deadZone: number; characteristic: CharacteristicSetting }
-type CharacteristicSetting = 'linear' | 'exponential'
+export type PidControlSetting = { type: 'PID'; p: number; i: number; d: number }
+
+export type DirectControlSetting = { type: 'direct'; throttleSensitivity: number }
+
+export type ControlSetting = PidControlSetting | DirectControlSetting
+export type SensitivitySetting = {
+  throttle: number
+  steer: number
+  deadZone: number
+  characteristic: CharacteristicSetting
+}
+export type CharacteristicSetting = 'linear' | 'exponential'
 export interface ClientSettingsValues {
   control: ControlSetting
   sensitivity: SensitivitySetting
@@ -27,8 +36,8 @@ export const defaultSettings = {
 
 export const defaultPidSettings = {
   type: 'PID',
-  p: 1,
-  i: 1,
+  p: 50,
+  i: 0.2,
   d: 1,
 } satisfies ControlSetting
 

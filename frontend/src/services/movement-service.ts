@@ -10,7 +10,7 @@ export class MovementService {
   }
 
   public dispose() {
-    this.moveSender.dispose()
+    this.moveChangeSubscription.dispose()
     this.lastMoveCommand.dispose()
     this.leftSpeed.dispose()
     this.rightSpeed.dispose()
@@ -23,18 +23,21 @@ export class MovementService {
 
   private lastMoveCommand = new ObservableValue('')
 
-  private moveSender = this.lastMoveCommand.subscribe((cmd) => {
+  private moveChangeSubscription = this.lastMoveCommand.subscribe((cmd) => {
     this.webSocket.send(cmd)
   })
 
   public async move(leftSpeed: number, rightSpeed: number): Promise<void> {
     const settings = this.settings.currentSettings.getValue()
-    const cmd =
-      settings.control.type === 'PID'
-        ? `moveTicks ${Math.round(leftSpeed)} ${Math.round(rightSpeed)}`
-        : `move ${Math.round(leftSpeed * settings.control.throttleSensitivity)} ${Math.round(
-            rightSpeed * settings.control.throttleSensitivity,
-          )}`
+    if (settings.control.type === 'PID') {
+      this.lastMoveCommand.setValue(`moveTicks ${Math.round(leftSpeed)} ${Math.round(rightSpeed)}`)
+      return
+    }
+    const sensitivity = settings.control.throttleSensitivity
+    const roundFactor = sensitivity / 8
+    const cmd = `move ${Math.round((leftSpeed * sensitivity) / roundFactor) * roundFactor} ${
+      Math.round((rightSpeed * sensitivity) / roundFactor) * roundFactor
+    }`
     this.lastMoveCommand.setValue(cmd)
   }
 
