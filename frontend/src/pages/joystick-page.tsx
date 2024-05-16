@@ -19,8 +19,8 @@ export const JoystickPage = Shade({
           onMove={(_ev, data) => {
             const steerModifier = data.force * data.vector.x * clientSettings.sensitivity.steer
             const throttleModifier = data.force * data.vector.y * clientSettings.sensitivity.throttle
-            const leftSpeed = throttleModifier - steerModifier
-            const rightSpeed = throttleModifier + steerModifier
+            const leftSpeed = throttleModifier + steerModifier
+            const rightSpeed = throttleModifier - steerModifier
             movementService.move(leftSpeed, rightSpeed)
           }}
         />

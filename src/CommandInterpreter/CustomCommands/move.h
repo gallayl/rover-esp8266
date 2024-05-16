@@ -6,11 +6,11 @@
 #include <AsyncWebSocket.h>
 #include <Servo.h>
 
-#define RightMotorSpeed 4
-#define RightMotorDir 2
+#define RightMotorSpeed 5
+#define RightMotorDir 0
 #define RightMotorEncoder D7
-#define LeftMotorSpeed 5
-#define LeftMotorDir 0
+#define LeftMotorSpeed 4
+#define LeftMotorDir 2
 #define LeftMotorEncoder D6
 
 #define MOTOR_TICKCHANGE_NOTIFY_INTERVAL 300
