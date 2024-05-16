@@ -53,13 +53,13 @@ public:
 
     void encoderEvent()
     {
+        this->_lastSampledTicks = this->_currentTicks;
+        this->_currentTicks = 0;
         if (this->_usePID)
         {
             this->pid.Compute();
             analogWrite(this->_throttlePin, (int)abs(round(this->_output)));
         }
-        this->_lastSampledTicks = this->_currentTicks;
-        this->_currentTicks = 0;
     }
 
     void IRAM_ATTR _onTick()

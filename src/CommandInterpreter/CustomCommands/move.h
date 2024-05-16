@@ -27,15 +27,15 @@ extern AsyncWebSocket *webSocket;
 int horizontalServoTimeout;
 int verticalServoTimeout;
 
-String getMotorTickChangeMessage(uint8_t index, uint8_t ticks)
+String getMotorTickChangeMessage(uint16_t index, uint16_t ticks)
 {
     return String("{\"type\": " + String(WebSocketMessageTypes::MotorTicksChange) + ", \"i\":" + String(index) + ",\"t\": " + String(ticks) + "}");
 }
 
 void notifyMotorSpeedChange()
 {
-    uint8_t newLeft = (uint8_t)leftMotor->getLastSampledTicks();
-    uint8_t newRight = (uint8_t)rightMotor->getLastSampledTicks();
+    uint16_t newLeft = (uint16_t)leftMotor->getLastSampledTicks();
+    uint16_t newRight = (uint16_t)rightMotor->getLastSampledTicks();
 
     if (lastSentLeft != newLeft)
     {
