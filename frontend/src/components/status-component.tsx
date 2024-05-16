@@ -106,7 +106,7 @@ const SpeedGauge = Shade<{
           style={{
             position: 'absolute',
             bottom: '16px',
-            right: '32px',
+            right: '.5em',
             color: 'black',
           }}>
           {getSpeedLabel(speed, maxSpeed)}
