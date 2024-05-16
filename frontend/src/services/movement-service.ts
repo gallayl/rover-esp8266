@@ -17,7 +17,10 @@ export class MovementService {
   }
 
   public readonly leftSpeed = new ObservableValue(0)
+  public readonly leftMaxSpeed = new ObservableValue(0)
+
   public readonly rightSpeed = new ObservableValue(0)
+  public readonly rightMaxSpeed = new ObservableValue(0)
 
   private lastMoveCommand = new ObservableValue('')
 
@@ -63,6 +66,17 @@ export class MovementService {
         } else if (obj.i === 1) {
           this.rightSpeed.setValue(parseInt(obj.t as any, 10))
         }
+      }
+    })
+
+    this.leftSpeed.subscribe((speed) => {
+      if (speed > this.leftMaxSpeed.getValue()) {
+        this.leftMaxSpeed.setValue(speed)
+      }
+    })
+    this.rightSpeed.subscribe((speed) => {
+      if (speed > this.rightMaxSpeed.getValue()) {
+        this.rightMaxSpeed.setValue(speed)
       }
     })
   }
