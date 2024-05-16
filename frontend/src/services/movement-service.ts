@@ -1,6 +1,6 @@
 import { Injectable, Injected } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
-import { WebSocketService } from './websocket-service'
+import { WebSocketMessageTypes, WebSocketService } from './websocket-service'
 import { ClientSettings } from './client-settings'
 
 @Injectable({ lifetime: 'singleton' })
@@ -27,12 +27,16 @@ export class MovementService {
 
   private readonly isMotorTicksChange = (
     obj: unknown,
-  ): obj is { type: 'motorTicksChange'; i: number; t: number } => {
-    return (obj as any)?.type === 'motorTicksChange' && !isNaN((obj as any).i) && !isNaN((obj as any).t)
+  ): obj is { type: WebSocketMessageTypes.MotorTicksChange; i: number; t: number } => {
+    return (
+      (obj as any)?.type === WebSocketMessageTypes.MotorTicksChange && !isNaN((obj as any).i) && !isNaN((obj as any).t)
+    )
   }
 
-  private readonly isDistanceChange = (obj: unknown): obj is { type: 'distance'; cm: number } => {
-    return (obj as any)?.type === 'distance' && !isNaN((obj as any).cm)
+  private readonly isDistanceChange = (
+    obj: unknown,
+  ): obj is { type: WebSocketMessageTypes.DistanceChange; cm: number } => {
+    return (obj as any)?.type === WebSocketMessageTypes.DistanceChange && !isNaN((obj as any).cm)
   }
 
   @Injected(WebSocketService)

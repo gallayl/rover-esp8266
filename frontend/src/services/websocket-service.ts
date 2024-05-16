@@ -3,6 +3,15 @@ import { type ScopedLogger, getLogger } from '@furystack/logging'
 import { ObservableValue, PathHelper } from '@furystack/utils'
 import { EnvironmentService } from './environment-service'
 
+/**
+ * Keep in sync with the server
+ */
+export enum WebSocketMessageTypes {
+  Unknown = 0,
+  MotorTicksChange = 1,
+  DistanceChange = 2,
+}
+
 export interface WebSocketEvent<T> {
   type: 'incoming' | 'outgoing' | 'connection'
   date: Date

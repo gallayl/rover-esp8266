@@ -1,5 +1,6 @@
 #pragma once
 #include "../../globals.h"
+#include "../../message-types.h"
 #include "NewPing.h"
 #include "../CommandParser.h"
 #include "../CustomCommand.h"
@@ -21,7 +22,7 @@ void sendDistanceEvent()
     float distance = sonar.ping_cm(50);
     if (lastSentDistance != distance)
     {
-        webSocket->textAll(String("{\"type\":\"distance\", \"cm\":" + String(distance) + "}"));
+        webSocket->textAll(String("{\"type\":" + String(WebSocketMessageTypes::DistanceChange) + ", \"cm\":" + String(distance) + "}"));
         lastSentDistance = distance;
     }
 }
@@ -36,4 +37,4 @@ void setupDistance()
 CustomCommand *distanceAction = new CustomCommand("distance", [](String command)
                                                   {
     float distance = sonar.ping_cm(50);
-    webSocket->textAll(String("{\"type\":\"distance\", \"cm\":" + String(distance) + "}")); });
+    webSocket->textAll(String("{\"type\":" + String(WebSocketMessageTypes::DistanceChange) + ", \"cm\":" + String(distance) + "}")); });

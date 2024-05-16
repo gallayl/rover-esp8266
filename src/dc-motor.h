@@ -1,4 +1,8 @@
 #pragma once
+
+#include "./message-types.h"
+#include "./globals.h"
+
 #include <Arduino.h>
 #include <SimpleTimer.h>
 #include <PID_v1.h>
@@ -70,7 +74,7 @@ public:
         if (this->_currentTicks != this->_lastSentTicks)
         {
             this->_lastSentTicks = this->_currentTicks;
-            webSocket->textAll(String("{\"type\": \"motorTicksChange\", \"i\":" + String(this->index) + ",\"t\": " + String(this->_currentTicks) + "}"));
+            webSocket->textAll(String("{\"type\": " + String(WebSocketMessageTypes::MotorTicksChange) + ", \"i\":" + String(this->index) + ",\"t\": " + String(this->_currentTicks) + "}"));
         }
         this->_currentTicks = 0;
     }
