@@ -1,7 +1,6 @@
-import { Router, Shade, createComponent } from '@furystack/shades'
+import { LazyLoad, Router, Shade, createComponent } from '@furystack/shades'
 import { AppBar, AppBarLink } from '@furystack/shades-common-components'
-import { SensitivitySettingsTab } from './sensitivity'
-import { ControlPage } from './control'
+import { FullScreenLoader } from '../../components/full-screen-loader'
 
 export const SettingsPage = Shade({
   shadowDomName: 'settings-page',
@@ -26,8 +25,30 @@ export const SettingsPage = Shade({
         </AppBar>
         <Router
           routes={[
-            { url: '/settings', component: () => <SensitivitySettingsTab /> },
-            { url: '/settings/control', component: () => <ControlPage /> },
+            {
+              url: '/settings',
+              component: () => (
+                <LazyLoad
+                  loader={<FullScreenLoader />}
+                  component={async () => {
+                    const { SensitivitySettingsTab } = await import('./sensitivity')
+                    return <SensitivitySettingsTab />
+                  }}
+                />
+              ),
+            },
+            {
+              url: '/settings/control',
+              component: () => (
+                <LazyLoad
+                  loader={<FullScreenLoader />}
+                  component={async () => {
+                    const { ControlPage } = await import('./control')
+                    return <ControlPage />
+                  }}
+                />
+              ),
+            },
           ]}
         />
       </div>

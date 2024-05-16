@@ -26,6 +26,7 @@ export class MovementService {
   })
 
   public async move(leftSpeed: number, rightSpeed: number): Promise<void> {
+    console.log('move', { leftSpeed, rightSpeed })
     const settings = this.settings.currentSettings.getValue()
     if (settings.control.type === 'PID') {
       this.lastMoveCommand.setValue(`moveTicks ${Math.round(leftSpeed)} ${Math.round(rightSpeed)}`)

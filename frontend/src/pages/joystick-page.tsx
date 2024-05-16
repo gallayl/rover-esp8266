@@ -1,10 +1,12 @@
 import { NippleComponent } from '@furystack/shades-nipple'
 import { Shade, createComponent } from '@furystack/shades'
 import { MovementService } from '../services/movement-service'
+import { ClientSettings } from '../services/client-settings'
 export const JoystickPage = Shade({
   shadowDomName: 'joystick-page',
-  render: ({ injector }) => {
+  render: ({ injector, useObservable }) => {
     const movementService = injector.getInstance(MovementService)
+    const [clientSettings] = useObservable('clientSettings', injector.getInstance(ClientSettings).currentSettings)
 
     return (
       <div style={{ width: '100%', height: '100%', position: 'relative' }}>
@@ -15,12 +17,10 @@ export const JoystickPage = Shade({
             movementService.stop()
           }}
           onMove={(_ev, data) => {
-            const dirMod = data.direction?.y === 'down' ? -1 : 1
-            const radMod = Math.cos(data.angle.radian - Math.PI)
-            const force = Math.round(data.force)
-            const steerForce = Math.round(force / 1.3)
-            const leftSpeed = (force + radMod * steerForce) * dirMod
-            const rightSpeed = (force - radMod * steerForce) * dirMod
+            const steerModifier = data.force * data.vector.x * clientSettings.sensitivity.steer
+            const throttleModifier = data.force * data.vector.y * clientSettings.sensitivity.throttle
+            const leftSpeed = throttleModifier - steerModifier
+            const rightSpeed = throttleModifier + steerModifier
             movementService.move(leftSpeed, rightSpeed)
           }}
         />
