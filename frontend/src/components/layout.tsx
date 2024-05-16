@@ -32,7 +32,7 @@ export const Layout = Shade({
             ⚙️ Settings
           </AppBarLink>
           <AppBarLink href="/console">⌨️ Console</AppBarLink>
-          <AppBarLink href="/update">🔃 Update</AppBarLink>
+
           <div style={{ flex: '1' }} />
           <DistanceComponent
             style={{ height: '100%', display: 'flex', alignItems: 'center', padding: '0 1em', marginRight: '1em' }}
@@ -83,24 +83,12 @@ export const Layout = Shade({
                 ),
               },
               {
-                url: '/console',
+                url: '/settings/console',
                 component: () => (
                   <LazyLoad
                     component={async () => {
                       const { ConsolePage } = await import('../pages/console-page')
                       return <ConsolePage />
-                    }}
-                    loader={<FullScreenLoader />}
-                  />
-                ),
-              },
-              {
-                url: '/update',
-                component: () => (
-                  <LazyLoad
-                    component={async () => {
-                      const { UpdatePage } = await import('../pages/update-page')
-                      return <UpdatePage />
                     }}
                     loader={<FullScreenLoader />}
                   />

@@ -22,6 +22,7 @@ export const SettingsPage = Shade({
           <AppBarLink href="/settings">🍃 Sensitivity</AppBarLink>
           <AppBarLink href="/settings/control">🛠️ Control</AppBarLink>
           <AppBarLink href="/settings/network">🛜 Network</AppBarLink>
+          <AppBarLink href="/settings/update">🔃 FW upload</AppBarLink>
         </AppBar>
         <Router
           routes={[
@@ -46,6 +47,18 @@ export const SettingsPage = Shade({
                     const { ControlPage } = await import('./control')
                     return <ControlPage />
                   }}
+                />
+              ),
+            },
+            {
+              url: '/settings/update',
+              component: () => (
+                <LazyLoad
+                  component={async () => {
+                    const { UpdatePage } = await import('./update-page')
+                    return <UpdatePage />
+                  }}
+                  loader={<FullScreenLoader />}
                 />
               ),
             },
