@@ -13,7 +13,7 @@
 #define LeftMotorDir 2
 #define LeftMotorEncoder D6
 
-#define MOTOR_TICKCHANGE_NOTIFY_INTERVAL 300
+#define MOTOR_TICKCHANGE_NOTIFY_INTERVAL 100 // MOTOR_SAMPLETIME_MS * 2
 
 static Motor *rightMotor = new Motor(LeftMotorSpeed, LeftMotorDir, LeftMotorEncoder, 0);
 static Motor *leftMotor = new Motor(RightMotorSpeed, RightMotorDir, RightMotorEncoder, 1);
@@ -34,8 +34,8 @@ String getMotorTickChangeMessage(uint16_t index, uint16_t ticks)
 
 void notifyMotorSpeedChange()
 {
-    uint16_t newLeft = (uint16_t)leftMotor->getLastSampledTicks();
-    uint16_t newRight = (uint16_t)rightMotor->getLastSampledTicks();
+    uint16_t newLeft = getMotorTicksPerSecond((uint16_t)leftMotor->getLastSampledTicks());
+    uint16_t newRight = getMotorTicksPerSecond((uint16_t)rightMotor->getLastSampledTicks());
 
     if (lastSentLeft != newLeft)
     {
