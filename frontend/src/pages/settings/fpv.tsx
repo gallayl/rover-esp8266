@@ -1,7 +1,7 @@
 import { createComponent, Shade } from "@furystack/shades"
 import { Button, Form, Input, Paper } from "@furystack/shades-common-components"
 import { ClientSettings, FpvSettings } from "../../services/client-settings"
-import { CameraSettingsService } from "./camera-settings-service"
+import { CameraSettingsService } from "../../services/camera-settings-service"
 import { hasCacheValue } from "@furystack/cache"
 
 type FormData = FpvSettings & { quality: string, resolution: string }

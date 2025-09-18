@@ -1,6 +1,6 @@
 import { Cache } from "@furystack/cache";
 import { Injectable, Injected } from "@furystack/inject";
-import { ClientSettings } from "../../services/client-settings";
+import { ClientSettings } from "./client-settings";
 
 type CameraSettings = {
     "framesize": number,

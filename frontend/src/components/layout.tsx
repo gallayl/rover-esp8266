@@ -4,6 +4,7 @@ import { StatusComponent } from './status-component'
 import { FullScreenLoader } from './full-screen-loader'
 import { ConnectionStatus } from './connection-status'
 import { DistanceComponent } from './distance-component'
+import { FlashlightButton } from './flashlight-button'
 
 export const Layout = Shade({
   shadowDomName: 'flea-layout',
@@ -37,7 +38,9 @@ export const Layout = Shade({
           <DistanceComponent
             style={{ height: '100%', display: 'flex', alignItems: 'center', padding: '0 1em', marginRight: '1em' }}
           />
+          <FlashlightButton />
           <ConnectionStatus />
+
         </AppBar>
         <div
           style={{
@@ -50,7 +53,7 @@ export const Layout = Shade({
             zIndex: '-1',
             backgroundColor: injector.getInstance(ThemeProviderService).theme.background.default,
           }}>
-          <StatusComponent style={{ width: 'calc(100% - 15em)', height: 'calc(100% - 15em)' }} />
+          <StatusComponent style={{ width: '100%', height: '100%' }} />
         </div>
         <div style={{ width: '100%', height: '100%', flexGrow: '1' }}>
           <Router

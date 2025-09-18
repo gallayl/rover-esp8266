@@ -1,4 +1,4 @@
-import { createComponent, Shade, attachStyles } from '@furystack/shades'
+import { createComponent, Shade, attachStyles, ScreenService } from '@furystack/shades'
 import { MovementService } from '../services/movement-service'
 import { ObservableValue } from '@furystack/utils'
 import { ClientSettings } from '../services/client-settings'
@@ -124,13 +124,19 @@ export const StatusComponent = Shade<{ style?: Partial<CSSStyleDeclaration> }>({
     const movementService = injector.getInstance(MovementService)
     const clientSettings = injector.getInstance(ClientSettings)
 
+    const screen = injector.getInstance(ScreenService)
+
+    const [orientation] = useObservable('orientation', screen.orientation)
+    const [isDesktop] = useObservable('isDesktop', screen.screenSize.atLeast.md)
+
+
     const [currentSettings] = useObservable('clientSettings', clientSettings.currentSettings)
 
     const hasFpv = !!currentSettings.fpv.host
 
 
     return (
-      <div style={{ display: 'flex', height: '100%', width: '100%', color: 'white', gap: hasFpv ? '75%' : '16px' }}>
+      <div style={{ display: 'flex', height: '100%', width: '100%', color: 'white', gap: hasFpv ? '80%' : '16px', alignItems: 'space-between' }}>
         {
           hasFpv ? <img
             alt='fpv stream'
