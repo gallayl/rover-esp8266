@@ -6,7 +6,6 @@ export const SensitivitySettingsTab = Shade({
   shadowDomName: 'movement-settings-tab',
   render: ({ injector, useObservable }) => {
     const [settings, setSettings] = useObservable('settings', injector.getInstance(ClientSettings).currentSettings)
-    const {} = settings
 
     return (
       <Paper style={{ paddingTop: '3em', margin: '0' }}>

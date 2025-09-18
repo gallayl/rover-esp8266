@@ -25,6 +25,7 @@
     "vite": "^7.1.5"
   },
   "dependencies": {
+    "@furystack/cache": "^5.0.20",
     "@furystack/inject": "^12.0.20",
     "@furystack/logging": "^8.0.20",
     "@furystack/shades": "^11.0.26",

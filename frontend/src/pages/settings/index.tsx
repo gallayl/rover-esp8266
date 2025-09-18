@@ -20,6 +20,7 @@ export const SettingsPage = Shade({
         }}>
         <AppBar style={{ height: '3em' }}>
           <AppBarLink href="/settings">🍃 Sensitivity</AppBarLink>
+          <AppBarLink href="/settings/fpv">🎥 FPV</AppBarLink>
           <AppBarLink href="/settings/control">🛠️ Control</AppBarLink>
           <AppBarLink href="/settings/network">🛜 Network</AppBarLink>
           <AppBarLink href="/settings/update">🔃 FW upload</AppBarLink>
@@ -34,6 +35,18 @@ export const SettingsPage = Shade({
                   component={async () => {
                     const { SensitivitySettingsTab } = await import('./sensitivity')
                     return <SensitivitySettingsTab />
+                  }}
+                />
+              ),
+            },
+            {
+              url: '/settings/fpv',
+              component: () => (
+                <LazyLoad
+                  loader={<FullScreenLoader />}
+                  component={async () => {
+                    const { FpvTab } = await import('./fpv')
+                    return <FpvTab />
                   }}
                 />
               ),

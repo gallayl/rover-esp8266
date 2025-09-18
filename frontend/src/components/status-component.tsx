@@ -1,6 +1,7 @@
 import { createComponent, Shade, attachStyles } from '@furystack/shades'
 import { MovementService } from '../services/movement-service'
 import { ObservableValue } from '@furystack/utils'
+import { ClientSettings } from '../services/client-settings'
 
 const getSpeedPercent = (speed: number, maxSpeed: number) => {
   return Math.min((speed / (maxSpeed || 1)) * 100, 100)
@@ -119,19 +120,32 @@ const SpeedGauge = Shade<{
 
 export const StatusComponent = Shade<{ style?: Partial<CSSStyleDeclaration> }>({
   shadowDomName: 'status-component',
-  render: ({ injector }) => {
+  render: ({ injector, useObservable }) => {
     const movementService = injector.getInstance(MovementService)
+    const clientSettings = injector.getInstance(ClientSettings)
+
+    const [currentSettings] = useObservable('clientSettings', clientSettings.currentSettings)
+
+    const hasFpv = !!currentSettings.fpv.host
+
 
     return (
-      <div style={{ display: 'flex', height: '100%', width: '100%', color: 'white', gap: '16px' }}>
+      <div style={{ display: 'flex', height: '100%', width: '100%', color: 'white', gap: hasFpv ? '75%' : '16px' }}>
+        {
+          hasFpv ? <img
+            alt='fpv stream'
+            src={currentSettings.fpv.host + '/stream'}
+            style={{ position: 'fixed', objectFit: 'contain', width: '100%', height: '100%', top: '0', left: '0' }}
+          /> : null
+        }
         <SpeedGauge
-          style={{ flexGrow: '1' }}
+          style={{ flexGrow: '1', opacity: hasFpv ? '0.7' : '1' }}
           speed={movementService.leftSpeed}
           maxSpeed={movementService.leftMaxSpeed}
           desiredSpeed={movementService.desiredLeftSpeed}
         />
         <SpeedGauge
-          style={{ flexGrow: '1' }}
+          style={{ flexGrow: '1', opacity: hasFpv ? '0.7' : '1' }}
           speed={movementService.rightSpeed}
           maxSpeed={movementService.rightMaxSpeed}
           desiredSpeed={movementService.desiredRightSpeed}

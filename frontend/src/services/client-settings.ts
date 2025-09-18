@@ -8,6 +8,10 @@ export type PidControlSetting = { type: 'PID'; p: number; i: number; d: number }
 
 export type DirectControlSetting = { type: 'direct'; throttleSensitivity: number }
 
+export type FpvSettings = {
+  host: string
+}
+
 export type ControlSetting = PidControlSetting | DirectControlSetting
 export type SensitivitySetting = {
   throttle: number
@@ -17,11 +21,15 @@ export type SensitivitySetting = {
 }
 export type CharacteristicSetting = 'linear' | 'exponential'
 export interface ClientSettingsValues {
+  fpv: FpvSettings
   control: ControlSetting
   sensitivity: SensitivitySetting
 }
 
 export const defaultSettings = {
+  fpv: {
+    host: 'http://192.168.0.68',
+  },
   control: {
     type: 'direct',
     throttleSensitivity: 256,
