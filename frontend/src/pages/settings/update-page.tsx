@@ -1,10 +1,10 @@
-import { Shade, attachStyles, createComponent } from '@furystack/shades'
+import { Shade, createComponent } from '@furystack/shades'
 import { EnvironmentService } from '../../services/environment-service'
 
 export const UpdatePage = Shade({
-  shadowDomName: 'flea-update-page',
-  render: ({ injector, element }) => {
-    attachStyles(element, {
+  customElementName: 'flea-update-page',
+  render: ({ injector, useHostProps }) => {
+    useHostProps({
       style: {
         position: 'fixed',
         display: 'flex',

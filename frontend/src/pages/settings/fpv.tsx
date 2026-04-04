@@ -1,6 +1,7 @@
 import { createComponent, Shade } from "@furystack/shades"
 import { Button, Form, Input, Paper } from "@furystack/shades-common-components"
-import { ClientSettings, FpvSettings } from "../../services/client-settings"
+import type { FpvSettings } from "../../services/client-settings";
+import { ClientSettings } from "../../services/client-settings"
 import { CameraSettingsService } from "../../services/camera-settings-service"
 import { hasCacheValue } from "@furystack/cache"
 
@@ -8,7 +9,7 @@ type FormData = FpvSettings & { quality: string, resolution: string }
 
 
 export const FpvTab = Shade({
-    shadowDomName: 'fpv-settings-tab',
+    customElementName: 'fpv-settings-tab',
     render: ({ useObservable, injector }) => {
         const [settings, setSettings] = useObservable('settings', injector.getInstance(ClientSettings).currentSettings)
 
@@ -22,9 +23,9 @@ export const FpvTab = Shade({
 
         return (<Form<FormData> onSubmit={(newSettings) => {
             setSettings({ ...settings, fpv: newSettings })
-            cameraSettingsService.updateCameraSettings({
-                quality: parseInt(newSettings.quality),
-                framesize: parseInt(newSettings.resolution)
+            void cameraSettingsService.updateCameraSettings({
+                quality: parseInt(newSettings.quality, 10),
+                framesize: parseInt(newSettings.resolution, 10)
             })
         }} validate={(_formData): _formData is FormData => true}>
             <Paper style={{ padding: '1em', paddingTop: '3em', overflowY: 'auto' }}>

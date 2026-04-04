@@ -38,7 +38,7 @@ export class CameraSettingsService {
 
     private getSettingsFromFpvUrl = async () => {
         const { fpv } = this.clientSettings.currentSettings.getValue()
-        const response = await fetch(fpv.host + '/cam-settings', {
+        const response = await fetch(`${fpv.host  }/cam-settings`, {
             method: 'POST',
             mode: 'cors',
             headers: {
@@ -57,7 +57,7 @@ export class CameraSettingsService {
     private updateSettingsToFpvUrl = async (newSettings: Partial<CameraSettings>) => {
         const { fpv } = this.clientSettings.currentSettings.getValue()
 
-        const setSettings = await fetch(fpv.host + '/cam-settings', {
+        const setSettings = await fetch(`${fpv.host  }/cam-settings`, {
             method: 'POST',
             mode: 'cors',
             body: JSON.stringify(newSettings),
@@ -113,5 +113,9 @@ export class CameraSettingsService {
             throw error
         }
 
+    }
+
+    public [Symbol.dispose]() {
+      this.cameraSettingsCache[Symbol.dispose]()
     }
 }

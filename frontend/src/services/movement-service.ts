@@ -11,11 +11,15 @@ export class MovementService {
     this.desiredRightSpeed.setValue(0)
   }
 
-  public dispose() {
-    this.moveChangeSubscription.dispose()
-    this.lastMoveCommand.dispose()
-    this.leftSpeed.dispose()
-    this.rightSpeed.dispose()
+  public [Symbol.dispose]() {
+    this.moveChangeSubscription[Symbol.dispose]()
+    this.lastMoveCommand[Symbol.dispose]()
+    this.leftSpeed[Symbol.dispose]()
+    this.rightSpeed[Symbol.dispose]()
+    this.leftMaxSpeed[Symbol.dispose]()
+    this.desiredLeftSpeed[Symbol.dispose]()
+    this.rightMaxSpeed[Symbol.dispose]()
+    this.desiredRightSpeed[Symbol.dispose]()
   }
 
   public readonly leftSpeed = new ObservableValue(0)
@@ -55,8 +59,11 @@ export class MovementService {
   private readonly isMotorTicksChange = (
     obj: unknown,
   ): obj is { type: WebSocketMessageTypes.MotorTicksChange; i: number; t: number } => {
+    const record = obj as Record<string, unknown> | null | undefined
     return (
-      (obj as any)?.type === WebSocketMessageTypes.MotorTicksChange && !isNaN((obj as any).i) && !isNaN((obj as any).t)
+      record?.type === WebSocketMessageTypes.MotorTicksChange &&
+      typeof record.i === 'number' &&
+      typeof record.t === 'number'
     )
   }
 
@@ -66,14 +73,14 @@ export class MovementService {
   @Injected(ClientSettings)
   private declare readonly settings: ClientSettings
 
-  init() {
+  public init() {
     this.webSocket.lastMessage.subscribe((message) => {
       const obj = message?.dataObject
       if (this.isMotorTicksChange(obj)) {
         if (obj.i === 0) {
-          this.leftSpeed.setValue(parseInt(obj.t as any, 10))
+          this.leftSpeed.setValue(obj.t)
         } else if (obj.i === 1) {
-          this.rightSpeed.setValue(parseInt(obj.t as any, 10))
+          this.rightSpeed.setValue(obj.t)
         }
       }
     })

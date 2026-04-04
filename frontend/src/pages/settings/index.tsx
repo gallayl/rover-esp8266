@@ -3,7 +3,7 @@ import { AppBar, AppBarLink } from '@furystack/shades-common-components'
 import { FullScreenLoader } from '../../components/full-screen-loader'
 
 export const SettingsPage = Shade({
-  shadowDomName: 'settings-page',
+  customElementName: 'settings-page',
   render: () => {
     return (
       <div

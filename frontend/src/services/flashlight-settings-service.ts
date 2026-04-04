@@ -12,7 +12,7 @@ export class FlashlightSettingsService {
     private cache = new Cache<number, []>({
         load: async () => {
             const { fpv } = this.clientSettings.currentSettings.getValue()
-            const response = await fetch(fpv.host + '/lights', {
+            const response = await fetch(`${fpv.host  }/lights`, {
                 method: 'GET',
                 mode: 'cors',
                 headers: {
@@ -37,7 +37,7 @@ export class FlashlightSettingsService {
 
     public setFlashlightState = async (intensity: number) => {
         const { fpv } = this.clientSettings.currentSettings.getValue()
-        const response = await fetch(fpv.host + '/lights', {
+        const response = await fetch(`${fpv.host  }/lights`, {
             method: 'POST',
             mode: 'cors',
             body: JSON.stringify({ front: intensity }),
@@ -52,5 +52,9 @@ export class FlashlightSettingsService {
         }
         throw new Error('Failed to set flashlight state')
 
+    }
+
+    public [Symbol.dispose]() {
+      this.cache[Symbol.dispose]()
     }
 }

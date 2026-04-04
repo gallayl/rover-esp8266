@@ -2,8 +2,8 @@ import { Shade, createComponent } from '@furystack/shades'
 import { Button, Form } from '@furystack/shades-common-components'
 import { type WebSocketEvent, WebSocketService } from '../services/websocket-service'
 
-export const ConsoleEntryList = Shade<{ events: WebSocketEvent<any>[] }>({
-  shadowDomName: 'flea-console-entries',
+export const ConsoleEntryList = Shade<{ events: Array<WebSocketEvent<any>> }>({
+  customElementName: 'flea-console-entries',
   render: ({ props }) => {
     return (
       <div>
@@ -36,7 +36,7 @@ export const ConsoleEntryList = Shade<{ events: WebSocketEvent<any>[] }>({
 })
 
 export const ConsolePage = Shade({
-  shadowDomName: 'flea-console-page',
+  customElementName: 'flea-console-page',
   render: ({ injector }) => {
     const webSocketService = injector.getInstance(WebSocketService)
     return (
@@ -59,7 +59,7 @@ export const ConsolePage = Shade({
             webSocketService.send(command)
           }}
           validate={(data): data is { command: string } => {
-            return (data as any).command?.length
+            return !!(data as { command?: string }).command?.length
           }}>
           <input
             autofocus

@@ -1,6 +1,6 @@
-import { createComponent, Shade, attachStyles, ScreenService } from '@furystack/shades'
+import { createComponent, Shade } from '@furystack/shades'
+import type { ObservableValue } from '@furystack/utils'
 import { MovementService } from '../services/movement-service'
-import { ObservableValue } from '@furystack/utils'
 import { ClientSettings } from '../services/client-settings'
 
 const getSpeedPercent = (speed: number, maxSpeed: number) => {
@@ -15,10 +15,8 @@ const getStyle = (speed: number, maxSpeed: number) => {
   const percent = getSpeedPercent(speed, maxSpeed)
   const percentScale = 100 / (percent || 1)
   return {
-    style: {
-      height: `calc(${getSpeedPercent(speed, maxSpeed)}% - 64px)`,
-      background: `linear-gradient(to top, #00FF00 0%, #FFFF00 ${Math.round(percentScale * 33)}%, #FF0000 ${Math.round(percentScale * 100)}%)`,
-    },
+    height: `calc(${getSpeedPercent(speed, maxSpeed)}% - 64px)`,
+    background: `linear-gradient(to top, #00FF00 0%, #FFFF00 ${Math.round(percentScale * 33)}%, #FF0000 ${Math.round(percentScale * 100)}%)`,
   }
 }
 
@@ -27,48 +25,13 @@ const SpeedGauge = Shade<{
   maxSpeed: ObservableValue<number>
   desiredSpeed: ObservableValue<number>
 }>({
-  shadowDomName: 'speed-gauge',
-  render: ({ props, element, useDisposable }) => {
-    useDisposable('speed', () =>
-      props.speed.subscribe((newSpeed) => {
-        element.querySelector<HTMLDivElement>('.speedLabel')!.innerText = getSpeedLabel(
-          newSpeed,
-          props.maxSpeed.getValue(),
-        )
-        attachStyles(
-          element.querySelector<HTMLDivElement>('.speedGauge')!,
-          getStyle(newSpeed, props.maxSpeed.getValue()),
-        )
-      }),
-    )
+  customElementName: 'speed-gauge',
+  render: ({ props, useObservable, useHostProps }) => {
+    const [speed] = useObservable('speed', props.speed)
+    const [maxSpeed] = useObservable('maxSpeed', props.maxSpeed)
+    const [desiredSpeed] = useObservable('desiredSpeed', props.desiredSpeed)
 
-    useDisposable('maxSpeed', () =>
-      props.maxSpeed.subscribe((newMaxSpeed) => {
-        element.querySelector<HTMLDivElement>('.speedLabel')!.innerText = getSpeedLabel(
-          props.speed.getValue(),
-          newMaxSpeed,
-        )
-        attachStyles(
-          element.querySelector<HTMLDivElement>('.speedGauge')!,
-          getStyle(props.speed.getValue(), newMaxSpeed),
-        )
-      }),
-    )
-
-    useDisposable('desiredSpeed', () =>
-      props.desiredSpeed.subscribe((newDesiredSpeed) => {
-        attachStyles(element.querySelector<HTMLDivElement>('.desiredSpeed')!, {
-          style: {
-            bottom: `${getSpeedPercent(Math.abs(newDesiredSpeed) || 0, props.maxSpeed.getValue())}%`,
-          },
-        })
-      }),
-    )
-
-    const speed = props.speed.getValue()
-    const maxSpeed = props.maxSpeed.getValue()
-
-    attachStyles(element, {
+    useHostProps({
       style: {
         width: '100%',
         height: '100%',
@@ -81,7 +44,6 @@ const SpeedGauge = Shade<{
     return (
       <>
         <div
-          className="speedGauge"
           style={{
             position: 'absolute',
             bottom: '0',
@@ -89,22 +51,20 @@ const SpeedGauge = Shade<{
             minHeight: '64px',
             width: '100%',
             transition: 'height 500ms cubic-bezier(0.215, 0.610, 0.355, 1.000)',
-            ...getStyle(speed, maxSpeed).style,
+            ...getStyle(speed, maxSpeed),
           }}
         />
         <div
-          className="desiredSpeed"
           style={{
             position: 'absolute',
             width: '100%',
             height: '4px',
             background: 'rgba(255,255,255,0.8)',
             transition: 'bottom 500ms cubic-bezier(0.215, 0.610, 0.355, 1.000)',
-            bottom: `${getSpeedPercent(props.desiredSpeed.getValue(), maxSpeed)}%`,
+            bottom: `${getSpeedPercent(Math.abs(desiredSpeed) || 0, maxSpeed)}%`,
           }}
         />
         <div
-          className="speedLabel"
           style={{
             position: 'absolute',
             bottom: '16px',
@@ -119,28 +79,21 @@ const SpeedGauge = Shade<{
 })
 
 export const StatusComponent = Shade<{ style?: Partial<CSSStyleDeclaration> }>({
-  shadowDomName: 'status-component',
+  customElementName: 'status-component',
   render: ({ injector, useObservable }) => {
     const movementService = injector.getInstance(MovementService)
     const clientSettings = injector.getInstance(ClientSettings)
 
-    const screen = injector.getInstance(ScreenService)
-
-    const [orientation] = useObservable('orientation', screen.orientation)
-    const [isDesktop] = useObservable('isDesktop', screen.screenSize.atLeast.md)
-
-
     const [currentSettings] = useObservable('clientSettings', clientSettings.currentSettings)
 
     const hasFpv = !!currentSettings.fpv.host
-
 
     return (
       <div style={{ display: 'flex', height: '100%', width: '100%', color: 'white', gap: hasFpv ? '80%' : '16px', alignItems: 'space-between' }}>
         {
           hasFpv ? <img
             alt='fpv stream'
-            src={currentSettings.fpv.host + '/stream'}
+            src={`${currentSettings.fpv.host}/stream`}
             style={{ position: 'fixed', objectFit: 'contain', width: '100%', height: '100%', top: '0', left: '0' }}
           /> : null
         }

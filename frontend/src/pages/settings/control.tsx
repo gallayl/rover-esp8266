@@ -1,16 +1,17 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { Button, Form, Input, Paper } from '@furystack/shades-common-components'
+import type {
+  DirectControlSetting,
+  PidControlSetting} from '../../services/client-settings';
 import {
   ClientSettings,
-  DirectControlSetting,
-  PidControlSetting,
   defaultPidSettings,
   defaultSettings,
 } from '../../services/client-settings'
 import { WebSocketService } from '../../services/websocket-service'
 
 export const ControlPage = Shade({
-  shadowDomName: 'control-tab',
+  customElementName: 'control-tab',
   render: ({ injector, useObservable, useState }) => {
     const [settings, setSettings] = useObservable('settings', injector.getInstance(ClientSettings).currentSettings)
 
@@ -81,7 +82,7 @@ export const ControlPage = Shade({
                 ...settings,
                 control: {
                   type: 'direct',
-                  throttleSensitivity: parseInt(control.throttleSensitivity.toString()),
+                  throttleSensitivity: parseInt(control.throttleSensitivity.toString(), 10),
                 },
               })
             }}>

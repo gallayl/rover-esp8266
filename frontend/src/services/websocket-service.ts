@@ -24,14 +24,15 @@ export interface WebSocketEvent<T> {
 export class WebSocketService {
   public isConnected = new ObservableValue<boolean>(false)
 
-  public eventStream: WebSocketEvent<unknown>[] = []
+  public eventStream: Array<WebSocketEvent<unknown>> = []
 
   public lastMessage = new ObservableValue<Omit<WebSocketEvent<unknown>, 'date'> | null>(null)
 
   public rssi = new ObservableValue<number>(0)
 
   private isRssiChange = (obj: unknown): obj is { type: WebSocketMessageTypes.WifiSignalChange; rssi: number } => {
-    return (obj as any)?.type === WebSocketMessageTypes.WifiSignalChange && !isNaN((obj as any).rssi)
+    const record = obj as Record<string, unknown> | null | undefined
+    return record?.type === WebSocketMessageTypes.WifiSignalChange && typeof record.rssi === 'number'
   }
 
   public send(data: string): void {
@@ -47,7 +48,7 @@ export class WebSocketService {
   private socket!: WebSocket
 
   private onConnect = (() => {
-    this.logger.verbose({
+    void this.logger.verbose({
       message: 'Connected',
       data: { socket: this.socket },
     })
@@ -55,7 +56,7 @@ export class WebSocketService {
   }).bind(this)
 
   private onDisconnect = (() => {
-    this.logger.verbose({
+    void this.logger.verbose({
       message: 'Disconnected',
       data: { socket: this.socket },
     })
@@ -66,41 +67,42 @@ export class WebSocketService {
   }).bind(this)
 
   private onOpen = (() => {
-    this.logger.verbose({ message: 'Opened', data: { socket: this.socket } })
+    void this.logger.verbose({ message: 'Opened', data: { socket: this.socket } })
     this.lastMessage.setValue({ type: 'connection', data: 'Socket opened' })
     this.isConnected.setValue(true)
   }).bind(this)
 
   private onClose = (() => {
-    this.logger.verbose({ message: 'Closed', data: { socket: this.socket } })
+    void this.logger.verbose({ message: 'Closed', data: { socket: this.socket } })
     this.lastMessage.setValue({ type: 'connection', data: 'Socket closed' })
     this.isConnected.setValue(false)
     this.socket = this.createSocket()
   }).bind(this)
 
   private onError = (() => {
-    this.logger.warning({
+    void this.logger.warning({
       message: 'Socket Error',
       data: { socket: this.socket },
     })
     this.lastMessage.setValue({ type: 'connection', data: 'Socket Error' })
   }).bind(this)
 
-  private onMessage = ((ev: MessageEvent) => {
+  private onMessage = ((ev: MessageEvent<string>) => {
+    const rawData = String(ev.data)
     try {
-      const dataObject = JSON.parse(ev.data.toString())
+      const dataObject: unknown = JSON.parse(rawData)
       this.lastMessage.setValue({
         type: 'incoming',
-        data: ev.data.toString(),
+        data: rawData,
         dataObject,
       })
       if (this.isRssiChange(dataObject)) {
         this.rssi.setValue(dataObject.rssi)
       }
-    } catch (error) {
-      this.lastMessage.setValue({ type: 'incoming', data: ev.data.toString() })
+    } catch {
+      this.lastMessage.setValue({ type: 'incoming', data: rawData })
     }
-    this.logger.verbose({
+    void this.logger.verbose({
       message: 'Message received',
       data: { socket: this.socket, data: ev.data },
     })
@@ -126,16 +128,22 @@ export class WebSocketService {
     socket.removeEventListener('message', this.onMessage)
   }
 
-  public dispose(): void {
-    this.socket && this.disposeSocket(this.socket)
-    this.lastMessage.dispose()
+  public [Symbol.dispose](): void {
+    if (this.socket) {
+      this.disposeSocket(this.socket)
+    }
+    this.lastMessage[Symbol.dispose]()
+    this.isConnected[Symbol.dispose]()
+    this.rssi[Symbol.dispose]()
   }
 
   @Injected(EnvironmentService)
   private declare readonly env: EnvironmentService
 
-  init() {
-    this.lastMessage.subscribe((msg) => this.eventStream.push({ ...msg, date: new Date() } as WebSocketEvent<unknown>))
+  public init() {
+    this.lastMessage.subscribe((msg) => {
+      this.eventStream.push({ ...msg, date: new Date() } as WebSocketEvent<unknown>)
+    })
     this.socket = this.createSocket()
   }
 }

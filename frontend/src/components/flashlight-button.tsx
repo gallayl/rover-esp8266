@@ -4,7 +4,7 @@ import { ClientSettings } from "../services/client-settings";
 import { FlashlightSettingsService } from "../services/flashlight-settings-service";
 
 export const FlashlightButton = Shade({
-    shadowDomName: "flashlight-button",
+    customElementName: "flashlight-button",
     render: ({ injector, useObservable }) => {
 
         const flash = injector.getInstance(FlashlightSettingsService)
@@ -22,7 +22,7 @@ export const FlashlightButton = Shade({
 
         if (!isOn) {
             return <Button onclick={() => {
-                flash.setFlashlightState(64)
+                void flash.setFlashlightState(64)
             }}>
                 🔦 On
             </Button>
@@ -30,12 +30,12 @@ export const FlashlightButton = Shade({
 
         return <div style={{ whiteSpace: 'nowrap' }}>
             <Button onclick={() => {
-                flash.setFlashlightState(255)
+                void flash.setFlashlightState(255)
             }}>
                 🔦 Max
             </Button>
             <Button onclick={() => {
-                flash.setFlashlightState(0)
+                void flash.setFlashlightState(0)
             }}>
                 🔦 Off
             </Button>

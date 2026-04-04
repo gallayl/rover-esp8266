@@ -4,8 +4,8 @@ import { WebSocketMessageTypes, WebSocketService } from './websocket-service'
 
 @Injectable({ lifetime: 'singleton' })
 export class DistanceService {
-  public dispose() {
-    this.frontDistance.dispose()
+  public [Symbol.dispose]() {
+    this.frontDistance[Symbol.dispose]()
   }
 
   public readonly frontDistance = new ObservableValue(0)
@@ -16,7 +16,8 @@ export class DistanceService {
   private readonly isDistanceChange = (
     obj: unknown,
   ): obj is { type: WebSocketMessageTypes.DistanceChange; cm: number } => {
-    return (obj as any)?.type === WebSocketMessageTypes.DistanceChange && !isNaN((obj as any).cm)
+    const record = obj as Record<string, unknown> | null | undefined
+    return record?.type === WebSocketMessageTypes.DistanceChange && typeof record.cm === 'number'
   }
 
   public init() {

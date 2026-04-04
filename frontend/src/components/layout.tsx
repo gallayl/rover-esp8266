@@ -7,7 +7,7 @@ import { DistanceComponent } from './distance-component'
 import { FlashlightButton } from './flashlight-button'
 
 export const Layout = Shade({
-  shadowDomName: 'flea-layout',
+  customElementName: 'flea-layout',
   render: ({ injector }) => {
     return (
       <div
