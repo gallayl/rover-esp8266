@@ -5,7 +5,7 @@
 
 void setup()
 {
-    Serial.begin(9600);
+    Serial.begin(115200);
     wifiManager.autoConnect("AutoConnectAP");
     Serial.printf("Connected to %s, IP: %s\r\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
     mcuServer->setup();
@@ -34,6 +34,11 @@ void setup()
 
 void loop()
 {
+    if (shouldReboot)
+    {
+        delay(100);
+        ESP.restart();
+    }
     timer->run();
     if (Serial.available() > 0)
     {

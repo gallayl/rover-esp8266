@@ -9,60 +9,40 @@
 extern AsyncWebSocket *webSocket;
 
 CustomCommand *infoAction = new CustomCommand("info", [](String command) {
-    String stats = "{";
-    stats += "\"SDK version\": \"";
-    stats += ESP.getSdkVersion();
-
-    stats += "\",\"CPU Freq(MHz)\": ";
-    stats += ESP.getCpuFreqMHz();
-
-    stats += ",\"Free Heap\": ";
-    stats += ESP.getFreeHeap();
-
-    stats += ",\"Free sk.space\": ";
-    stats += ESP.getFreeSketchSpace();
-
-    stats += ",\"Flash mode\": ";
-    stats += ESP.getFlashChipMode();
-
-    stats += ",\"Flash size\": ";
-    stats += ESP.getFlashChipSize();
-
-    stats += ",\"Flash speed\": ";
-    stats += ESP.getFlashChipSpeed();
-
-    stats += ",\"IP address\": \"";
-    stats += WiFi.localIP().toString();
-
-    stats += "\",\"MAC Address\": \"";
-    stats += WiFi.macAddress();
-
-    stats += "\",\"Wifi Signal\": \"";
     int32_t rssi = WiFi.RSSI();
+    const char *signalQuality;
     if (rssi > -30)
-    {
-        stats += "Amazing";
-    }
+        signalQuality = "Amazing";
     else if (rssi > -67)
-    {
-        stats += "Very good";
-    }
+        signalQuality = "Very good";
     else if (rssi > -70)
-    {
-        stats += "Okay (not good, not terrible)";
-    }
+        signalQuality = "Okay (not good, not terrible)";
     else if (rssi > -80)
-    {
-        stats += "Not good";
-    }
-    else if (rssi > -90)
-    {
-        stats += "Unusable";
-    }
-    stats += " (";
-    stats += rssi;
-    stats += " db)";
+        signalQuality = "Not good";
+    else
+        signalQuality = "Unusable";
 
-    stats += "\"}";
-    webSocket->textAll(stats);
+    char buf[384];
+    snprintf(buf, sizeof(buf),
+        "{\"SDK version\": \"%s\","
+        "\"CPU Freq(MHz)\": %u,"
+        "\"Free Heap\": %u,"
+        "\"Free sk.space\": %u,"
+        "\"Flash mode\": %u,"
+        "\"Flash size\": %u,"
+        "\"Flash speed\": %u,"
+        "\"IP address\": \"%s\","
+        "\"MAC Address\": \"%s\","
+        "\"Wifi Signal\": \"%s (%d db)\"}",
+        ESP.getSdkVersion(),
+        ESP.getCpuFreqMHz(),
+        ESP.getFreeHeap(),
+        ESP.getFreeSketchSpace(),
+        ESP.getFlashChipMode(),
+        ESP.getFlashChipSize(),
+        ESP.getFlashChipSpeed(),
+        WiFi.localIP().toString().c_str(),
+        WiFi.macAddress().c_str(),
+        signalQuality, rssi);
+    webSocket->textAll(buf);
 });

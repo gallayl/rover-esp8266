@@ -1,15 +1,19 @@
 #pragma once
 #include "../../globals.h"
 #include <AsyncWebSocket.h>
-#include <Servo.h>
 
 #define WIFI_CONNECTION_CHECK_INTERVAL 1000
 
 int32_t lastSentRssi = WiFi.RSSI();
 
+extern SimpleTimer *timer;
+extern AsyncWebSocket *webSocket;
+
 String getWifiMessage(int32_t rssi)
 {
-    return String("{\"type\": " + String(WebSocketMessageTypes::WifiSignalChange) + ", \"rssi\": " + String(rssi) + "}");
+    char buf[64];
+    snprintf(buf, sizeof(buf), "{\"type\": %d, \"rssi\": %d}", WebSocketMessageTypes::WifiSignalChange, rssi);
+    return String(buf);
 }
 
 void wifiEvents()
@@ -24,5 +28,5 @@ void wifiEvents()
 
 void setupWifi()
 {
-    timer->setInterval(WIFI_CONNECTION_CHECK_INTERVAL, motorEncoderEvents);
+    timer->setInterval(WIFI_CONNECTION_CHECK_INTERVAL, wifiEvents);
 }

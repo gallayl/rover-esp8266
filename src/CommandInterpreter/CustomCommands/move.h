@@ -4,7 +4,6 @@
 #include "../CustomCommand.h"
 #include "../../dc-motor.h"
 #include <AsyncWebSocket.h>
-#include <Servo.h>
 
 #define RightMotorSpeed 5
 #define RightMotorDir 0
@@ -13,23 +12,22 @@
 #define LeftMotorDir 2
 #define LeftMotorEncoder D6
 
-#define MOTOR_TICKCHANGE_NOTIFY_INTERVAL 100 // MOTOR_SAMPLETIME_MS * 2
+#define MOTOR_TICKCHANGE_NOTIFY_INTERVAL 100
 
-static Motor *rightMotor = new Motor(LeftMotorSpeed, LeftMotorDir, LeftMotorEncoder, 0);
-static Motor *leftMotor = new Motor(RightMotorSpeed, RightMotorDir, RightMotorEncoder, 1);
+static Motor *leftMotor = new Motor(LeftMotorSpeed, LeftMotorDir, LeftMotorEncoder, 0);
+static Motor *rightMotor = new Motor(RightMotorSpeed, RightMotorDir, RightMotorEncoder, 1);
 
-uint8_t lastSentLeft = 0;
-uint8_t lastSentRight = 0;
+uint16_t lastSentLeft = 0;
+uint16_t lastSentRight = 0;
 
 extern SimpleTimer *timer;
 extern AsyncWebSocket *webSocket;
 
-int horizontalServoTimeout;
-int verticalServoTimeout;
-
 String getMotorTickChangeMessage(uint16_t index, uint16_t ticks)
 {
-    return String("{\"type\": " + String(WebSocketMessageTypes::MotorTicksChange) + ", \"i\":" + String(index) + ",\"t\": " + String(ticks) + "}");
+    char buf[64];
+    snprintf(buf, sizeof(buf), "{\"type\": %d, \"i\":%u,\"t\": %u}", WebSocketMessageTypes::MotorTicksChange, index, ticks);
+    return String(buf);
 }
 
 void notifyMotorSpeedChange()
@@ -69,12 +67,10 @@ void setupMotors()
 {
     timer->setInterval(MOTOR_SAMPLETIME_MS, motorEncoderEvents);
     timer->setInterval(MOTOR_TICKCHANGE_NOTIFY_INTERVAL, notifyMotorSpeedChange);
-    attachInterrupt(RightMotorEncoder, rightMotorTick, CHANGE);
     attachInterrupt(LeftMotorEncoder, leftMotorTick, CHANGE);
+    attachInterrupt(RightMotorEncoder, rightMotorTick, CHANGE);
 }
 
-int16_t throttleValue;
-int16_t steerValue;
 int16_t leftMotorSpeed;
 int16_t rightMotorSpeed;
 
@@ -96,9 +92,9 @@ CustomCommand *moveTicks = new CustomCommand("moveTicks", [](String command)
 
 CustomCommand *configurePid = new CustomCommand("configurePid", [](String command)
                                                 {
-    double p = (int16_t)CommandParser::GetCommandParameter(command, 1).toDouble();
-    double i = (int16_t)CommandParser::GetCommandParameter(command, 2).toDouble();
-    double d = (int16_t)CommandParser::GetCommandParameter(command, 3).toDouble();
+    double p = CommandParser::GetCommandParameter(command, 1).toDouble();
+    double i = CommandParser::GetCommandParameter(command, 2).toDouble();
+    double d = CommandParser::GetCommandParameter(command, 3).toDouble();
 
     leftMotor->configurePid(p, i, d);
     rightMotor->configurePid(p, i, d); });

@@ -21,7 +21,9 @@ float lastSentDistance = 0;
 
 String getDistanceMessage(float distance)
 {
-    return String("{\"type\": " + String(WebSocketMessageTypes::DistanceChange) + ", \"cm\": " + String(distance) + "}");
+    char buf[64];
+    snprintf(buf, sizeof(buf), "{\"type\": %d, \"cm\": %.2f}", WebSocketMessageTypes::DistanceChange, (double)distance);
+    return String(buf);
 }
 
 void sendDistanceEvent()

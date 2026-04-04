@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Arduino.h>
-
-String MIME_plainText = "text/plain";
-String MIME_jpeg = "image/jpeg";
-String MIME_json = "application/json";
+const char *MIME_plainText = "text/plain";
+const char *MIME_jpeg = "image/jpeg";
+const char *MIME_json = "application/json";

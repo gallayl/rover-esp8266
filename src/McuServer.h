@@ -9,10 +9,8 @@
 class McuServer
 {
 public:
-    McuServer(char *user, char *password, CommandInterpreter *commandInterpreter, AsyncWebSocket *webSocket, AsyncWebServer *webServer) : webSocket(webSocket), webServer(webServer), commandInterpreter(commandInterpreter)
+    McuServer(CommandInterpreter *commandInterpreter, AsyncWebSocket *webSocket, AsyncWebServer *webServer) : webSocket(webSocket), webServer(webServer), commandInterpreter(commandInterpreter)
     {
-        this->wwwUserName = user;
-        this->wwwPassword = password;
     };
 
     void setup()
@@ -67,9 +65,6 @@ public:
     }
 
 private:
-    const char *wwwUserName;
-    const char *wwwPassword;
-
     AsyncWebSocket *webSocket;
     AsyncWebServer *webServer;
     CommandInterpreter *commandInterpreter;

@@ -1,13 +1,13 @@
 #pragma once
 
-// #include <ESP8266HTTPUpdateServer.h>
+volatile bool shouldReboot = false;
 
 ArRequestHandlerFunction getUpdateForm = ([](AsyncWebServerRequest *request) {
     request->send(200, "text/html", "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>");
 });
 
 ArRequestHandlerFunction onPostUpdate = ([](AsyncWebServerRequest *request) {
-    boolean shouldReboot = !Update.hasError();
+    shouldReboot = !Update.hasError();
     AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", shouldReboot ? "OK" : "FAIL");
     response->addHeader("Connection", "close");
     request->send(response);
@@ -34,8 +34,7 @@ ArUploadHandlerFunction onUploadUpdate = ([](AsyncWebServerRequest *request, Str
     {
         if (Update.end(true))
         {
-            Serial.printf("\nFirmware Update Success: %uB\nRestarting MCU...\n", index + len);
-            ESP.restart();
+            Serial.printf("\nFirmware Update Success: %uB\n", index + len);
         }
         else
         {

@@ -70,8 +70,11 @@ public:
     // called in every MOTOR_SAMPLETIME_MS interval
     void encoderEvent()
     {
-        this->_lastSampledTicks = this->_currentTicks;
+        noInterrupts();
+        int32_t ticks = this->_currentTicks;
         this->_currentTicks = 0;
+        interrupts();
+        this->_lastSampledTicks = (float)ticks;
 
         uint16_t desiredTicks = getMotorTicksPerSecond(this->_lastSampledTicks);
 
@@ -110,7 +113,7 @@ private:
     uint8_t _feedbackPin;
 
     bool _usePID = false;
-    float _currentTicks;
+    volatile int32_t _currentTicks;
     float _lastSampledTicks;
     uint16_t _throttleValue = 0;
     float _setPoint = 0, _output = 0;

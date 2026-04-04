@@ -12,7 +12,6 @@
 #include <ESPAsyncWebServer.h>
 #include <ESPAsyncWiFiManager.h> // https://github.com/tzapu/WiFiManager
 
-AsyncWebServer wifiManagerServer(80);
 AsyncWebSocket *webSocket = new AsyncWebSocket("/ws");
 AsyncWebServer *webServer = new AsyncWebServer(80);
 DNSServer dns;
@@ -22,6 +21,6 @@ SimpleTimer *timer = new SimpleTimer();
 FtpServer ftp;
 
 CommandInterpreter *interpreter = CommandInterpreter::GetInstance();
-McuServer *mcuServer = new McuServer((char *)"admin", (char *)"admin", interpreter, webSocket, webServer);
+McuServer *mcuServer = new McuServer(interpreter, webSocket, webServer);
 
-AsyncWiFiManager wifiManager(&wifiManagerServer, &dns);
+AsyncWiFiManager wifiManager(webServer, &dns);
