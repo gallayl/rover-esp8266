@@ -5,13 +5,21 @@ import { ClientSettings } from './client-settings'
 
 @Injectable({ lifetime: 'singleton' })
 export class MovementService {
+  private static readonly MOVE_THROTTLE_MS = 50
+  private static readonly MAX_SPEED_DECAY = 0.995
+
   public stop(): void {
     this.webSocket.send('move 0 0')
     this.desiredLeftSpeed.setValue(0)
     this.desiredRightSpeed.setValue(0)
   }
 
+  private initSubscriptions: Array<{ [Symbol.dispose](): void }> = []
+
   public [Symbol.dispose]() {
+    for (const sub of this.initSubscriptions) {
+      sub[Symbol.dispose]()
+    }
     this.moveChangeSubscription[Symbol.dispose]()
     this.lastMoveCommand[Symbol.dispose]()
     this.leftSpeed[Symbol.dispose]()
@@ -31,12 +39,17 @@ export class MovementService {
   public readonly desiredRightSpeed = new ObservableValue(0)
 
   private lastMoveCommand = new ObservableValue('')
+  private lastMoveTime = 0
 
   private moveChangeSubscription = this.lastMoveCommand.subscribe((cmd) => {
     this.webSocket.send(cmd)
   })
 
   public async move(leftSpeed: number, rightSpeed: number): Promise<void> {
+    const now = Date.now()
+    if (now - this.lastMoveTime < MovementService.MOVE_THROTTLE_MS) return
+    this.lastMoveTime = now
+
     const settings = this.settings.currentSettings.getValue()
     if (settings.control.type === 'PID') {
       this.desiredLeftSpeed.setValue(leftSpeed)
@@ -74,26 +87,30 @@ export class MovementService {
   declare private readonly settings: ClientSettings
 
   public init() {
-    this.webSocket.lastMessage.subscribe((message) => {
-      const obj = message?.dataObject
-      if (this.isMotorTicksChange(obj)) {
-        if (obj.i === 0) {
-          this.leftSpeed.setValue(obj.t)
-        } else if (obj.i === 1) {
-          this.rightSpeed.setValue(obj.t)
+    this.initSubscriptions.push(
+      this.webSocket.lastMessage.subscribe((message) => {
+        const obj = message?.dataObject
+        if (this.isMotorTicksChange(obj)) {
+          if (obj.i === 0) {
+            this.leftSpeed.setValue(obj.t)
+          } else if (obj.i === 1) {
+            this.rightSpeed.setValue(obj.t)
+          }
         }
-      }
-    })
+      }),
+    )
 
-    this.leftSpeed.subscribe((speed) => {
-      if (speed > this.leftMaxSpeed.getValue()) {
-        this.leftMaxSpeed.setValue(speed)
-      }
-    })
-    this.rightSpeed.subscribe((speed) => {
-      if (speed > this.rightMaxSpeed.getValue()) {
-        this.rightMaxSpeed.setValue(speed)
-      }
-    })
+    this.initSubscriptions.push(
+      this.leftSpeed.subscribe((speed) => {
+        const currentMax = this.leftMaxSpeed.getValue()
+        this.leftMaxSpeed.setValue(Math.max(speed, currentMax * MovementService.MAX_SPEED_DECAY))
+      }),
+    )
+    this.initSubscriptions.push(
+      this.rightSpeed.subscribe((speed) => {
+        const currentMax = this.rightMaxSpeed.getValue()
+        this.rightMaxSpeed.setValue(Math.max(speed, currentMax * MovementService.MAX_SPEED_DECAY))
+      }),
+    )
   }
 }

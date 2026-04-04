@@ -23,7 +23,6 @@ export const SettingsPage = Shade({
           <AppBarLink href="/settings">🍃 Sensitivity</AppBarLink>
           <AppBarLink href="/settings/fpv">🎥 FPV</AppBarLink>
           <AppBarLink href="/settings/control">🛠️ Control</AppBarLink>
-          <AppBarLink href="/settings/network">🛜 Network</AppBarLink>
           <AppBarLink href="/settings/update">🔃 FW upload</AppBarLink>
         </AppBar>
         <Router

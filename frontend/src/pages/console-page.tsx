@@ -38,8 +38,9 @@ export const ConsoleEntryList = Shade<{ events: Array<WebSocketEvent<any>> }>({
 
 export const ConsolePage = Shade({
   customElementName: 'flea-console-page',
-  render: ({ injector }) => {
+  render: ({ injector, useObservable }) => {
     const webSocketService = injector.getInstance(WebSocketService)
+    useObservable('eventStreamVersion', webSocketService.eventStreamVersion)
     return (
       <div
         style={{

@@ -4,7 +4,10 @@ import { WebSocketMessageTypes, WebSocketService } from './websocket-service'
 
 @Injectable({ lifetime: 'singleton' })
 export class DistanceService {
+  private messageSubscription?: { [Symbol.dispose](): void }
+
   public [Symbol.dispose]() {
+    this.messageSubscription?.[Symbol.dispose]()
     this.frontDistance[Symbol.dispose]()
   }
 
@@ -21,7 +24,7 @@ export class DistanceService {
   }
 
   public init() {
-    this.webSocket.lastMessage.subscribe((message) => {
+    this.messageSubscription = this.webSocket.lastMessage.subscribe((message) => {
       const obj = message?.dataObject
 
       if (this.isDistanceChange(obj)) {

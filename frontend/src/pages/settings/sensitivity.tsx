@@ -11,7 +11,13 @@ export const SensitivitySettingsTab = Shade({
     return (
       <Paper style={{ paddingTop: '3em', margin: '0' }}>
         <Form<ClientSettingsValues['sensitivity']>
-          onSubmit={(sensitivity) => {
+          onSubmit={(formData) => {
+            const sensitivity: ClientSettingsValues['sensitivity'] = {
+              throttle: Number(formData.throttle),
+              steer: Number(formData.steer),
+              deadZone: Number(formData.deadZone),
+              characteristic: formData.characteristic,
+            }
             setSettings({ ...settings, sensitivity })
           }}
           validate={(_formData): _formData is ClientSettingsValues['sensitivity'] => true}
@@ -23,7 +29,7 @@ export const SensitivitySettingsTab = Shade({
             value={settings.sensitivity.throttle.toString()}
             type="range"
             name="throttle"
-            getHelperText={({ state }) => `Throttle: ${parseInt(state.value, 10) * 100}%`}
+            getHelperText={({ state }) => `Throttle: ${parseFloat(state.value) * 100}%`}
           />
           <Input
             min={'0'}
@@ -32,7 +38,7 @@ export const SensitivitySettingsTab = Shade({
             value={settings.sensitivity.steer.toString()}
             type="range"
             name="steer"
-            getHelperText={({ state }) => `Steering: ${parseInt(state.value, 10) * 100}%`}
+            getHelperText={({ state }) => `Steering: ${parseFloat(state.value) * 100}%`}
           />
           <Input
             min={'0'}
