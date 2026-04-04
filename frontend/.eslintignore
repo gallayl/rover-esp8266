@@ -1,6 +1,0 @@
-frontends/*/node_modules/*
-frontends/*/dist/*
-services/*/node_modules/*
-services/*/dist/*
-node_modules
-dist

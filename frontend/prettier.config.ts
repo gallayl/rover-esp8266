@@ -1,4 +1,6 @@
-module.exports = {
+import type { Config } from 'prettier'
+
+export default {
   jsxBracketSameLine: true,
   printWidth: 120,
   semi: false,
@@ -6,4 +8,4 @@ module.exports = {
   trailingComma: 'all',
   endOfLine: 'auto',
   arrowParens: 'always',
-}
+} satisfies Config

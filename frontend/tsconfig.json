@@ -28,7 +28,6 @@
     "removeComments": false,
     "composite": true,
     "rootDir": "./src",
-    "baseUrl": "./src",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "noEmit": true

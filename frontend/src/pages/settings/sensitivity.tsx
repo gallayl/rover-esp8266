@@ -1,19 +1,27 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { ClientSettings, ClientSettingsValues } from '../../services/client-settings'
+import type { ClientSettingsValues } from '../../services/client-settings'
+import { ClientSettings } from '../../services/client-settings'
 import { Button, Form, Input, Paper } from '@furystack/shades-common-components'
 
 export const SensitivitySettingsTab = Shade({
-  shadowDomName: 'movement-settings-tab',
+  customElementName: 'movement-settings-tab',
   render: ({ injector, useObservable }) => {
     const [settings, setSettings] = useObservable('settings', injector.getInstance(ClientSettings).currentSettings)
 
     return (
       <Paper style={{ paddingTop: '3em', margin: '0' }}>
         <Form<ClientSettingsValues['sensitivity']>
-          onSubmit={(sensitivity) => {
+          onSubmit={(formData) => {
+            const sensitivity: ClientSettingsValues['sensitivity'] = {
+              throttle: Number(formData.throttle),
+              steer: Number(formData.steer),
+              deadZone: Number(formData.deadZone),
+              characteristic: formData.characteristic,
+            }
             setSettings({ ...settings, sensitivity })
           }}
-          validate={(_formData): _formData is ClientSettingsValues['sensitivity'] => true}>
+          validate={(_formData): _formData is ClientSettingsValues['sensitivity'] => true}
+        >
           <Input
             min={'0'}
             max="5"
@@ -21,7 +29,7 @@ export const SensitivitySettingsTab = Shade({
             value={settings.sensitivity.throttle.toString()}
             type="range"
             name="throttle"
-            getHelperText={({ state }) => `Throttle: ${parseInt(state.value) * 100}%`}
+            getHelperText={({ state }) => `Throttle: ${parseFloat(state.value) * 100}%`}
           />
           <Input
             min={'0'}
@@ -30,7 +38,7 @@ export const SensitivitySettingsTab = Shade({
             value={settings.sensitivity.steer.toString()}
             type="range"
             name="steer"
-            getHelperText={({ state }) => `Steering: ${parseInt(state.value) * 100}%`}
+            getHelperText={({ state }) => `Steering: ${parseFloat(state.value) * 100}%`}
           />
           <Input
             min={'0'}

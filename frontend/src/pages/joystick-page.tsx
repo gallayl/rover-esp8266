@@ -3,7 +3,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { MovementService } from '../services/movement-service'
 import { ClientSettings } from '../services/client-settings'
 export const JoystickPage = Shade({
-  shadowDomName: 'joystick-page',
+  customElementName: 'joystick-page',
   render: ({ injector, useObservable }) => {
     const movementService = injector.getInstance(MovementService)
     const [clientSettings] = useObservable('clientSettings', injector.getInstance(ClientSettings).currentSettings)
@@ -16,12 +16,13 @@ export const JoystickPage = Shade({
           onEnd={() => {
             movementService.stop()
           }}
-          onMove={(_ev, data) => {
+          onMove={(event) => {
+            const data = event.data as { force: number; vector: { x: number; y: number } }
             const steerModifier = data.force * data.vector.x * clientSettings.sensitivity.steer
             const throttleModifier = data.force * data.vector.y * clientSettings.sensitivity.throttle
             const leftSpeed = throttleModifier + steerModifier
             const rightSpeed = throttleModifier - steerModifier
-            movementService.move(leftSpeed, rightSpeed)
+            void movementService.move(leftSpeed, rightSpeed)
           }}
         />
       </div>

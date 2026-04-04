@@ -3,7 +3,7 @@ import { AppBar, AppBarLink } from '@furystack/shades-common-components'
 import { FullScreenLoader } from '../../components/full-screen-loader'
 
 export const SettingsPage = Shade({
-  shadowDomName: 'settings-page',
+  customElementName: 'settings-page',
   render: () => {
     return (
       <div
@@ -17,12 +17,12 @@ export const SettingsPage = Shade({
           backgroundColor: 'rgba(66, 66, 66, .5)',
           backdropFilter: 'blur(10px)',
           marginTop: '3em',
-        }}>
+        }}
+      >
         <AppBar style={{ height: '3em' }}>
           <AppBarLink href="/settings">🍃 Sensitivity</AppBarLink>
           <AppBarLink href="/settings/fpv">🎥 FPV</AppBarLink>
           <AppBarLink href="/settings/control">🛠️ Control</AppBarLink>
-          <AppBarLink href="/settings/network">🛜 Network</AppBarLink>
           <AppBarLink href="/settings/update">🔃 FW upload</AppBarLink>
         </AppBar>
         <Router

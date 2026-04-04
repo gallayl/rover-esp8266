@@ -1,16 +1,11 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { Button, Form, Input, Paper } from '@furystack/shades-common-components'
-import {
-  ClientSettings,
-  DirectControlSetting,
-  PidControlSetting,
-  defaultPidSettings,
-  defaultSettings,
-} from '../../services/client-settings'
+import type { DirectControlSetting, PidControlSetting } from '../../services/client-settings'
+import { ClientSettings, defaultPidSettings, defaultSettings } from '../../services/client-settings'
 import { WebSocketService } from '../../services/websocket-service'
 
 export const ControlPage = Shade({
-  shadowDomName: 'control-tab',
+  customElementName: 'control-tab',
   render: ({ injector, useObservable, useState }) => {
     const [settings, setSettings] = useObservable('settings', injector.getInstance(ClientSettings).currentSettings)
 
@@ -43,12 +38,19 @@ export const ControlPage = Shade({
         {type === 'PID' ? (
           <Form<PidControlSetting>
             validate={(_formData): _formData is PidControlSetting => true}
-            onSubmit={(control) => {
+            onSubmit={(formData) => {
+              const control: PidControlSetting = {
+                type: 'PID',
+                p: Number(formData.p),
+                i: Number(formData.i),
+                d: Number(formData.d),
+              }
               injector.getInstance(WebSocketService).send(`configurePid ${control.p} ${control.i} ${control.d}`)
               setSettings({ ...settings, control })
-            }}>
+            }}
+          >
             <Input
-              type=""
+              type="number"
               name="p"
               labelTitle="P"
               step="0.01"
@@ -81,10 +83,11 @@ export const ControlPage = Shade({
                 ...settings,
                 control: {
                   type: 'direct',
-                  throttleSensitivity: parseInt(control.throttleSensitivity.toString()),
+                  throttleSensitivity: parseInt(control.throttleSensitivity.toString(), 10),
                 },
               })
-            }}>
+            }}
+          >
             <Input
               type="number"
               name="throttleSensitivity"

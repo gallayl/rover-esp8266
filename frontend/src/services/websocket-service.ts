@@ -22,94 +22,94 @@ export interface WebSocketEvent<T> {
 
 @Injectable({ lifetime: 'singleton' })
 export class WebSocketService {
+  private static readonly MAX_EVENT_STREAM_SIZE = 500
+  private static readonly INITIAL_RECONNECT_DELAY = 1000
+  private static readonly MAX_RECONNECT_DELAY = 30000
+
   public isConnected = new ObservableValue<boolean>(false)
 
-  public eventStream: WebSocketEvent<unknown>[] = []
+  public eventStream: Array<WebSocketEvent<unknown>> = []
+  public eventStreamVersion = new ObservableValue(0)
 
   public lastMessage = new ObservableValue<Omit<WebSocketEvent<unknown>, 'date'> | null>(null)
 
   public rssi = new ObservableValue<number>(0)
 
+  private reconnectDelay = WebSocketService.INITIAL_RECONNECT_DELAY
+  private reconnectTimeoutId: ReturnType<typeof setTimeout> | null = null
+
   private isRssiChange = (obj: unknown): obj is { type: WebSocketMessageTypes.WifiSignalChange; rssi: number } => {
-    return (obj as any)?.type === WebSocketMessageTypes.WifiSignalChange && !isNaN((obj as any).rssi)
+    const record = obj as Record<string, unknown> | null | undefined
+    return record?.type === WebSocketMessageTypes.WifiSignalChange && typeof record.rssi === 'number'
   }
 
   public send(data: string): void {
-    if (this.socket.readyState === WebSocket.OPEN) {
+    if (this.socket?.readyState === WebSocket.OPEN) {
       this.socket.send(data)
       this.lastMessage.setValue({ type: 'outgoing', data })
     }
   }
 
   @Injected((injector) => getLogger(injector).withScope('WebSocketService'))
-  private declare logger: ScopedLogger
+  declare private logger: ScopedLogger
 
   private socket!: WebSocket
 
-  private onConnect = (() => {
-    this.logger.verbose({
-      message: 'Connected',
-      data: { socket: this.socket },
-    })
-    this.isConnected.setValue(true)
-  }).bind(this)
-
-  private onDisconnect = (() => {
-    this.logger.verbose({
-      message: 'Disconnected',
-      data: { socket: this.socket },
-    })
-    this.isConnected.setValue(false)
-    this.disposeSocket(this.socket)
-    this.socket = this.createSocket()
-    this.lastMessage.setValue({ type: 'connection', data: 'Socket disconnected' })
-  }).bind(this)
-
   private onOpen = (() => {
-    this.logger.verbose({ message: 'Opened', data: { socket: this.socket } })
+    void this.logger.verbose({ message: 'Opened', data: { socket: this.socket } })
     this.lastMessage.setValue({ type: 'connection', data: 'Socket opened' })
     this.isConnected.setValue(true)
+    this.reconnectDelay = WebSocketService.INITIAL_RECONNECT_DELAY
   }).bind(this)
 
   private onClose = (() => {
-    this.logger.verbose({ message: 'Closed', data: { socket: this.socket } })
+    void this.logger.verbose({ message: 'Closed', data: { socket: this.socket } })
     this.lastMessage.setValue({ type: 'connection', data: 'Socket closed' })
     this.isConnected.setValue(false)
-    this.socket = this.createSocket()
+    this.disposeSocket(this.socket)
+    this.scheduleReconnect()
   }).bind(this)
 
   private onError = (() => {
-    this.logger.warning({
+    void this.logger.warning({
       message: 'Socket Error',
       data: { socket: this.socket },
     })
     this.lastMessage.setValue({ type: 'connection', data: 'Socket Error' })
   }).bind(this)
 
-  private onMessage = ((ev: MessageEvent) => {
+  private onMessage = ((ev: MessageEvent<string>) => {
+    const rawData = String(ev.data)
     try {
-      const dataObject = JSON.parse(ev.data.toString())
+      const dataObject: unknown = JSON.parse(rawData)
       this.lastMessage.setValue({
         type: 'incoming',
-        data: ev.data.toString(),
+        data: rawData,
         dataObject,
       })
       if (this.isRssiChange(dataObject)) {
         this.rssi.setValue(dataObject.rssi)
       }
-    } catch (error) {
-      this.lastMessage.setValue({ type: 'incoming', data: ev.data.toString() })
+    } catch {
+      this.lastMessage.setValue({ type: 'incoming', data: rawData })
     }
-    this.logger.verbose({
+    void this.logger.verbose({
       message: 'Message received',
       data: { socket: this.socket, data: ev.data },
     })
   }).bind(this)
 
+  private scheduleReconnect() {
+    if (this.reconnectTimeoutId !== null) return
+    this.reconnectTimeoutId = setTimeout(() => {
+      this.reconnectTimeoutId = null
+      this.socket = this.createSocket()
+    }, this.reconnectDelay)
+    this.reconnectDelay = Math.min(this.reconnectDelay * 2, WebSocketService.MAX_RECONNECT_DELAY)
+  }
+
   private createSocket() {
     const socket = new WebSocket(`ws://${PathHelper.joinPaths(this.env.site, 'ws')}`)
-    socket.addEventListener('connect', this.onConnect)
-    socket.addEventListener('disconnect', this.onDisconnect)
     socket.addEventListener('open', this.onOpen)
     socket.addEventListener('close', this.onClose)
     socket.addEventListener('error', this.onError)
@@ -118,24 +118,37 @@ export class WebSocketService {
   }
 
   private disposeSocket(socket: WebSocket) {
-    socket.removeEventListener('connect', this.onConnect)
-    socket.removeEventListener('disconnect', this.onDisconnect)
     socket.removeEventListener('open', this.onOpen)
     socket.removeEventListener('close', this.onClose)
     socket.removeEventListener('error', this.onError)
     socket.removeEventListener('message', this.onMessage)
   }
 
-  public dispose(): void {
-    this.socket && this.disposeSocket(this.socket)
-    this.lastMessage.dispose()
+  public [Symbol.dispose](): void {
+    if (this.reconnectTimeoutId !== null) {
+      clearTimeout(this.reconnectTimeoutId)
+    }
+    if (this.socket) {
+      this.disposeSocket(this.socket)
+    }
+    this.lastMessage[Symbol.dispose]()
+    this.isConnected[Symbol.dispose]()
+    this.rssi[Symbol.dispose]()
+    this.eventStreamVersion[Symbol.dispose]()
   }
 
   @Injected(EnvironmentService)
-  private declare readonly env: EnvironmentService
+  declare private readonly env: EnvironmentService
 
-  init() {
-    this.lastMessage.subscribe((msg) => this.eventStream.push({ ...msg, date: new Date() } as WebSocketEvent<unknown>))
+  public init() {
+    this.lastMessage.subscribe((msg) => {
+      if (!msg) return
+      this.eventStream.push({ ...msg, date: new Date() } as WebSocketEvent<unknown>)
+      if (this.eventStream.length > WebSocketService.MAX_EVENT_STREAM_SIZE) {
+        this.eventStream.splice(0, this.eventStream.length - WebSocketService.MAX_EVENT_STREAM_SIZE)
+      }
+      this.eventStreamVersion.setValue(this.eventStreamVersion.getValue() + 1)
+    })
     this.socket = this.createSocket()
   }
 }

@@ -56,7 +56,7 @@ export class ClientSettings {
   private initConfig() {
     const settings = localStorage.getItem(localStorageKey)
     try {
-      const value = JSON.parse(settings || JSON.stringify(defaultSettings))
+      const value = JSON.parse(settings || JSON.stringify(defaultSettings)) as Partial<ClientSettingsValues>
       this.currentSettings.setValue({ ...this.currentSettings.getValue(), ...value })
     } catch (error) {
       console.error('Failed to parse settings', error)
@@ -65,7 +65,7 @@ export class ClientSettings {
   }
 
   @Injected(NotyService)
-  private declare notyService: NotyService
+  declare private notyService: NotyService
 
   constructor() {
     this.initConfig()
@@ -73,5 +73,9 @@ export class ClientSettings {
       localStorage.setItem(localStorageKey, JSON.stringify(change))
       this.notyService.emit('onNotyAdded', { type: 'success', title: 'Success', body: 'Configuration saved' })
     })
+  }
+
+  public [Symbol.dispose]() {
+    this.currentSettings[Symbol.dispose]()
   }
 }

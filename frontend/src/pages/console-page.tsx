@@ -2,8 +2,8 @@ import { Shade, createComponent } from '@furystack/shades'
 import { Button, Form } from '@furystack/shades-common-components'
 import { type WebSocketEvent, WebSocketService } from '../services/websocket-service'
 
-export const ConsoleEntryList = Shade<{ events: WebSocketEvent<any>[] }>({
-  shadowDomName: 'flea-console-entries',
+export const ConsoleEntryList = Shade<{ events: Array<WebSocketEvent<any>> }>({
+  customElementName: 'flea-console-entries',
   render: ({ props }) => {
     return (
       <div>
@@ -20,7 +20,8 @@ export const ConsoleEntryList = Shade<{ events: WebSocketEvent<any>[] }>({
                 flexShrink: '0',
                 marginRight: '1em',
                 color: event.type === 'incoming' ? '#aa2233' : '#22bb33',
-              }}>
+              }}
+            >
               {event.type === 'incoming' ? '<' : event.type === 'outgoing' ? '>' : '|'}{' '}
             </div>{' '}
             {event.dataObject ? (
@@ -36,9 +37,10 @@ export const ConsoleEntryList = Shade<{ events: WebSocketEvent<any>[] }>({
 })
 
 export const ConsolePage = Shade({
-  shadowDomName: 'flea-console-page',
-  render: ({ injector }) => {
+  customElementName: 'flea-console-page',
+  render: ({ injector, useObservable }) => {
     const webSocketService = injector.getInstance(WebSocketService)
+    useObservable('eventStreamVersion', webSocketService.eventStreamVersion)
     return (
       <div
         style={{
@@ -50,7 +52,8 @@ export const ConsolePage = Shade({
           color: '#bbb',
           backgroundColor: 'rgba(66, 66, 66, .5)',
           backdropFilter: 'blur(10px)',
-        }}>
+        }}
+      >
         <div style={{ flexGrow: '1', overflow: 'auto', height: '100px', padding: '1em' }}>
           <ConsoleEntryList events={webSocketService.eventStream} />
         </div>
@@ -59,8 +62,9 @@ export const ConsolePage = Shade({
             webSocketService.send(command)
           }}
           validate={(data): data is { command: string } => {
-            return (data as any).command?.length
-          }}>
+            return !!(data as { command?: string }).command?.length
+          }}
+        >
           <input
             autofocus
             style={{ display: 'block', flexGrow: '1', width: '100%' }}

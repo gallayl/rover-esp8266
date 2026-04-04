@@ -1,10 +1,10 @@
-import { Shade, attachStyles, createComponent } from '@furystack/shades'
+import { Shade, createComponent } from '@furystack/shades'
 import { EnvironmentService } from '../../services/environment-service'
 
 export const UpdatePage = Shade({
-  shadowDomName: 'flea-update-page',
-  render: ({ injector, element }) => {
-    attachStyles(element, {
+  customElementName: 'flea-update-page',
+  render: ({ injector, useHostProps }) => {
+    useHostProps({
       style: {
         position: 'fixed',
         display: 'flex',
@@ -19,10 +19,13 @@ export const UpdatePage = Shade({
     return (
       <form
         style={{ display: 'flex', flexDirection: 'column' }}
-        action={`http://${injector.getInstance(EnvironmentService).site}/update`}
-        accept="application/octet-stream"
-        enctype="multipart/form-data"
-        {...({ method: 'POST' } as any)}>
+        {...({
+          action: `http://${injector.getInstance(EnvironmentService).site}/update`,
+          accept: 'application/octet-stream',
+          enctype: 'multipart/form-data',
+          method: 'POST',
+        } as Partial<HTMLFormElement>)}
+      >
         <div>
           <input type="file" name="update" style={{ margin: '2em' }} accept="application/octet-stream" />
           <input type="submit" value="Update" />
