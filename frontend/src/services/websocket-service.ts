@@ -43,7 +43,7 @@ export class WebSocketService {
   }
 
   @Injected((injector) => getLogger(injector).withScope('WebSocketService'))
-  private declare logger: ScopedLogger
+  declare private logger: ScopedLogger
 
   private socket!: WebSocket
 
@@ -138,7 +138,7 @@ export class WebSocketService {
   }
 
   @Injected(EnvironmentService)
-  private declare readonly env: EnvironmentService
+  declare private readonly env: EnvironmentService
 
   public init() {
     this.lastMessage.subscribe((msg) => {

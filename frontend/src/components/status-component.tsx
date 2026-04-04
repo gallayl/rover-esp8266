@@ -70,7 +70,8 @@ const SpeedGauge = Shade<{
             bottom: '16px',
             right: '.5em',
             color: 'black',
-          }}>
+          }}
+        >
           {getSpeedLabel(speed, maxSpeed)}
         </div>
       </>
@@ -89,14 +90,23 @@ export const StatusComponent = Shade<{ style?: Partial<CSSStyleDeclaration> }>({
     const hasFpv = !!currentSettings.fpv.host
 
     return (
-      <div style={{ display: 'flex', height: '100%', width: '100%', color: 'white', gap: hasFpv ? '80%' : '16px', alignItems: 'space-between' }}>
-        {
-          hasFpv ? <img
-            alt='fpv stream'
+      <div
+        style={{
+          display: 'flex',
+          height: '100%',
+          width: '100%',
+          color: 'white',
+          gap: hasFpv ? '80%' : '16px',
+          alignItems: 'space-between',
+        }}
+      >
+        {hasFpv ? (
+          <img
+            alt="fpv stream"
             src={`${currentSettings.fpv.host}/stream`}
             style={{ position: 'fixed', objectFit: 'contain', width: '100%', height: '100%', top: '0', left: '0' }}
-          /> : null
-        }
+          />
+        ) : null}
         <SpeedGauge
           style={{ flexGrow: '1', opacity: hasFpv ? '0.7' : '1' }}
           speed={movementService.leftSpeed}

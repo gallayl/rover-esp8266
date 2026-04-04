@@ -11,7 +11,7 @@ export class DistanceService {
   public readonly frontDistance = new ObservableValue(0)
 
   @Injected(WebSocketService)
-  private declare readonly webSocket: WebSocketService
+  declare private readonly webSocket: WebSocketService
 
   private readonly isDistanceChange = (
     obj: unknown,

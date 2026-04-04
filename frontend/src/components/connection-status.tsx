@@ -35,7 +35,8 @@ export const ConnectionStatus = Shade({
     return (
       <div
         title={`Signal strength: ${getRssiTitle(rssi)} (${rssi} db)`}
-        style={{ cursor: 'default', marginRight: '.5em' }}>
+        style={{ cursor: 'default', marginRight: '.5em' }}
+      >
         {isConnected ? getRssiIcon(rssi) : '🚫'}
       </div>
     )

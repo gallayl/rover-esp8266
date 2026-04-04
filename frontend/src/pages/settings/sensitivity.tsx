@@ -1,5 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
-import type { ClientSettingsValues } from '../../services/client-settings';
+import type { ClientSettingsValues } from '../../services/client-settings'
 import { ClientSettings } from '../../services/client-settings'
 import { Button, Form, Input, Paper } from '@furystack/shades-common-components'
 
@@ -14,7 +14,8 @@ export const SensitivitySettingsTab = Shade({
           onSubmit={(sensitivity) => {
             setSettings({ ...settings, sensitivity })
           }}
-          validate={(_formData): _formData is ClientSettingsValues['sensitivity'] => true}>
+          validate={(_formData): _formData is ClientSettingsValues['sensitivity'] => true}
+        >
           <Input
             min={'0'}
             max="5"

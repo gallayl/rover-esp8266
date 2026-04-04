@@ -65,7 +65,7 @@ export class ClientSettings {
   }
 
   @Injected(NotyService)
-  private declare notyService: NotyService
+  declare private notyService: NotyService
 
   constructor() {
     this.initConfig()

@@ -18,13 +18,15 @@ export const Layout = Shade({
           display: 'flex',
           flexDirection: 'column',
           lineHeight: '18px',
-        }}>
+        }}
+      >
         <AppBar
           style={{
             height: '2em',
             padding: '0.5em 0',
             display: 'flex',
-          }}>
+          }}
+        >
           <AppBarLink href="/" style={{ marginRight: '0.5em' }}>
             🪲 Flea
           </AppBarLink>
@@ -40,7 +42,6 @@ export const Layout = Shade({
           />
           <FlashlightButton />
           <ConnectionStatus />
-
         </AppBar>
         <div
           style={{
@@ -52,7 +53,8 @@ export const Layout = Shade({
             justifyContent: 'center',
             zIndex: '-1',
             backgroundColor: injector.getInstance(ThemeProviderService).theme.background.default,
-          }}>
+          }}
+        >
           <StatusComponent style={{ width: '100%', height: '100%' }} />
         </div>
         <div style={{ width: '100%', height: '100%', flexGrow: '1' }}>

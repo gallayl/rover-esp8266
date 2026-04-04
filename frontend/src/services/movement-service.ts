@@ -68,10 +68,10 @@ export class MovementService {
   }
 
   @Injected(WebSocketService)
-  private declare readonly webSocket: WebSocketService
+  declare private readonly webSocket: WebSocketService
 
   @Injected(ClientSettings)
-  private declare readonly settings: ClientSettings
+  declare private readonly settings: ClientSettings
 
   public init() {
     this.webSocket.lastMessage.subscribe((message) => {

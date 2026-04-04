@@ -1,13 +1,7 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { Button, Form, Input, Paper } from '@furystack/shades-common-components'
-import type {
-  DirectControlSetting,
-  PidControlSetting} from '../../services/client-settings';
-import {
-  ClientSettings,
-  defaultPidSettings,
-  defaultSettings,
-} from '../../services/client-settings'
+import type { DirectControlSetting, PidControlSetting } from '../../services/client-settings'
+import { ClientSettings, defaultPidSettings, defaultSettings } from '../../services/client-settings'
 import { WebSocketService } from '../../services/websocket-service'
 
 export const ControlPage = Shade({
@@ -47,7 +41,8 @@ export const ControlPage = Shade({
             onSubmit={(control) => {
               injector.getInstance(WebSocketService).send(`configurePid ${control.p} ${control.i} ${control.d}`)
               setSettings({ ...settings, control })
-            }}>
+            }}
+          >
             <Input
               type=""
               name="p"
@@ -85,7 +80,8 @@ export const ControlPage = Shade({
                   throttleSensitivity: parseInt(control.throttleSensitivity.toString(), 10),
                 },
               })
-            }}>
+            }}
+          >
             <Input
               type="number"
               name="throttleSensitivity"

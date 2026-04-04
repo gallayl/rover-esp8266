@@ -17,7 +17,8 @@ export const SettingsPage = Shade({
           backgroundColor: 'rgba(66, 66, 66, .5)',
           backdropFilter: 'blur(10px)',
           marginTop: '3em',
-        }}>
+        }}
+      >
         <AppBar style={{ height: '3em' }}>
           <AppBarLink href="/settings">🍃 Sensitivity</AppBarLink>
           <AppBarLink href="/settings/fpv">🎥 FPV</AppBarLink>
