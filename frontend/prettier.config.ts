@@ -1,3 +1,5 @@
+import type { Config } from 'prettier'
+
 export default {
   jsxBracketSameLine: true,
   printWidth: 120,
@@ -6,4 +8,4 @@ export default {
   trailingComma: 'all',
   endOfLine: 'auto',
   arrowParens: 'always',
-}
+} satisfies Config
