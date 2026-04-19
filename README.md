@@ -21,7 +21,7 @@ the matching VSCode extensions.
 
 ## Software dependencies
 
-- [PlatformIO](https://platformio.org/) (`pip install -r requirements.txt`)
+- [PlatformIO](https://platformio.org/) — install via [uv](https://docs.astral.sh/uv/): `uv tool install 'platformio>=6.1,<7'`
 - Node.js 22+ and Yarn 4 (via `corepack enable && corepack prepare yarn@4 --activate`) — only required to build the web UI for the LittleFS image.
 - All Arduino library deps are pinned in `platformio.ini` and fetched automatically on first build.
 
@@ -97,15 +97,15 @@ After first boot, the device starts an `AutoConnectAP` WiFi access point. Connec
 
 ## Commands (websocket / serial)
 
-| Command | Args | Description |
-|---|---|---|
-| `move L R` | int -1023..1023 | Open-loop throttle for left and right motor. |
-| `moveTicks L R` | int ticks/s | Closed-loop PID control to a target tick rate. |
-| `stop` | — | Halt both motors. |
-| `configurePid P I D` | doubles | Update PID tunings for both motors at runtime. |
-| `distance` | — | Force-publish the current ultrasonic reading. |
-| `info` | — | Publish device + WiFi diagnostics. |
-| `restart` | — | Reboot the device. |
+| Command              | Args            | Description                                    |
+| -------------------- | --------------- | ---------------------------------------------- |
+| `move L R`           | int -1023..1023 | Open-loop throttle for left and right motor.   |
+| `moveTicks L R`      | int ticks/s     | Closed-loop PID control to a target tick rate. |
+| `stop`               | —               | Halt both motors.                              |
+| `configurePid P I D` | doubles         | Update PID tunings for both motors at runtime. |
+| `distance`           | —               | Force-publish the current ultrasonic reading.  |
+| `info`               | —               | Publish device + WiFi diagnostics.             |
+| `restart`            | —               | Reboot the device.                             |
 
 ## Security note
 

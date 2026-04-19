@@ -24,6 +24,3 @@ compile_commands.json
 
 # Vite output (built from frontend/, packaged into LittleFS)
 data/
-
-# Local Python venv used to run formatters / linters outside Docker
-.tools-venv/
