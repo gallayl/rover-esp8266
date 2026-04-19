@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to label the release artifacts (does not create a tag)"
+        required: false
+        default: "manual"
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build firmware + LittleFS image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # tags + history needed for `git describe` in inject_version.py
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+          cache-dependency-path: frontend/yarn.lock
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: platformio-${{ hashFiles('platformio.ini') }}
+          restore-keys: platformio-
+
+      - run: pip install -r requirements.txt
+
+      - name: Build firmware
+        run: pio run
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: yarn install --immutable
+
+      - name: Build LittleFS image (frontend bundled in)
+        run: pio run -t buildfs
+
+      - name: Stage artifacts
+        run: |
+          mkdir -p release
+          cp .pio/build/nodemcuv2/firmware.bin release/firmware.bin
+          cp .pio/build/nodemcuv2/littlefs.bin release/littlefs.bin
+          ls -la release/
+
+      - name: Determine tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "name=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=${{ github.event.inputs.tag }}-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rover-${{ steps.tag.outputs.name }}
+          path: release/
+
+      - name: Create GitHub Release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/firmware.bin
+            release/littlefs.bin
+          generate_release_notes: true

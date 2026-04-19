@@ -12,6 +12,13 @@ A simple 2WD rover firmware for the **ESP8266 NodeMCU v2** with a motor shield, 
 
 Encoder pins use the internal pull-up. If your encoder cannot drive the line low (e.g. push-pull totem-pole output) add an external 10k pulldown and switch the pin mode.
 
+## Devcontainer
+
+The repo ships a `.devcontainer/` config (Cursor / VSCode / GitHub Codespaces
+compatible). Reopen in container to get Python 3.12, Node 22, Yarn 4,
+PlatformIO, clangd, clang-format, clang-tidy, and cppcheck preinstalled with
+the matching VSCode extensions.
+
 ## Software dependencies
 
 - [PlatformIO](https://platformio.org/) (`pip install -r requirements.txt`)
