@@ -8,6 +8,6 @@
 class CommandParser
 {
 public:
-    static String GetCommandName(String command);
-    static String GetCommandParameter(String command, uint8_t parameterNo);
+    static String GetCommandName(const String &command);
+    static String GetCommandParameter(const String &command, uint8_t parameterNo);
 };

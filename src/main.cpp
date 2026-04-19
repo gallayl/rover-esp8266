@@ -1,4 +1,5 @@
 #include "./globals.h"
+#include <Updater.h>
 
 #define FTP_USER "ftp"
 #define FTP_PASSWORD "ftp"
@@ -14,7 +15,10 @@ void setup()
     wifiManager.autoConnect("AutoConnectAP");
     Serial.printf("Connected to %s, IP: %s\r\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
 
-    // Lazy-construct singletons that depend on cross-TU CustomCommand globals.
+    // Construct singletons before the web server starts so WS connect handlers
+    // (which read motor state) never see nullptr motors.
+    setupMotors();
+
     interpreter = CommandInterpreter::GetInstance();
     mcuServer = new McuServer(interpreter, webSocket, webServer);
 
@@ -38,13 +42,14 @@ void setup()
             Serial.println("Failed to format LittleFS");
         }
     }
-    setupMotors();
     setupWifi();
 }
 
 void loop()
 {
-    if (shouldReboot)
+    // Re-check Update state to avoid rebooting mid-write if a second OTA
+    // request raced the post handler.
+    if (shouldReboot && !Update.isRunning())
     {
         delay(100);
         ESP.restart();

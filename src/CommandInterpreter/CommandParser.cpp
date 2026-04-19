@@ -1,11 +1,11 @@
 #include "CommandParser.h"
 
-String CommandParser::GetCommandName(String command)
+String CommandParser::GetCommandName(const String &command)
 {
     return CommandParser::GetCommandParameter(command, 0);
 }
 
-String CommandParser::GetCommandParameter(String command, uint8_t parameterNo)
+String CommandParser::GetCommandParameter(const String &command, uint8_t parameterNo)
 {
     // Cap input length: a VLA tied to an untrusted string length would overflow the
     // ~4 KB ESP8266 stack on a long websocket frame.

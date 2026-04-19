@@ -14,16 +14,16 @@
 class CommandInterpreter
 {
 private:
-    CustomCommand &_unknownCommand;
+    CustomCommand *_unknownCommand;
     static CommandInterpreter *instance;
 
     uint8_t _registeredCommandsCount = 0;
-    void RegisterCommand(const CustomCommand &newCommand);
-    CommandInterpreter(CustomCommand &unknownCommandReference) : _unknownCommand(unknownCommandReference) {}
+    CustomCommand *_registeredCommands[COMMANDS_SIZE] = {nullptr};
+    void RegisterCommand(CustomCommand *newCommand);
+    explicit CommandInterpreter(CustomCommand *unknownCommandReference) : _unknownCommand(unknownCommandReference) {}
 
 public:
     String getAvailableCommands();
-    void ExecuteCommand(String command);
-    CustomCommand RegisteredCommands[COMMANDS_SIZE];
+    void ExecuteCommand(const String &command);
     static CommandInterpreter *GetInstance();
 };

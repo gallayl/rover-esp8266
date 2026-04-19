@@ -1,19 +1,19 @@
 #pragma once
 #include <Arduino.h>
 
-typedef void (*CommandCallbackFunction)(String command);
+typedef void (*CommandCallbackFunction)(const String &command);
 
 class CustomCommand
 {
 public:
-    CustomCommand(String name = "commandName", CommandCallbackFunction callback = [](String command) {}) : _commandName(name), _onExecute(callback){};
+    CustomCommand(String name = "commandName", CommandCallbackFunction callback = [](const String &command) {}) : _commandName(name), _onExecute(callback){};
 
-    void Execute(String command)
+    void Execute(const String &command)
     {
         this->_onExecute(command);
     }
 
-    String GetCommandName()
+    const String &GetCommandName() const
     {
         return this->_commandName;
     }

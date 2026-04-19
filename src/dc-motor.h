@@ -10,8 +10,6 @@
 
 #define MOTOR_SAMPLETIME_MS 100
 
-float getMotorTicksPerSecond(float ticks);
-
 class Motor
 {
 public:
@@ -23,7 +21,9 @@ public:
     uint16_t GetThrottle();
     void encoderEvent();
     void IRAM_ATTR _onTick();
-    float getLastSampledTicks();
+
+    // Signed ticks/sec (sign reflects last commanded direction; encoder is single-channel).
+    float getSignedTicksPerSec();
 
     uint8_t index;
 
@@ -34,9 +34,11 @@ private:
 
     bool _usePID = false;
     volatile int32_t _currentTicks;
-    float _lastSampledTicks;
+    float _measuredTicksPerSec = 0;
     uint16_t _throttleValue = 0;
     float _setPoint = 0, _output = 0;
+    int8_t _commandedDir = 0;
+    unsigned long _lastSampleMs = 0;
 
     QuickPID pid;
 };

@@ -2,52 +2,67 @@
 
 CommandInterpreter *CommandInterpreter::instance = nullptr;
 
-void CommandInterpreter::RegisterCommand(const CustomCommand &newCommand)
+void CommandInterpreter::RegisterCommand(CustomCommand *newCommand)
 {
+    if (newCommand == nullptr)
+    {
+        return;
+    }
     if (this->_registeredCommandsCount >= COMMANDS_SIZE)
     {
         Serial.println("CommandInterpreter: command capacity reached, ignoring registration");
         return;
     }
-    this->RegisteredCommands[this->_registeredCommandsCount++] = newCommand;
+    this->_registeredCommands[this->_registeredCommandsCount++] = newCommand;
 }
 
 String CommandInterpreter::getAvailableCommands()
 {
     String commands = "";
-    for (uint16_t commandId = 0; commandId < this->_registeredCommandsCount; commandId++)
+    for (uint16_t i = 0; i < this->_registeredCommandsCount; i++)
     {
-        commands += this->RegisteredCommands[commandId].GetCommandName() + ", ";
+        commands += this->_registeredCommands[i]->GetCommandName() + ", ";
     }
     return commands;
 }
 
-void CommandInterpreter::ExecuteCommand(String command)
+void CommandInterpreter::ExecuteCommand(const String &command)
 {
+    const size_t cmdLen = command.length();
     for (uint8_t i = 0; i < this->_registeredCommandsCount; i++)
     {
-        String commandName = this->RegisteredCommands[i].GetCommandName();
-        if (command.equals(commandName) || command.startsWith(commandName + " "))
+        const String &name = this->_registeredCommands[i]->GetCommandName();
+        const size_t nameLen = name.length();
+        if (cmdLen < nameLen)
         {
-            this->RegisteredCommands[i].Execute(command);
+            continue;
+        }
+        // Match either an exact command or "<name> <args...>" without allocating "<name> ".
+        if (!command.startsWith(name))
+        {
+            continue;
+        }
+        if (cmdLen == nameLen || command.charAt(nameLen) == ' ')
+        {
+            this->_registeredCommands[i]->Execute(command);
             return;
         }
     }
-    this->_unknownCommand.Execute(command);
+    this->_unknownCommand->Execute(command);
 }
 
 CommandInterpreter *CommandInterpreter::GetInstance()
 {
     if (instance == nullptr)
     {
-        CommandInterpreter *ci = new CommandInterpreter(*unknownCommand);
-        ci->RegisterCommand(*restart);
-        ci->RegisterCommand(*distanceAction);
-        ci->RegisterCommand(*infoAction);
-        ci->RegisterCommand(*move);
-        ci->RegisterCommand(*stop);
-        ci->RegisterCommand(*moveTicks);
-        ci->RegisterCommand(*configurePid);
+        CommandInterpreter *ci = new CommandInterpreter(unknownCommand);
+        ci->RegisterCommand(restart);
+        ci->RegisterCommand(distanceAction);
+        ci->RegisterCommand(infoAction);
+        ci->RegisterCommand(move);
+        ci->RegisterCommand(stop);
+        ci->RegisterCommand(moveTicks);
+        ci->RegisterCommand(configurePid);
         instance = ci;
     }
     return instance;

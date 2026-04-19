@@ -1,22 +1,16 @@
 #include "move.h"
 #include "../../globals.h"
 #include "../../message-types.h"
+#include "../../pins.h"
 #include "../CommandParser.h"
 #include <AsyncWebSocket.h>
 #include <SimpleTimer.h>
 #include <math.h>
 
-#define RightMotorSpeed 5
-#define RightMotorDir 0
-#define RightMotorEncoder D7
-#define LeftMotorSpeed 4
-#define LeftMotorDir 2
-#define LeftMotorEncoder D6
-
 #define MOTOR_TICKCHANGE_NOTIFY_INTERVAL 100
 
-Motor *leftMotor = new Motor(LeftMotorSpeed, LeftMotorDir, LeftMotorEncoder, 0);
-Motor *rightMotor = new Motor(RightMotorSpeed, RightMotorDir, RightMotorEncoder, 1);
+Motor *leftMotor = nullptr;
+Motor *rightMotor = nullptr;
 
 int16_t lastSentLeft = 0;
 int16_t lastSentRight = 0;
@@ -30,8 +24,12 @@ String getMotorTickChangeMessage(uint16_t index, int16_t ticks)
 
 void notifyMotorSpeedChange()
 {
-    int16_t newLeft = (int16_t)lroundf(getMotorTicksPerSecond(leftMotor->getLastSampledTicks()));
-    int16_t newRight = (int16_t)lroundf(getMotorTicksPerSecond(rightMotor->getLastSampledTicks()));
+    if (leftMotor == nullptr || rightMotor == nullptr)
+    {
+        return;
+    }
+    int16_t newLeft = (int16_t)lroundf(leftMotor->getSignedTicksPerSec());
+    int16_t newRight = (int16_t)lroundf(rightMotor->getSignedTicksPerSec());
 
     if (lastSentLeft != newLeft)
     {
@@ -63,16 +61,26 @@ void IRAM_ATTR rightMotorTick()
 
 void setupMotors()
 {
+    // Deferred construction: keeps hardware writes out of static-init and lets us
+    // depend on Serial / other facilities the ctor might use later.
+    if (leftMotor == nullptr)
+    {
+        leftMotor = new Motor(LEFT_MOTOR_THROTTLE_PIN, LEFT_MOTOR_DIR_PIN, LEFT_MOTOR_ENCODER_PIN, 0);
+    }
+    if (rightMotor == nullptr)
+    {
+        rightMotor = new Motor(RIGHT_MOTOR_THROTTLE_PIN, RIGHT_MOTOR_DIR_PIN, RIGHT_MOTOR_ENCODER_PIN, 1);
+    }
     timer->setInterval(MOTOR_SAMPLETIME_MS, motorEncoderEvents);
     timer->setInterval(MOTOR_TICKCHANGE_NOTIFY_INTERVAL, notifyMotorSpeedChange);
-    attachInterrupt(LeftMotorEncoder, leftMotorTick, CHANGE);
-    attachInterrupt(RightMotorEncoder, rightMotorTick, CHANGE);
+    attachInterrupt(LEFT_MOTOR_ENCODER_PIN, leftMotorTick, CHANGE);
+    attachInterrupt(RIGHT_MOTOR_ENCODER_PIN, rightMotorTick, CHANGE);
 }
 
 static int16_t leftMotorSpeed;
 static int16_t rightMotorSpeed;
 
-CustomCommand *move = new CustomCommand("move", [](String command)
+CustomCommand *move = new CustomCommand("move", [](const String &command)
                                         {
     leftMotorSpeed = (int16_t)constrain(CommandParser::GetCommandParameter(command, 1).toInt(), -PWMRANGE, PWMRANGE);
     // Right motor is mounted mirrored on the chassis; negate so positive values mean "forward" for both wheels.
@@ -81,7 +89,7 @@ CustomCommand *move = new CustomCommand("move", [](String command)
     leftMotor->SetThrottle(leftMotorSpeed);
     rightMotor->SetThrottle(rightMotorSpeed); });
 
-CustomCommand *moveTicks = new CustomCommand("moveTicks", [](String command)
+CustomCommand *moveTicks = new CustomCommand("moveTicks", [](const String &command)
                                              {
     leftMotorSpeed = (int16_t)CommandParser::GetCommandParameter(command, 1).toInt();
     // Right motor mirrored — see comment above.
@@ -90,7 +98,7 @@ CustomCommand *moveTicks = new CustomCommand("moveTicks", [](String command)
     leftMotor->setPid(leftMotorSpeed);
     rightMotor->setPid(rightMotorSpeed); });
 
-CustomCommand *configurePid = new CustomCommand("configurePid", [](String command)
+CustomCommand *configurePid = new CustomCommand("configurePid", [](const String &command)
                                                 {
     double p = CommandParser::GetCommandParameter(command, 1).toDouble();
     double i = CommandParser::GetCommandParameter(command, 2).toDouble();
@@ -99,7 +107,7 @@ CustomCommand *configurePid = new CustomCommand("configurePid", [](String comman
     leftMotor->configurePid(p, i, d);
     rightMotor->configurePid(p, i, d); });
 
-CustomCommand *stop = new CustomCommand("stop", [](String command)
+CustomCommand *stop = new CustomCommand("stop", [](const String &command)
                                         {
     leftMotor->SetThrottle(0);
     rightMotor->SetThrottle(0); });

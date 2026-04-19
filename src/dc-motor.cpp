@@ -1,14 +1,10 @@
 #include "dc-motor.h"
 #include <math.h>
+#include <stdlib.h>
 
 static const float aggKp = 8, aggKi = 0.2, aggKd = 1;        // aggressive
 static const float consKp = 1, consKi = 0.05, consKd = 0.25; // conservative
-static const float maxConservativeGap = 1;                   // if the gap between setpoint and actual is more than this value, use aggressive tuning
-
-float getMotorTicksPerSecond(float ticks)
-{
-    return fabsf(ticks) * (1000.0f / (float)MOTOR_SAMPLETIME_MS);
-}
+static const float maxConservativeGap = 1;                   // ticks/sec gap above which we switch to aggressive tuning
 
 Motor::Motor(uint8_t throttlePin, uint8_t directionPin, uint8_t feedbackPin, uint8_t index)
     : index(index),
@@ -16,8 +12,7 @@ Motor::Motor(uint8_t throttlePin, uint8_t directionPin, uint8_t feedbackPin, uin
       _directionPin(directionPin),
       _feedbackPin(feedbackPin),
       _currentTicks(0),
-      _lastSampledTicks(0),
-      pid(&this->_lastSampledTicks, &this->_output, &this->_setPoint)
+      pid(&this->_measuredTicksPerSec, &this->_output, &this->_setPoint)
 {
     pinMode(throttlePin, OUTPUT);
     pinMode(directionPin, OUTPUT);
@@ -31,14 +26,18 @@ Motor::Motor(uint8_t throttlePin, uint8_t directionPin, uint8_t feedbackPin, uin
     this->pid.SetControllerDirection(QuickPID::Action::direct);
     this->pid.SetAntiWindupMode(QuickPID::iAwMode::iAwClamp);
     this->pid.Initialize();
+    this->_lastSampleMs = millis();
 }
 
 void Motor::SetThrottle(int16_t newValue)
 {
     this->_usePID = false;
     this->pid.Reset();
-    this->_throttleValue = constrain(abs(newValue), 0, PWMRANGE);
-    digitalWrite(this->_directionPin, newValue > 0 ? HIGH : LOW);
+    // Cast widens before abs() to avoid UB on INT16_MIN.
+    int32_t magnitude = abs((int32_t)newValue);
+    this->_throttleValue = (uint16_t)constrain(magnitude, 0, PWMRANGE);
+    this->_commandedDir = newValue > 0 ? 1 : (newValue < 0 ? -1 : 0);
+    digitalWrite(this->_directionPin, newValue >= 0 ? HIGH : LOW);
     analogWrite(this->_throttlePin, (int)this->_throttleValue);
 }
 
@@ -50,8 +49,10 @@ void Motor::setPid(int16_t newValue)
         this->pid.Reset();
         this->pid.Initialize();
     }
-    digitalWrite(this->_directionPin, newValue > 0 ? HIGH : LOW);
-    this->_setPoint = (float)newValue;
+    this->_commandedDir = newValue > 0 ? 1 : (newValue < 0 ? -1 : 0);
+    digitalWrite(this->_directionPin, newValue >= 0 ? HIGH : LOW);
+    // PID is magnitude-only: encoder is single-channel and cannot signal direction.
+    this->_setPoint = (float)abs((int32_t)newValue);
 }
 
 void Motor::configurePid(double p, double i, double d)
@@ -71,7 +72,16 @@ void Motor::encoderEvent()
     int32_t ticks = this->_currentTicks;
     this->_currentTicks = 0;
     interrupts();
-    this->_lastSampledTicks = (float)ticks;
+
+    unsigned long now = millis();
+    unsigned long dt = now - this->_lastSampleMs;
+    this->_lastSampleMs = now;
+    // Guard against zero/garbage dt (timer drift, first sample).
+    if (dt == 0)
+    {
+        dt = MOTOR_SAMPLETIME_MS;
+    }
+    this->_measuredTicksPerSec = (float)ticks * (1000.0f / (float)dt);
 
     if (this->_usePID)
     {
@@ -84,9 +94,8 @@ void Motor::encoderEvent()
             return;
         }
 
-        float desiredTicks = getMotorTicksPerSecond(this->_lastSampledTicks);
-        float gap = fabsf(this->_setPoint - desiredTicks);
-        if (gap > maxConservativeGap || desiredTicks < 1) // use aggressive if the gap is big or we are not moving
+        float gap = fabsf(this->_setPoint - this->_measuredTicksPerSec);
+        if (gap > maxConservativeGap || this->_measuredTicksPerSec < 1)
         {
             this->pid.SetTunings(aggKp, aggKi, aggKd);
         }
@@ -104,7 +113,7 @@ void IRAM_ATTR Motor::_onTick()
     this->_currentTicks++;
 }
 
-float Motor::getLastSampledTicks()
+float Motor::getSignedTicksPerSec()
 {
-    return this->_lastSampledTicks;
+    return this->_measuredTicksPerSec * (float)this->_commandedDir;
 }

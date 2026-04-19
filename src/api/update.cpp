@@ -11,7 +11,9 @@ ArRequestHandlerFunction getUpdateForm = [](AsyncWebServerRequest *request)
 
 ArRequestHandlerFunction onPostUpdate = [](AsyncWebServerRequest *request)
 {
-    shouldReboot = !Update.hasError();
+    // Only schedule the reboot if the upload finished cleanly. The main loop's
+    // reboot path also re-checks Update state to avoid restarting mid-write.
+    shouldReboot = !Update.hasError() && !Update.isRunning();
     AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", shouldReboot ? "OK" : "FAIL");
     response->addHeader("Connection", "close");
     request->send(response);

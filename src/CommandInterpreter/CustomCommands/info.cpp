@@ -3,7 +3,9 @@
 #include <ESP8266WiFi.h>
 #include <AsyncWebSocket.h>
 
-CustomCommand *infoAction = new CustomCommand("info", [](String command)
+#define INFO_BUFFER_SIZE 384
+
+CustomCommand *infoAction = new CustomCommand("info", [](const String &command)
                                               {
     int32_t rssi = WiFi.RSSI();
     const char *signalQuality;
@@ -18,8 +20,15 @@ CustomCommand *infoAction = new CustomCommand("info", [](String command)
     else
         signalQuality = "Unusable";
 
-    char buf[384];
-    snprintf(buf, sizeof(buf),
+    // Allocate the JSON buffer on the heap: this lambda runs from the AsyncTCP
+    // context, whose stack budget is significantly tighter than the main loop.
+    char *buf = (char *)malloc(INFO_BUFFER_SIZE);
+    if (buf == nullptr)
+    {
+        Serial.println("info: malloc failed");
+        return;
+    }
+    snprintf(buf, INFO_BUFFER_SIZE,
         "{\"SDK version\": \"%s\","
         "\"CPU Freq(MHz)\": %u,"
         "\"Free Heap\": %u,"
@@ -40,4 +49,5 @@ CustomCommand *infoAction = new CustomCommand("info", [](String command)
         WiFi.localIP().toString().c_str(),
         WiFi.macAddress().c_str(),
         signalQuality, rssi);
-    webSocket->textAll(buf); });
+    webSocket->textAll(buf);
+    free(buf); });
