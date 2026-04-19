@@ -1,5 +1,5 @@
 #pragma once
 
-const char *MIME_plainText = "text/plain";
-const char *MIME_jpeg = "image/jpeg";
-const char *MIME_json = "application/json";
+extern const char *MIME_plainText;
+extern const char *MIME_jpeg;
+extern const char *MIME_json;
