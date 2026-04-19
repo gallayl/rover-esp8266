@@ -2,4 +2,4 @@
 
 #include "../CustomCommand.h"
 
-extern CustomCommand *restart;
+extern CustomCommand* restart;

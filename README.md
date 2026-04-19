@@ -14,25 +14,68 @@ Encoder pins use the internal pull-up. If your encoder cannot drive the line low
 
 ## Software dependencies
 
-- [PlatformIO](https://platformio.org/)
+- [PlatformIO](https://platformio.org/) (`pip install -r requirements.txt`)
+- Node.js 22+ and Yarn 4 (via `corepack enable && corepack prepare yarn@4 --activate`) — only required to build the web UI for the LittleFS image.
 - All Arduino library deps are pinned in `platformio.ini` and fetched automatically on first build.
 
 ## Build & flash
 
 ```bash
-# Build firmware
+# Build firmware (no Node required)
 pio run
 
 # Flash firmware over USB
 pio run -t upload
 
-# Build & upload the LittleFS image (web UI)
+# Build & upload the LittleFS image (web UI). Vite is invoked automatically via
+# scripts/build_frontend.py; the resulting bundle lands in ./data which is then
+# packaged into littlefs.bin.
 pio run -t buildfs
 pio run -t uploadfs
 
 # Tail serial monitor
 pio device monitor -b 115200
 ```
+
+The `data/` directory is generated and gitignored. To rebuild the frontend
+without touching firmware:
+
+```bash
+cd frontend
+yarn install
+yarn build  # writes to ../data
+```
+
+## Pre-commit hooks
+
+A root-level husky hook runs `lint-staged` against staged files:
+
+- `src/**` and `test/**` `*.{c,cpp,h,hpp}` → `clang-format -i`
+- `frontend/**` `*.{ts,tsx,js,...}` → `eslint --fix` + `prettier --write`
+
+Install once after cloning:
+
+```bash
+yarn install
+```
+
+`yarn install` at the repo root pulls husky + lint-staged and registers the
+hook via the `prepare` script. The frontend keeps its own `yarn install` for
+app dependencies.
+
+## Editor / clangd
+
+The repo ships a `.clang-format` (LLVM base, Allman braces, 4-space indent) and a
+`.clangd` config. To enable rich C++ IntelliSense in any clangd-capable editor
+(Cursor, VSCode, Vim, Emacs, Zed) generate the compilation database after the
+first build:
+
+```bash
+pio run -t compiledb
+```
+
+The resulting `compile_commands.json` is gitignored; regenerate after changing
+`platformio.ini` or pulling new lib deps.
 
 After first boot, the device starts an `AutoConnectAP` WiFi access point. Connect, configure your home WiFi, then access the rover at the IP printed to serial.
 

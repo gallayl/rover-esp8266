@@ -9,4 +9,4 @@ String getDistanceMessage(float distance);
 void sendDistanceEvent();
 void setupDistance();
 
-extern CustomCommand *distanceAction;
+extern CustomCommand* distanceAction;

@@ -7,11 +7,7 @@ static const float consKp = 1, consKi = 0.05, consKd = 0.25; // conservative
 static const float maxConservativeGap = 1;                   // ticks/sec gap above which we switch to aggressive tuning
 
 Motor::Motor(uint8_t throttlePin, uint8_t directionPin, uint8_t feedbackPin, uint8_t index)
-    : index(index),
-      _throttlePin(throttlePin),
-      _directionPin(directionPin),
-      _feedbackPin(feedbackPin),
-      _currentTicks(0),
+    : index(index), _throttlePin(throttlePin), _directionPin(directionPin), _feedbackPin(feedbackPin), _currentTicks(0),
       pid(&this->_measuredTicksPerSec, &this->_output, &this->_setPoint)
 {
     pinMode(throttlePin, OUTPUT);

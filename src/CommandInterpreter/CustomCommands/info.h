@@ -2,4 +2,4 @@
 
 #include "../CustomCommand.h"
 
-extern CustomCommand *infoAction;
+extern CustomCommand* infoAction;

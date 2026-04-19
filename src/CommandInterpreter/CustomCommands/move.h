@@ -4,8 +4,8 @@
 #include "../CustomCommand.h"
 #include "../../dc-motor.h"
 
-extern Motor *leftMotor;
-extern Motor *rightMotor;
+extern Motor* leftMotor;
+extern Motor* rightMotor;
 extern int16_t lastSentLeft;
 extern int16_t lastSentRight;
 
@@ -14,7 +14,7 @@ void notifyMotorSpeedChange();
 void motorEncoderEvents();
 void setupMotors();
 
-extern CustomCommand *move;
-extern CustomCommand *moveTicks;
-extern CustomCommand *configurePid;
-extern CustomCommand *stop;
+extern CustomCommand* move;
+extern CustomCommand* moveTicks;
+extern CustomCommand* configurePid;
+extern CustomCommand* stop;

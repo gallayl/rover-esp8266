@@ -5,7 +5,7 @@
 
 // Minimal JSON string escaper for the subset of bytes that would break JSON.
 // Caller-supplied input may contain quotes, backslashes or control bytes.
-static String jsonEscape(const String &in)
+static String jsonEscape(const String& in)
 {
     String out;
     out.reserve(in.length() + 2);
@@ -52,7 +52,10 @@ static String jsonEscape(const String &in)
     return out;
 }
 
-CustomCommand *unknownCommand = new CustomCommand("", [](const String &command)
-                                                  {
-    String name = jsonEscape(CommandParser::GetCommandName(command));
-    webSocket->textAll("{\"message\": \"Unknown command: " + name + ".\"}"); });
+CustomCommand* unknownCommand =
+    new CustomCommand("",
+                      [](const String& command)
+                      {
+                          String name = jsonEscape(CommandParser::GetCommandName(command));
+                          webSocket->textAll("{\"message\": \"Unknown command: " + name + ".\"}");
+                      });

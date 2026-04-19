@@ -1,26 +1,30 @@
 #include "CommandParser.h"
+#include "CommandParserCore.h"
 
-String CommandParser::GetCommandName(const String &command)
+namespace
 {
-    return CommandParser::GetCommandParameter(command, 0);
-}
-
-String CommandParser::GetCommandParameter(const String &command, uint8_t parameterNo)
+inline String toString(std::string_view view)
 {
-    // Cap input length: a VLA tied to an untrusted string length would overflow the
-    // ~4 KB ESP8266 stack on a long websocket frame.
-    if (command.length() == 0 || command.length() > MAX_COMMAND_LEN)
+    if (view.empty())
     {
         return "";
     }
+    // Arduino String wants a NUL-terminated buffer; copy the slice into a small
+    // stack buffer bounded by the parser's max input length.
+    char buf[rover::command_parser::kMaxCommandLength + 1];
+    const size_t n = view.size() < sizeof(buf) - 1 ? view.size() : sizeof(buf) - 1;
+    memcpy(buf, view.data(), n);
+    buf[n] = '\0';
+    return String(buf);
+}
+} // namespace
 
-    char buf[MAX_COMMAND_LEN + 1];
-    command.toCharArray(buf, sizeof(buf));
-    char *p = buf;
-    char *str = NULL;
-    int currentSegment = 0;
-    while (currentSegment++ <= parameterNo && (str = strtok_r(p, COMMAND_DELIMITER, &p)) != NULL)
-    {
-    }
-    return str ? String(str) : "";
+String CommandParser::GetCommandName(const String& command)
+{
+    return toString(rover::command_parser::parseName({command.c_str(), command.length()}));
+}
+
+String CommandParser::GetCommandParameter(const String& command, uint8_t parameterNo)
+{
+    return toString(rover::command_parser::parseParameter({command.c_str(), command.length()}, parameterNo));
 }

@@ -54,7 +54,9 @@ void setupDistance()
     timer->setInterval(SEND_INTERVAL_TIMEOUT_MS, sendDistanceEvent);
 }
 
-CustomCommand *distanceAction = new CustomCommand("distance", [](const String &command)
+CustomCommand* distanceAction = new CustomCommand("distance",
+                                                  [](const String& command)
                                                   {
-    float distance = readDistanceCm();
-    webSocket->textAll(getDistanceMessage(distance)); });
+                                                      float distance = readDistanceCm();
+                                                      webSocket->textAll(getDistanceMessage(distance));
+                                                  });

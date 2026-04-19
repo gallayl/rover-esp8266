@@ -1,8 +1,8 @@
 #include "CommandInterpreter.h"
 
-CommandInterpreter *CommandInterpreter::instance = nullptr;
+CommandInterpreter* CommandInterpreter::instance = nullptr;
 
-void CommandInterpreter::RegisterCommand(CustomCommand *newCommand)
+void CommandInterpreter::RegisterCommand(CustomCommand* newCommand)
 {
     if (newCommand == nullptr)
     {
@@ -26,12 +26,12 @@ String CommandInterpreter::getAvailableCommands()
     return commands;
 }
 
-void CommandInterpreter::ExecuteCommand(const String &command)
+void CommandInterpreter::ExecuteCommand(const String& command)
 {
     const size_t cmdLen = command.length();
     for (uint8_t i = 0; i < this->_registeredCommandsCount; i++)
     {
-        const String &name = this->_registeredCommands[i]->GetCommandName();
+        const String& name = this->_registeredCommands[i]->GetCommandName();
         const size_t nameLen = name.length();
         if (cmdLen < nameLen)
         {
@@ -51,11 +51,11 @@ void CommandInterpreter::ExecuteCommand(const String &command)
     this->_unknownCommand->Execute(command);
 }
 
-CommandInterpreter *CommandInterpreter::GetInstance()
+CommandInterpreter* CommandInterpreter::GetInstance()
 {
     if (instance == nullptr)
     {
-        CommandInterpreter *ci = new CommandInterpreter(unknownCommand);
+        CommandInterpreter* ci = new CommandInterpreter(unknownCommand);
         ci->RegisterCommand(restart);
         ci->RegisterCommand(distanceAction);
         ci->RegisterCommand(infoAction);
