@@ -23,7 +23,7 @@ jobs:
     name: Build firmware + LittleFS image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # tags + history needed for `git describe` in inject_version.py
 
@@ -52,7 +52,7 @@ jobs:
           fi
 
       - name: Upload workflow artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: rover-${{ steps.tag.outputs.name }}
           path: release/
