@@ -43,6 +43,14 @@ XTENSA_UNKNOWN_FLAGS: frozenset[str] = frozenset(
     }
 )
 
+# Recognises the xtensa cross compilers PlatformIO invokes from the
+# compile_commands entries; used to locate the toolchain root so we can
+# surface its newlib / libstdc++ headers to clang-tidy's clang parser.
+_XTENSA_COMPILER_SUFFIXES: tuple[str, ...] = (
+    "xtensa-lx106-elf-g++",
+    "xtensa-lx106-elf-gcc",
+)
+
 
 def run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess[str]:
     print(f"[gen_compiledb] $ {' '.join(shlex.quote(c) for c in cmd)}", flush=True)
@@ -67,24 +75,99 @@ def firmware_entries() -> list[dict]:
         return []
     data = json.loads(OUTPUT.read_text())
     OUTPUT.unlink()
-    return [_strip_unknown_flags(entry) for entry in data]
+    toolchain = _detect_xtensa_toolchain(data)
+    extra_isystem = _xtensa_isystem_args(toolchain) if toolchain else []
+    return [_rewrite_firmware_entry(entry, extra_isystem) for entry in data]
 
 
-def _strip_unknown_flags(entry: dict) -> dict:
-    """Remove Xtensa GCC driver flags clang refuses to accept.
+def _entry_tokens(entry: dict) -> list[str]:
+    """Extract the argv tokens from a compile_commands entry, in order."""
+    args = entry.get("arguments")
+    if isinstance(args, list):
+        return list(args)
+    command = entry.get("command")
+    if isinstance(command, str):
+        return shlex.split(command)
+    return []
 
-    PlatformIO emits entries with either a ``command`` string or an
-    ``arguments`` list; handle both so downstream clang-tidy can still
-    parse the translation unit.
+
+def _detect_xtensa_toolchain(entries: list[dict]) -> Path | None:
+    """Infer the xtensa toolchain root (``.../toolchain-xtensa``) from an entry.
+
+    PlatformIO emits compile commands whose compiler argv[0] is an absolute
+    path like ``.../toolchain-xtensa/bin/xtensa-lx106-elf-g++``; walking up
+    two parents gives us the toolchain root.
     """
-    if "arguments" in entry and isinstance(entry["arguments"], list):
-        entry["arguments"] = [
-            arg for arg in entry["arguments"] if arg not in XTENSA_UNKNOWN_FLAGS
-        ]
-    if "command" in entry and isinstance(entry["command"], str):
-        tokens = shlex.split(entry["command"])
-        filtered = [tok for tok in tokens if tok not in XTENSA_UNKNOWN_FLAGS]
-        entry["command"] = " ".join(shlex.quote(tok) for tok in filtered)
+    for entry in entries:
+        for tok in _entry_tokens(entry):
+            if not tok.endswith(_XTENSA_COMPILER_SUFFIXES):
+                continue
+            compiler = Path(tok)
+            if not compiler.is_absolute():
+                continue
+            root = compiler.parent.parent
+            if (root / "xtensa-lx106-elf" / "include").is_dir():
+                return root
+    return None
+
+
+def _xtensa_isystem_args(toolchain: Path) -> list[str]:
+    """Build ``-isystem`` args pointing at the xtensa newlib + libstdc++ tree.
+
+    Host clang's default search order puts ``-isystem`` entries before the
+    implicit system dirs (``/usr/include`` etc.), so injecting the xtensa
+    headers here lets clang-tidy find ``sys/config.h`` and picks the
+    toolchain's ``sys/types.h`` over glibc's, which otherwise clashes with
+    the ESP8266 SDK's ``c_types.h``.
+    """
+    candidates: list[Path] = []
+    cxx_versions = sorted(
+        (toolchain / "xtensa-lx106-elf" / "include" / "c++").glob("*"),
+        key=lambda p: p.name,
+    )
+    if cxx_versions:
+        cxx = cxx_versions[-1]
+        candidates += [cxx, cxx / "xtensa-lx106-elf", cxx / "backward"]
+    gcc_versions = sorted(
+        (toolchain / "lib" / "gcc" / "xtensa-lx106-elf").glob("*"),
+        key=lambda p: p.name,
+    )
+    if gcc_versions:
+        gcc = gcc_versions[-1]
+        candidates += [gcc / "include", gcc / "include-fixed"]
+    candidates += [
+        toolchain / "xtensa-lx106-elf" / "sys-include",
+        toolchain / "xtensa-lx106-elf" / "include",
+    ]
+    args: list[str] = []
+    for path in candidates:
+        if path.is_dir():
+            args += ["-isystem", str(path)]
+    return args
+
+
+def _rewrite_firmware_entry(entry: dict, extra_isystem: list[str]) -> dict:
+    """Make a firmware compile entry consumable by host clang-tidy.
+
+    1. Drop xtensa-specific driver flags clang rejects.
+    2. Insert ``-isystem`` paths for the xtensa sysroot right after the
+       compiler token so they outrank the host system dirs.
+
+    Handles both the ``command`` string and ``arguments`` list shapes that
+    PlatformIO may emit.
+    """
+
+    def _rewrite(tokens: list[str]) -> list[str]:
+        filtered = [t for t in tokens if t not in XTENSA_UNKNOWN_FLAGS]
+        if extra_isystem and filtered:
+            filtered = filtered[:1] + extra_isystem + filtered[1:]
+        return filtered
+
+    if isinstance(entry.get("arguments"), list):
+        entry["arguments"] = _rewrite(entry["arguments"])
+    if isinstance(entry.get("command"), str):
+        tokens = _rewrite(shlex.split(entry["command"]))
+        entry["command"] = " ".join(shlex.quote(t) for t in tokens)
     return entry
 
 
