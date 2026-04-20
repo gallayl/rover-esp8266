@@ -3,6 +3,7 @@ bundle
 *.log
 
 dist/*
+tsconfig.tsbuildinfo
 .pnp.*
 .yarn/*
 !.yarn/patches

@@ -1,0 +1,39 @@
+CompileFlags:
+  CompilationDatabase: .
+  Add:
+    - -std=gnu++17
+    - -Wall
+    - -Wextra
+  Remove:
+    - -mlongcalls
+    - -mtext-section-literals
+    - -fno-rtti
+    - -fno-tree-switch-conversion
+    - -free
+    - -fipa-pta
+
+Diagnostics:
+  Suppress:
+    - drv_unknown_argument
+    - unknown-warning-option
+  UnusedIncludes: None
+  ClangTidy:
+    Add:
+      - bugprone-*
+      - modernize-*
+      - readability-*
+      - performance-*
+    Remove:
+      - modernize-use-trailing-return-type
+      - readability-magic-numbers
+      - readability-identifier-length
+      - bugprone-easily-swappable-parameters
+
+Index:
+  Background: Build
+
+InlayHints:
+  Designators: true
+  Enabled: true
+  ParameterNames: true
+  DeducedTypes: true

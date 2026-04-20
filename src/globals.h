@@ -1,27 +1,30 @@
 #pragma once
 
+#include <LittleFS.h>
+#include <ESP8266WiFi.h>
+#include <ESPAsyncWebServer.h>
+#include <ESPAsyncWiFiManager.h>
+#include <ESP8266FtpServer.h>
+#include <SimpleTimer.h>
+#include <DNSServer.h>
+
 #include "./CommandInterpreter/CommandInterpreter.h"
 #include "./McuServer.h"
-#include <LittleFS.h>
-#include <WiFiClient.h>
-#include <Wire.h>
-#include <WiFiClientSecure.h>
-#include <SimpleTimer.h>
-#include <ESP8266FtpServer.h>
-#include <ESP8266WiFi.h> // https://github.com/esp8266/Arduino
-#include <ESPAsyncWebServer.h>
-#include <ESPAsyncWiFiManager.h> // https://github.com/tzapu/WiFiManager
+#include "./api/update.h"
+#include "./CommandInterpreter/CustomCommands/distance.h"
+#include "./CommandInterpreter/CustomCommands/move.h"
+#include "./CommandInterpreter/CustomCommands/wifi.h"
 
-AsyncWebServer wifiManagerServer(80);
-AsyncWebSocket *webSocket = new AsyncWebSocket("/ws");
-AsyncWebServer *webServer = new AsyncWebServer(80);
-DNSServer dns;
+extern AsyncWebSocket* webSocket;
+extern AsyncWebServer* webServer;
+extern DNSServer dns;
+extern SimpleTimer* timer;
+extern FtpServer ftp;
 
-SimpleTimer *timer = new SimpleTimer();
+// `interpreter` and `mcuServer` are nullptr until setup() — see globals.cpp / main.cpp.
+// Constructing them at static-init time would derefence CustomCommand globals from
+// other translation units whose construction order is undefined.
+extern CommandInterpreter* interpreter;
+extern McuServer* mcuServer;
 
-FtpServer ftp;
-
-CommandInterpreter *interpreter = CommandInterpreter::GetInstance();
-McuServer *mcuServer = new McuServer((char *)"admin", (char *)"admin", interpreter, webSocket, webServer);
-
-AsyncWiFiManager wifiManager(&wifiManagerServer, &dns);
+extern AsyncWiFiManager wifiManager;

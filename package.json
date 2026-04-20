@@ -1,0 +1,16 @@
+{
+  "name": "rover-esp8266",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Repo-level tooling: pre-commit hooks shared across firmware (cpp) and frontend (ts).",
+  "scripts": {
+    "prepare": "husky",
+    "format:cpp": "find src test -type f \\( -name '*.cpp' -o -name '*.c' -o -name '*.h' -o -name '*.hpp' \\) -print0 | xargs -0 clang-format -i",
+    "format:cpp:check": "find src test -type f \\( -name '*.cpp' -o -name '*.c' -o -name '*.h' -o -name '*.hpp' \\) -print0 | xargs -0 clang-format --dry-run --Werror"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0"
+  },
+  "packageManager": "yarn@4.14.1"
+}

@@ -1,0 +1,41 @@
+{
+  "name": "rover-esp8266",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    },
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": false,
+      "configureZshAsDefaultShell": false
+    },
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  "postCreateCommand": "bash .devcontainer/postCreate.sh",
+  "remoteEnv": {
+    "PLATFORMIO_CORE_DIR": "${containerWorkspaceFolder}/.platformio"
+  },
+  "containerEnv": {
+    "PIP_BREAK_SYSTEM_PACKAGES": "1"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "platformio.platformio-ide",
+        "llvm-vs-code-extensions.vscode-clangd",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "arcanis.vscode-zipfs",
+        "EditorConfig.EditorConfig"
+      ],
+      "settings": {
+        "clangd.arguments": ["--background-index", "--clang-tidy"],
+        "C_Cpp.intelliSenseEngine": "disabled",
+        "editor.formatOnSave": true
+      }
+    }
+  },
+  "mounts": [],
+  "forwardPorts": [],
+  "remoteUser": "vscode"
+}

@@ -2,10 +2,25 @@
 .piolibdeps
 .pio
 .vscode/.browse.c_cpp.db*
+.vscode/.BROWSE*
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 node_modules
 .eslintcache
-node_modules
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+yarn-error.log
 
 **/tsconfig.tsbuildinfo
+
+# clangd / compile commands
+compile_commands.json
+.cache/
+
+# Vite output (built from frontend/, packaged into LittleFS)
+data/

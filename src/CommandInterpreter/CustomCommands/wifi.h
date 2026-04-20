@@ -1,28 +1,9 @@
 #pragma once
-#include "../../globals.h"
-#include <AsyncWebSocket.h>
-#include <Servo.h>
 
-#define WIFI_CONNECTION_CHECK_INTERVAL 1000
+#include <Arduino.h>
 
-int32_t lastSentRssi = WiFi.RSSI();
+extern int32_t lastSentRssi;
 
-String getWifiMessage(int32_t rssi)
-{
-    return String("{\"type\": " + String(WebSocketMessageTypes::WifiSignalChange) + ", \"rssi\": " + String(rssi) + "}");
-}
-
-void wifiEvents()
-{
-    int32_t rssi = WiFi.RSSI();
-    if (rssi != lastSentRssi)
-    {
-        lastSentRssi = rssi;
-        webSocket->textAll(getWifiMessage(rssi));
-    }
-}
-
-void setupWifi()
-{
-    timer->setInterval(WIFI_CONNECTION_CHECK_INTERVAL, motorEncoderEvents);
-}
+String getWifiMessage(int32_t rssi);
+void wifiEvents();
+void setupWifi();

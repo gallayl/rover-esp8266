@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+# Resolves yarn from PATH; falls back to npx if missing so contributors without
+# Yarn installed (e.g. firmware-only devs) still get a useful hook.
+if command -v yarn >/dev/null 2>&1; then
+  yarn lint-staged
+else
+  npx --no -- lint-staged
+fi

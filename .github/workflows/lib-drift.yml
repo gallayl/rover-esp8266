@@ -1,0 +1,99 @@
+name: Lib drift watcher
+
+# PlatformIO `lib_deps` are not understood by Dependabot. This job runs
+# `pio pkg outdated` periodically and opens (or updates) a tracking issue when
+# any pinned Arduino dep falls behind. Runs monthly to avoid noise.
+
+on:
+  schedule:
+    - cron: "17 3 1 * *" # 03:17 UTC on the 1st of each month
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: lib-drift
+  cancel-in-progress: false
+
+jobs:
+  outdated:
+    name: pio pkg outdated
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: platformio-${{ hashFiles('platformio.ini') }}
+          restore-keys: platformio-
+
+      - run: uv tool install 'platformio>=6.1,<7'
+
+      - name: Inspect outdated packages
+        id: check
+        run: |
+          set +e
+          OUTPUT=$(pio pkg outdated 2>&1)
+          STATUS=$?
+          set -e
+          echo "$OUTPUT"
+          {
+            echo 'report<<EOF'
+            echo "$OUTPUT"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+          # `pio pkg outdated` exits 0 even with results; gate on output content.
+          if echo "$OUTPUT" | grep -Eq 'Outdated|->'; then
+            echo "drift=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "drift=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upsert tracking issue
+        if: steps.check.outputs.drift == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'PlatformIO lib_deps drift detected';
+            const body = [
+              'Automatic monthly drift check found outdated PlatformIO packages.',
+              '',
+              '```',
+              `${{ steps.check.outputs.report }}`,
+              '```',
+              '',
+              'Bump the relevant `lib_deps` entries in `platformio.ini` after vetting changelogs.',
+            ].join('\n');
+
+            const { data: existing } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'lib-drift',
+            });
+
+            if (existing.length > 0) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing[0].number,
+                body,
+              });
+              core.notice(`Updated existing issue #${existing[0].number}`);
+            } else {
+              const { data: created } = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['lib-drift', 'dependencies'],
+              });
+              core.notice(`Opened issue #${created.number}`);
+            }
