@@ -19,56 +19,85 @@ compatible). Reopen in container to get Python 3.12, Node 22, Yarn 4,
 PlatformIO, clangd, clang-format, clang-tidy, and cppcheck preinstalled with
 the matching VSCode extensions.
 
-## Software dependencies
+## Tooling
 
-- [PlatformIO](https://platformio.org/) — install via [uv](https://docs.astral.sh/uv/): `uv tool install 'platformio>=6.1,<7'`
-- Node.js 22+ and Yarn 4 (via `corepack enable && corepack prepare yarn@4 --activate`) — only required to build the web UI for the LittleFS image.
-- All Arduino library deps are pinned in `platformio.ini` and fetched automatically on first build.
+All day-to-day commands run from the repo root via `yarn`. Two toolchains
+back the scripts:
+
+- **[uv](https://docs.astral.sh/uv/)** owns the Python side (PlatformIO,
+  `clang-format`, `clang-tidy`). Versions are pinned in `pyproject.toml` /
+  `uv.lock`. `uv sync` materializes the toolchain.
+- **Yarn 4** (with workspaces) owns the JS side. The frontend is a workspace
+  under `frontend/`; a single root `yarn install` covers everything.
+
+### Prerequisites
+
+- [uv](https://docs.astral.sh/uv/) on PATH.
+- Node.js 22+ with Yarn 4 enabled via Corepack: `corepack enable && corepack prepare yarn@4 --activate`.
+- `cppcheck` (apt / brew) — only needed for `yarn lint:cpp`.
+- The devcontainer (`.devcontainer/`) bundles everything; reopen in container
+  to skip the manual setup.
+
+### One-shot setup
+
+```bash
+yarn setup   # = uv sync && yarn install --immutable && uv run pio run -t compiledb
+```
+
+This installs the pinned Python tooling, the JS workspaces, registers the
+Husky pre-commit hook (via `prepare`), and produces `compile_commands.json`
+for clangd.
+
+### Root scripts
+
+| Script                | What it does                                                 |
+| --------------------- | ------------------------------------------------------------ |
+| `yarn setup`          | Bootstrap (uv sync + yarn install + compiledb).              |
+| `yarn compiledb`      | Generate merged `compile_commands.json` for clangd.          |
+| `yarn build`          | `build:firmware` + `build:fs`.                               |
+| `yarn build:firmware` | `pio run` (firmware only, fast).                             |
+| `yarn build:fs`       | Build the LittleFS image; bundles the frontend into `data/`. |
+| `yarn build:frontend` | Vite build only (no PlatformIO).                             |
+| `yarn start`          | `vite` dev server for the frontend.                          |
+| `yarn format`         | Format C++ (clang-format) + frontend (prettier/eslint).      |
+| `yarn format:check`   | Read-only equivalent (used by CI).                           |
+| `yarn lint`           | `lint:cpp` (cppcheck via `pio check`) + `lint:frontend`.     |
+| `yarn lint:cpp:tidy`  | clang-tidy on `src/` (warn-only in CI).                      |
+| `yarn typecheck`      | `tsc --noEmit` on the frontend workspace.                    |
+| `yarn test`           | Native unit tests + frontend (vitest).                       |
+| `yarn check`          | `format:check` + `lint` + `typecheck` + `test`.              |
+| `yarn ci`             | `check` + `build` — what the workflows run.                  |
+
+Direct PlatformIO commands still work (they're just `uv run pio …` under the
+hood); the `yarn` aliases exist so contributors and CI share one entry point.
 
 ## Build & flash
 
 ```bash
-# Build firmware (no Node required)
-pio run
-
-# Flash firmware over USB
-pio run -t upload
-
-# Build & upload the LittleFS image (web UI). Vite is invoked automatically via
-# scripts/build_frontend.py; the resulting bundle lands in ./data which is then
-# packaged into littlefs.bin.
-pio run -t buildfs
-pio run -t uploadfs
-
-# Tail serial monitor
-pio device monitor -b 115200
+yarn build:firmware              # build firmware (Node not required at runtime, but yarn dispatches)
+uv run pio run -t upload         # flash firmware over USB
+yarn build:fs                    # build LittleFS image (auto-rebuilds frontend)
+uv run pio run -t uploadfs       # upload LittleFS image
+uv run pio device monitor -b 115200
 ```
 
-The `data/` directory is generated and gitignored. To rebuild the frontend
-without touching firmware:
+The `data/` directory is generated and gitignored. Rebuild only the
+frontend bundle (without invoking PlatformIO):
 
 ```bash
-cd frontend
-yarn install
-yarn build  # writes to ../data
+yarn build:frontend   # writes to ../data
 ```
 
 ## Pre-commit hooks
 
 A root-level husky hook runs `lint-staged` against staged files:
 
-- `src/**` and `test/**` `*.{c,cpp,h,hpp}` → `clang-format -i`
+- `src/**` and `test/**` `*.{c,cpp,h,hpp}` → `uv run clang-format -i`
 - `frontend/**` `*.{ts,tsx,js,...}` → `eslint --fix` + `prettier --write`
 
-Install once after cloning:
-
-```bash
-yarn install
-```
-
-`yarn install` at the repo root pulls husky + lint-staged and registers the
-hook via the `prepare` script. The frontend keeps its own `yarn install` for
-app dependencies.
+`yarn setup` (or any plain `yarn install`) registers the hook through the
+`prepare` script. No separate install in `frontend/` is needed — workspaces
+hoist everything to the root `node_modules/`.
 
 ## Editor / clangd
 
@@ -78,11 +107,14 @@ The repo ships a `.clang-format` (LLVM base, Allman braces, 4-space indent) and 
 first build:
 
 ```bash
-pio run -t compiledb
+yarn compiledb       # or: python3 scripts/gen_compiledb.py
 ```
 
-The resulting `compile_commands.json` is gitignored; regenerate after changing
-`platformio.ini` or pulling new lib deps.
+This wraps `pio run -t compiledb` for the firmware (`nodemcuv2`) and harvests
+the verbose `pio test -e native` output for host test sources, then merges both
+into a single `compile_commands.json` at the repo root so clangd resolves
+includes for `src/` and `test/` alike. The file is gitignored; regenerate after
+changing `platformio.ini`, adding sources, or pulling new lib deps.
 
 After first boot, the device starts an `AutoConnectAP` WiFi access point. Connect, configure your home WiFi, then access the rover at the IP printed to serial.
 

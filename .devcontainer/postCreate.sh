@@ -1,37 +1,35 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# System tooling for C++ static analysis + formatting (clangd ships via the
-# VSCode extension binary, but we install the CLI counterparts so they're
-# available in CI-equivalent commands and pre-commit hooks).
+# System tooling that we cannot pull from PyPI / npm: cppcheck (C/C++ static
+# analysis) and udev (USB rules for board flashing). clang-format / clang-tidy
+# come from the pinned uv environment.
 sudo apt-get update
 sudo apt-get install -y --no-install-recommends \
-    clang-format \
-    clang-tidy \
     cppcheck \
     udev
 
-pip install --user -r requirements.txt
+# Install uv if not already provided by the base image.
+if ! command -v uv >/dev/null 2>&1; then
+    echo "[devcontainer] installing uv..."
+    pip install --user uv
+fi
 
 corepack enable
 corepack prepare yarn@4.14.1 --activate
 
-echo "[devcontainer] installing root dev deps (husky, lint-staged)..."
-yarn install
-
-echo "[devcontainer] installing frontend deps..."
-(cd frontend && yarn install)
-
-echo "[devcontainer] generating compile_commands.json (clangd index)..."
-pio run -t compiledb || echo "[devcontainer] WARN: compiledb generation failed; run 'pio run -t compiledb' manually after first build"
+echo "[devcontainer] running unified setup (uv sync + yarn install + compiledb)..."
+yarn setup || echo "[devcontainer] WARN: 'yarn setup' failed (re-run 'yarn compiledb' manually after first build)"
 
 cat <<'EOF'
 
-devcontainer ready. Useful commands:
-  pio run                       # build firmware
-  pio run -t buildfs            # build LittleFS image (auto-rebuilds frontend)
-  pio test -e native            # run host unit tests
-  pio check                     # run cppcheck
-  yarn --cwd frontend test      # run vitest
+devcontainer ready. Useful commands (all from repo root):
+  yarn build:firmware           # build firmware
+  yarn build:fs                 # build LittleFS image (auto-rebuilds frontend)
+  yarn test:native              # run host unit tests
+  yarn lint:cpp                 # cppcheck
+  yarn test:frontend            # run vitest
+  yarn check                    # format:check + lint + typecheck + test
+  yarn ci                       # full CI parity (check + build)
 
 EOF

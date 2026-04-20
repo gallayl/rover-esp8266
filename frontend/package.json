@@ -39,6 +39,5 @@
     "@furystack/shades-common-components": "^15.2.0",
     "@furystack/shades-nipple": "^10.0.2",
     "@furystack/utils": "^8.2.5"
-  },
-  "packageManager": "yarn@4.14.1"
+  }
 }

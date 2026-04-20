@@ -20,7 +20,14 @@ yarn-error.log
 
 # clangd / compile commands
 compile_commands.json
+compile_commands.*.json
 .cache/
+
+# test coverage
+coverage/
 
 # Vite output (built from frontend/, packaged into LittleFS)
 data/
+
+# uv
+.venv/

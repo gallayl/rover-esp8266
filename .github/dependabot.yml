@@ -10,26 +10,21 @@ updates:
         update-types: [minor, patch]
 
   - package-ecosystem: npm
-    directory: "/frontend"
+    directory: "/"
     schedule:
       interval: weekly
     groups:
-      frontend-minor:
+      js-minor:
         patterns: ["*"]
         update-types: [minor, patch]
-      frontend-major:
+      js-major:
         patterns: ["*"]
         update-types: [major]
 
-  - package-ecosystem: npm
+  - package-ecosystem: uv
     directory: "/"
     schedule:
       interval: weekly
     groups:
-      root-tooling:
+      python-tooling:
         patterns: ["*"]
-
-  - package-ecosystem: pip
-    directory: "/"
-    schedule:
-      interval: weekly
