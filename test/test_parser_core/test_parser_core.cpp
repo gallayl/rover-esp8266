@@ -1,5 +1,7 @@
 #include <unity.h>
 
+#include <string>
+
 #include "../../src/CommandInterpreter/CommandParserCore.h"
 
 using rover::command_parser::kMaxCommandLength;

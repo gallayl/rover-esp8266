@@ -78,8 +78,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install clang-format
-        run: sudo apt-get update && sudo apt-get install -y clang-format-18
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
 
       - name: Check formatting
         run: |
@@ -87,7 +88,7 @@ jobs:
           if [ ${#FILES[@]} -eq 0 ]; then
             echo "No files to check"; exit 0
           fi
-          clang-format-18 --dry-run --Werror "${FILES[@]}"
+          uvx --from 'clang-format==18.1.8' clang-format --dry-run --Werror "${FILES[@]}"
 
   cppcheck:
     name: cppcheck

@@ -9,9 +9,11 @@ const prettier = frontendBin('prettier')
 
 const quote = (paths) => paths.map((p) => JSON.stringify(p)).join(' ')
 
+const clangFormat = `uvx --from 'clang-format==18.1.8' clang-format -i`
+
 export default {
-  'src/**/*.{c,cc,cpp,h,hpp}': (paths) => `clang-format -i ${quote(paths)}`,
-  'test/**/*.{c,cc,cpp,h,hpp}': (paths) => `clang-format -i ${quote(paths)}`,
+  'src/**/*.{c,cc,cpp,h,hpp}': (paths) => `${clangFormat} ${quote(paths)}`,
+  'test/**/*.{c,cc,cpp,h,hpp}': (paths) => `${clangFormat} ${quote(paths)}`,
   'frontend/**/*.{ts,tsx,js,jsx,mjs,cjs}': (paths) => [
     `${eslint} --fix ${quote(paths)}`,
     `${prettier} --write ${quote(paths)}`,
