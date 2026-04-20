@@ -30,6 +30,19 @@ FIRMWARE_ENV = "nodemcuv2"
 TEST_ENV = "native"
 OUTPUT = REPO_ROOT / "compile_commands.json"
 
+# Xtensa / ESP8266 GCC driver flags that the host LLVM/clang driver used by
+# clang-tidy does not understand. Stripping them keeps the rest of the
+# compile command intact so clang can still parse the TU and surface real
+# lint findings instead of bailing with clang-diagnostic-error.
+XTENSA_UNKNOWN_FLAGS: frozenset[str] = frozenset(
+    {
+        "-free",
+        "-fipa-pta",
+        "-mlongcalls",
+        "-mtext-section-literals",
+    }
+)
+
 
 def run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess[str]:
     print(f"[gen_compiledb] $ {' '.join(shlex.quote(c) for c in cmd)}", flush=True)
@@ -54,7 +67,25 @@ def firmware_entries() -> list[dict]:
         return []
     data = json.loads(OUTPUT.read_text())
     OUTPUT.unlink()
-    return data
+    return [_strip_unknown_flags(entry) for entry in data]
+
+
+def _strip_unknown_flags(entry: dict) -> dict:
+    """Remove Xtensa GCC driver flags clang refuses to accept.
+
+    PlatformIO emits entries with either a ``command`` string or an
+    ``arguments`` list; handle both so downstream clang-tidy can still
+    parse the translation unit.
+    """
+    if "arguments" in entry and isinstance(entry["arguments"], list):
+        entry["arguments"] = [
+            arg for arg in entry["arguments"] if arg not in XTENSA_UNKNOWN_FLAGS
+        ]
+    if "command" in entry and isinstance(entry["command"], str):
+        tokens = shlex.split(entry["command"])
+        filtered = [tok for tok in tokens if tok not in XTENSA_UNKNOWN_FLAGS]
+        entry["command"] = " ".join(shlex.quote(tok) for tok in filtered)
+    return entry
 
 
 # Matches verbose pio test compile lines, e.g.:
