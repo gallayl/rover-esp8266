@@ -9,7 +9,7 @@
 #include "./CustomCommands/unknown.h"
 #include "./CustomCommands/wifi.h"
 
-#define COMMANDS_SIZE 16
+constexpr size_t COMMANDS_SIZE = 16;
 
 class CommandInterpreter
 {

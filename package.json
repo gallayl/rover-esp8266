@@ -22,7 +22,7 @@
     "format": "yarn format:cpp && yarn format:frontend",
     "format:check": "yarn format:cpp:check && yarn format:frontend:check",
     "lint:cpp": "uv run pio check --fail-on-defect=high --skip-packages",
-    "lint:cpp:tidy": "yarn compiledb && uv run clang-tidy -p . $(git ls-files 'src/**/*.c' 'src/**/*.cc' 'src/**/*.cpp')",
+    "lint:cpp:tidy": "yarn compiledb && uv run python scripts/run_clang_tidy.py -p . $(git ls-files 'src/**/*.c' 'src/**/*.cc' 'src/**/*.cpp')",
     "lint:frontend": "yarn workspace flea-frontend lint",
     "lint": "yarn lint:cpp && yarn lint:frontend",
     "typecheck": "yarn workspace flea-frontend typecheck",

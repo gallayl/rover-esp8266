@@ -3,7 +3,7 @@
 #include <ESP8266WiFi.h>
 #include <AsyncWebSocket.h>
 
-#define INFO_BUFFER_SIZE 448
+constexpr size_t INFO_BUFFER_SIZE = 448;
 
 #ifndef BUILD_VERSION
 #define BUILD_VERSION "unknown"
@@ -15,9 +15,9 @@
 
 CustomCommand* infoAction = new CustomCommand(
     "info",
-    [](const String& command)
+    [](const String& /*command*/)
     {
-        int32_t rssi = WiFi.RSSI();
+        int8_t rssi = WiFi.RSSI();
         const char* signalQuality;
         if (rssi > -30)
             signalQuality = "Amazing";
@@ -51,9 +51,10 @@ CustomCommand* infoAction = new CustomCommand(
                  "\"IP address\": \"%s\","
                  "\"MAC Address\": \"%s\","
                  "\"Wifi Signal\": \"%s (%d db)\"}",
-                 BUILD_VERSION, BUILD_DATE, ESP.getSdkVersion(), ESP.getCpuFreqMHz(), ESP.getFreeHeap(),
-                 ESP.getFreeSketchSpace(), ESP.getFlashChipMode(), ESP.getFlashChipSize(), ESP.getFlashChipSpeed(),
-                 WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(), signalQuality, rssi);
+                 BUILD_VERSION, BUILD_DATE, EspClass::getSdkVersion(), EspClass::getCpuFreqMHz(),
+                 EspClass::getFreeHeap(), EspClass::getFreeSketchSpace(), EspClass::getFlashChipMode(),
+                 EspClass::getFlashChipSize(), EspClass::getFlashChipSpeed(), WiFi.localIP().toString().c_str(),
+                 WiFi.macAddress().c_str(), signalQuality, rssi);
         webSocket->textAll(buf);
         free(buf);
     });

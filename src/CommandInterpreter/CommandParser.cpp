@@ -15,7 +15,7 @@ inline String toString(std::string_view view)
     const size_t n = view.size() < sizeof(buf) - 1 ? view.size() : sizeof(buf) - 1;
     memcpy(buf, view.data(), n);
     buf[n] = '\0';
-    return String(buf);
+    return {buf};
 }
 } // namespace
 
