@@ -13,7 +13,8 @@ Checks: >
   -readability-implicit-bool-conversion,
   -readability-identifier-naming,
   -bugprone-easily-swappable-parameters,
-  -bugprone-narrowing-conversions
+  -bugprone-narrowing-conversions,
+  -modernize-pass-by-value
 
 WarningsAsErrors: '*'
 HeaderFilterRegex: '^(src|test)/'
