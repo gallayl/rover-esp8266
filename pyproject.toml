@@ -1,0 +1,13 @@
+[project]
+name = "rover-esp8266-tooling"
+version = "0.0.0"
+description = "Pinned Python tooling for the rover-esp8266 firmware (PlatformIO + clang tooling)."
+requires-python = ">=3.12"
+dependencies = [
+    "platformio>=6.1,<7",
+    "clang-format==18.1.8",
+    "clang-tidy==18.1.8",
+]
+
+[tool.uv]
+package = false

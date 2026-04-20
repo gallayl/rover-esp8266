@@ -3,7 +3,7 @@
 #include <Arduino.h>
 
 #define COMMAND_DELIMITER " "
-#define MAX_COMMAND_LEN 128
+constexpr size_t MAX_COMMAND_LEN = 128;
 
 class CommandParser
 {

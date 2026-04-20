@@ -4,23 +4,24 @@
 #include <ESP8266WiFi.h>
 #include <AsyncWebSocket.h>
 #include <SimpleTimer.h>
-#include <limits.h>
+#include <climits>
 
-#define WIFI_CONNECTION_CHECK_INTERVAL 1000
+constexpr uint32_t WIFI_CONNECTION_CHECK_INTERVAL = 1000;
 
 // Sentinel guarantees the first sample triggers a send, regardless of value.
-int32_t lastSentRssi = INT32_MIN;
+// INT8_MIN (-128 dBm) is well outside any realistic RSSI reading.
+int8_t lastSentRssi = INT8_MIN;
 
-String getWifiMessage(int32_t rssi)
+String getWifiMessage(int8_t rssi)
 {
     char buf[64];
-    snprintf(buf, sizeof(buf), "{\"type\": %d, \"rssi\": %d}", WebSocketMessageTypes::WifiSignalChange, rssi);
-    return String(buf);
+    snprintf(buf, sizeof(buf), R"({"type": %d, "rssi": %d})", WebSocketMessageTypes::WifiSignalChange, rssi);
+    return {buf};
 }
 
 void wifiEvents()
 {
-    int32_t rssi = WiFi.RSSI();
+    int8_t rssi = WiFi.RSSI();
     if (rssi != lastSentRssi)
     {
         lastSentRssi = rssi;

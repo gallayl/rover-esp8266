@@ -2,11 +2,35 @@
   "name": "rover-esp8266",
   "version": "0.0.0",
   "private": true,
-  "description": "Repo-level tooling: pre-commit hooks shared across firmware (cpp) and frontend (ts).",
+  "description": "Repo-level tooling: unified scripts for firmware (cpp / PlatformIO via uv) and frontend (ts / yarn workspaces).",
+  "workspaces": [
+    "frontend"
+  ],
   "scripts": {
     "prepare": "husky",
-    "format:cpp": "find src test -type f \\( -name '*.cpp' -o -name '*.c' -o -name '*.h' -o -name '*.hpp' \\) -print0 | xargs -0 clang-format -i",
-    "format:cpp:check": "find src test -type f \\( -name '*.cpp' -o -name '*.c' -o -name '*.h' -o -name '*.hpp' \\) -print0 | xargs -0 clang-format --dry-run --Werror"
+    "setup": "uv sync && yarn install --immutable && yarn compiledb",
+    "compiledb": "uv run python scripts/gen_compiledb.py",
+    "build:firmware": "uv run pio run",
+    "build:fs": "uv run pio run -t buildfs",
+    "build:frontend": "yarn workspace flea-frontend build",
+    "build": "yarn build:firmware && yarn build:fs",
+    "start": "yarn workspace flea-frontend start",
+    "format:cpp": "uv run clang-format -i $(git ls-files 'src/**/*.c' 'src/**/*.cc' 'src/**/*.cpp' 'src/**/*.h' 'src/**/*.hpp' 'test/**/*.c' 'test/**/*.cc' 'test/**/*.cpp' 'test/**/*.h' 'test/**/*.hpp')",
+    "format:cpp:check": "uv run clang-format --dry-run --Werror $(git ls-files 'src/**/*.c' 'src/**/*.cc' 'src/**/*.cpp' 'src/**/*.h' 'src/**/*.hpp' 'test/**/*.c' 'test/**/*.cc' 'test/**/*.cpp' 'test/**/*.h' 'test/**/*.hpp')",
+    "format:frontend": "yarn workspace flea-frontend format",
+    "format:frontend:check": "yarn workspace flea-frontend format:check",
+    "format": "yarn format:cpp && yarn format:frontend",
+    "format:check": "yarn format:cpp:check && yarn format:frontend:check",
+    "lint:cpp": "uv run pio check --fail-on-defect=high --skip-packages",
+    "lint:cpp:tidy": "yarn compiledb && uv run python scripts/run_clang_tidy.py -p . $(git ls-files 'src/**/*.c' 'src/**/*.cc' 'src/**/*.cpp')",
+    "lint:frontend": "yarn workspace flea-frontend lint",
+    "lint": "yarn lint:cpp && yarn lint:frontend",
+    "typecheck": "yarn workspace flea-frontend typecheck",
+    "test:native": "uv run pio test -e native",
+    "test:frontend": "yarn workspace flea-frontend test",
+    "test": "yarn test:native && yarn test:frontend",
+    "check": "yarn format:check && yarn lint && yarn typecheck && yarn test",
+    "ci": "yarn check && yarn build"
   },
   "devDependencies": {
     "husky": "^9.1.7",

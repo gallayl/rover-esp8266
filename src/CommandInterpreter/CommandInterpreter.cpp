@@ -55,7 +55,7 @@ CommandInterpreter* CommandInterpreter::GetInstance()
 {
     if (instance == nullptr)
     {
-        CommandInterpreter* ci = new CommandInterpreter(unknownCommand);
+        auto* ci = new CommandInterpreter(unknownCommand);
         ci->RegisterCommand(restart);
         ci->RegisterCommand(distanceAction);
         ci->RegisterCommand(infoAction);

@@ -27,33 +27,13 @@ jobs:
         with:
           fetch-depth: 0 # tags + history needed for `git describe` in inject_version.py
 
-      - uses: astral-sh/setup-uv@v7
-        with:
-          enable-cache: true
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: yarn
-          cache-dependency-path: frontend/yarn.lock
-
-      - uses: actions/cache@v5
-        with:
-          path: ~/.platformio
-          key: platformio-${{ hashFiles('platformio.ini') }}
-          restore-keys: platformio-
-
-      - run: uv tool install 'platformio>=6.1,<7'
+      - uses: ./.github/actions/setup
 
       - name: Build firmware
-        run: pio run
-
-      - name: Install frontend deps
-        working-directory: frontend
-        run: yarn install --immutable
+        run: yarn build:firmware
 
       - name: Build LittleFS image (frontend bundled in)
-        run: pio run -t buildfs
+        run: yarn build:fs
 
       - name: Stage artifacts
         run: |

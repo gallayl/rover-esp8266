@@ -57,5 +57,5 @@ CustomCommand* unknownCommand =
                       [](const String& command)
                       {
                           String name = jsonEscape(CommandParser::GetCommandName(command));
-                          webSocket->textAll("{\"message\": \"Unknown command: " + name + ".\"}");
+                          webSocket->textAll(R"({"message": "Unknown command: )" + name + ".\"}");
                       });

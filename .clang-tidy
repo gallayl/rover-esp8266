@@ -1,6 +1,4 @@
 ---
-# Initial set kept warning-only in CI (continue-on-error); promote to errors once
-# the existing codebase is clean.
 Checks: >
   bugprone-*,
   modernize-*,
@@ -15,13 +13,18 @@ Checks: >
   -readability-implicit-bool-conversion,
   -readability-identifier-naming,
   -bugprone-easily-swappable-parameters,
-  -bugprone-narrowing-conversions
+  -bugprone-narrowing-conversions,
+  -modernize-pass-by-value
 
-WarningsAsErrors: ''
+WarningsAsErrors: '*'
 HeaderFilterRegex: '^(src|test)/'
 FormatStyle: file
 ExtraArgs:
   - -std=gnu++17
+  # xtensa-lx106-elf-g++ defines this implicitly; host clang doesn't.
+  # Without it, `sys/config.h` skips including `xtensa/config/core-isa.h`
+  # so XCHAL_* symbols used by the ESP8266 framework headers are missing.
+  - -D__XTENSA__=1
 
 CheckOptions:
   - key: readability-function-cognitive-complexity.Threshold

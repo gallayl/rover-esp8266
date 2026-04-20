@@ -1,9 +1,11 @@
 #pragma once
 
+#include <cstdint>
+
 /**
  * Keep in sync with client
  */
-enum WebSocketMessageTypes
+enum WebSocketMessageTypes : uint8_t
 {
     Unknown = 0,
     MotorTicksChange = 1,

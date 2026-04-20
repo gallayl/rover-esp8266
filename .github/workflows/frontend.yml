@@ -5,11 +5,17 @@ on:
     branches: [master]
     paths:
       - "frontend/**"
+      - "package.json"
+      - "yarn.lock"
+      - ".github/actions/setup/**"
       - ".github/workflows/frontend.yml"
   pull_request:
     branches: [master]
     paths:
       - "frontend/**"
+      - "package.json"
+      - "yarn.lock"
+      - ".github/actions/setup/**"
       - ".github/workflows/frontend.yml"
   workflow_dispatch:
 
@@ -21,26 +27,13 @@ jobs:
   build-and-lint:
     name: Build & Lint
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v6
+      - uses: ./.github/actions/setup
         with:
-          node-version: 22
-          cache: yarn
-          cache-dependency-path: frontend/yarn.lock
-
-      - run: yarn install --immutable
-
-      - run: yarn format:check
-
-      - run: yarn lint
-
+          uv-sync: "false"
+      - run: yarn format:frontend:check
+      - run: yarn lint:frontend
       - run: yarn typecheck
-
-      - run: yarn test
-
-      - run: yarn build
+      - run: yarn test:frontend
+      - run: yarn build:frontend

@@ -22,7 +22,7 @@ ArRequestHandlerFunction onPostUpdate = [](AsyncWebServerRequest* request)
 };
 
 ArUploadHandlerFunction onUploadUpdate =
-    [](AsyncWebServerRequest* request, String filename, size_t index, uint8_t* data, size_t len, bool final)
+    [](AsyncWebServerRequest* request, const String& filename, size_t index, uint8_t* data, size_t len, bool final)
 {
     if (!index)
     {
@@ -44,7 +44,7 @@ ArUploadHandlerFunction onUploadUpdate =
     {
         if (Update.end(true))
         {
-            Serial.printf("\nFirmware Update Success: %uB\n", index + len);
+            Serial.printf("\nFirmware Update Success: %zuB\n", index + len);
         }
         else
         {

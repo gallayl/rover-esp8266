@@ -30,16 +30,16 @@ def _build_frontend(_source, _target, _env):  # noqa: ANN001 — SCons callback 
         sys.stderr.write(
             "[build_frontend] ERROR: `yarn` not found on PATH. "
             "Install Node 22+ and Yarn 4 (corepack enable && corepack prepare yarn@4 --activate) "
-            "or build the frontend manually with `cd frontend && yarn install && yarn build`.\n"
+            "then run `yarn setup` (or `yarn build:fs`) from the repo root.\n"
         )
         env.Exit(1)  # type: ignore[name-defined]  # noqa: F821
 
-    if not (FRONTEND_DIR / "node_modules").exists():
-        print("[build_frontend] node_modules missing, running `yarn install --immutable`")
-        subprocess.check_call([yarn, "install", "--immutable"], cwd=FRONTEND_DIR)
+    if not (PROJECT_DIR / "node_modules").exists():
+        print("[build_frontend] root node_modules missing, running `yarn install --immutable`")
+        subprocess.check_call([yarn, "install", "--immutable"], cwd=PROJECT_DIR)
 
     print(f"[build_frontend] building Vite bundle into {DATA_DIR}")
-    subprocess.check_call([yarn, "build"], cwd=FRONTEND_DIR)
+    subprocess.check_call([yarn, "workspace", "flea-frontend", "build"], cwd=PROJECT_DIR)
 
     if not DATA_DIR.is_dir() or not any(DATA_DIR.iterdir()):
         sys.stderr.write(

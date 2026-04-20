@@ -1,0 +1,39 @@
+name: Setup rover toolchain
+description: Install uv (with synced Python deps), Node + Yarn 4, restore PlatformIO cache and install JS deps.
+
+inputs:
+  install-js:
+    description: Run `yarn install --immutable` after node setup.
+    required: false
+    default: "true"
+  uv-sync:
+    description: Run `uv sync` to materialize the pinned Python toolchain.
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+
+    - uses: actions/setup-node@v6
+      with:
+        node-version: 22
+        cache: yarn
+        cache-dependency-path: yarn.lock
+
+    - uses: actions/cache@v5
+      with:
+        path: ~/.platformio
+        key: platformio-${{ hashFiles('platformio.ini', 'pyproject.toml', 'uv.lock') }}
+        restore-keys: platformio-
+
+    - if: inputs.uv-sync == 'true'
+      shell: bash
+      run: uv sync --frozen
+
+    - if: inputs.install-js == 'true'
+      shell: bash
+      run: yarn install --immutable

@@ -5,9 +5,9 @@
 #include "../CommandParser.h"
 #include <AsyncWebSocket.h>
 #include <SimpleTimer.h>
-#include <math.h>
+#include <cmath>
 
-#define MOTOR_TICKCHANGE_NOTIFY_INTERVAL 100
+constexpr uint32_t MOTOR_TICKCHANGE_NOTIFY_INTERVAL = 100;
 
 Motor* leftMotor = nullptr;
 Motor* rightMotor = nullptr;
@@ -18,9 +18,9 @@ int16_t lastSentRight = 0;
 String getMotorTickChangeMessage(uint16_t index, int16_t ticks)
 {
     char buf[64];
-    snprintf(buf, sizeof(buf), "{\"type\": %d, \"i\":%u,\"t\": %d}", WebSocketMessageTypes::MotorTicksChange, index,
+    snprintf(buf, sizeof(buf), R"({"type": %d, "i":%u,"t": %d})", WebSocketMessageTypes::MotorTicksChange, index,
              ticks);
-    return String(buf);
+    return {buf};
 }
 
 void notifyMotorSpeedChange()
@@ -29,8 +29,8 @@ void notifyMotorSpeedChange()
     {
         return;
     }
-    int16_t newLeft = (int16_t)lroundf(leftMotor->getSignedTicksPerSec());
-    int16_t newRight = (int16_t)lroundf(rightMotor->getSignedTicksPerSec());
+    auto newLeft = (int16_t)lroundf(leftMotor->getSignedTicksPerSec());
+    auto newRight = (int16_t)lroundf(rightMotor->getSignedTicksPerSec());
 
     if (lastSentLeft != newLeft)
     {
@@ -120,7 +120,7 @@ CustomCommand* configurePid =
                       });
 
 CustomCommand* stop = new CustomCommand("stop",
-                                        [](const String& command)
+                                        [](const String& /*command*/)
                                         {
                                             leftMotor->SetThrottle(0);
                                             rightMotor->SetThrottle(0);
