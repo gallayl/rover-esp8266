@@ -230,6 +230,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@furystack/rest@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "@furystack/rest@npm:9.0.0"
+  dependencies:
+    "@furystack/core": "npm:^16.0.4"
+    "@furystack/inject": "npm:^12.0.36"
+  checksum: 10c0/cb18ee4fc2d6d3c027b7858f8a9132f8a5a257550b454b280dcf718e9cc6371e3513bb6ef7d596eceee298d5318124bcf6251d25045f87024e55659479cd7ca7
+  languageName: node
+  linkType: hard
+
 "@furystack/shades-common-components@npm:^15.2.0":
   version: 15.2.0
   resolution: "@furystack/shades-common-components@npm:15.2.0"
@@ -263,6 +273,18 @@ __metadata:
     "@furystack/utils": "npm:^8.2.5"
     path-to-regexp: "npm:^8.4.2"
   checksum: 10c0/6d14c4baeb6e55ba9077cab112f2457ba9cfead276c2132febc839d7c2d27e13cb413e0ec949f04fdbed3ee024cae9efc408ff4bf1dd9da7d70ecb96c0e8b320
+  languageName: node
+  linkType: hard
+
+"@furystack/shades@npm:^14.0.0":
+  version: 14.0.0
+  resolution: "@furystack/shades@npm:14.0.0"
+  dependencies:
+    "@furystack/inject": "npm:^12.0.36"
+    "@furystack/rest": "npm:^9.0.0"
+    "@furystack/utils": "npm:^8.2.5"
+    path-to-regexp: "npm:^8.4.2"
+  checksum: 10c0/1ddd423391428e0f4b6e0389515ba2a1410708ea9f60509e16f0bc6c2b130f778582168e2fad3fde37ccd76ca0c102773a00c6276d59f31adf00876288c3f07f
   languageName: node
   linkType: hard
 
@@ -1336,7 +1358,7 @@ __metadata:
     "@furystack/eslint-plugin": "npm:^2.1.5"
     "@furystack/inject": "npm:^12.0.36"
     "@furystack/logging": "npm:^8.1.5"
-    "@furystack/shades": "npm:^13.2.2"
+    "@furystack/shades": "npm:^14.0.0"
     "@furystack/shades-common-components": "npm:^15.2.0"
     "@furystack/shades-nipple": "npm:^10.0.2"
     "@furystack/utils": "npm:^8.2.5"
