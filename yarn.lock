@@ -230,6 +230,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@furystack/rest@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "@furystack/rest@npm:9.0.0"
+  dependencies:
+    "@furystack/core": "npm:^16.0.4"
+    "@furystack/inject": "npm:^12.0.36"
+  checksum: 10c0/cb18ee4fc2d6d3c027b7858f8a9132f8a5a257550b454b280dcf718e9cc6371e3513bb6ef7d596eceee298d5318124bcf6251d25045f87024e55659479cd7ca7
+  languageName: node
+  linkType: hard
+
 "@furystack/shades-common-components@npm:^15.2.0":
   version: 15.2.0
   resolution: "@furystack/shades-common-components@npm:15.2.0"
@@ -244,13 +254,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@furystack/shades-nipple@npm:^10.0.2":
-  version: 10.0.2
-  resolution: "@furystack/shades-nipple@npm:10.0.2"
+"@furystack/shades-nipple@npm:^11.0.0":
+  version: 11.0.0
+  resolution: "@furystack/shades-nipple@npm:11.0.0"
   dependencies:
-    "@furystack/shades": "npm:^13.2.2"
+    "@furystack/shades": "npm:^14.0.0"
     nipplejs: "npm:^1.0.1"
-  checksum: 10c0/12906173f6a5da15bdebb2de0830cad5f11a4d0194096c005a783aff09f8bdee578ed6ab1bcaf0d0ba3ca98155184145b99641cf2771db84dffb48664894df43
+  checksum: 10c0/e60d87eea9f5b292facd1bf4cc1b1d5da7d0f4a18f65e9bd855d4c7cea4c97d5297fd15fe3bb7dbbb9afc9cd8d62068d7697ed9cd84ec7d245a11267d8623916
   languageName: node
   linkType: hard
 
@@ -263,6 +273,18 @@ __metadata:
     "@furystack/utils": "npm:^8.2.5"
     path-to-regexp: "npm:^8.4.2"
   checksum: 10c0/6d14c4baeb6e55ba9077cab112f2457ba9cfead276c2132febc839d7c2d27e13cb413e0ec949f04fdbed3ee024cae9efc408ff4bf1dd9da7d70ecb96c0e8b320
+  languageName: node
+  linkType: hard
+
+"@furystack/shades@npm:^14.0.0":
+  version: 14.0.0
+  resolution: "@furystack/shades@npm:14.0.0"
+  dependencies:
+    "@furystack/inject": "npm:^12.0.36"
+    "@furystack/rest": "npm:^9.0.0"
+    "@furystack/utils": "npm:^8.2.5"
+    path-to-regexp: "npm:^8.4.2"
+  checksum: 10c0/1ddd423391428e0f4b6e0389515ba2a1410708ea9f60509e16f0bc6c2b130f778582168e2fad3fde37ccd76ca0c102773a00c6276d59f31adf00876288c3f07f
   languageName: node
   linkType: hard
 
@@ -1338,7 +1360,7 @@ __metadata:
     "@furystack/logging": "npm:^8.1.5"
     "@furystack/shades": "npm:^13.2.2"
     "@furystack/shades-common-components": "npm:^15.2.0"
-    "@furystack/shades-nipple": "npm:^10.0.2"
+    "@furystack/shades-nipple": "npm:^11.0.0"
     "@furystack/utils": "npm:^8.2.5"
     "@vitest/coverage-v8": "npm:^4.1.4"
     eslint: "npm:^10.2.1"
