@@ -35,7 +35,7 @@
     "@furystack/cache": "^6.1.5",
     "@furystack/inject": "^12.0.36",
     "@furystack/logging": "^8.1.5",
-    "@furystack/shades": "^13.2.2",
+    "@furystack/shades": "^14.0.0",
     "@furystack/shades-common-components": "^15.2.0",
     "@furystack/shades-nipple": "^10.0.2",
     "@furystack/utils": "^8.2.5"
